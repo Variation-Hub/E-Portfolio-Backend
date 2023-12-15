@@ -4,7 +4,7 @@ import { AppDataSource } from "../data-source";
 import { bcryptpassword, comparepassword } from "../util/bcrypt";
 import { generateToken } from "../util/JwtAuth";
 import { Learner } from "../entity/Learner.entity";
-import { Equal, ILike, Like } from "typeorm";
+import { Equal, Like } from "typeorm";
 import { UserRole } from "../util/enum/user_enum";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { CustomRequest } from "../util/Interface/expressInterface";
@@ -319,38 +319,6 @@ class UserController {
             })
         }
     }
-
-    public async UploadImageInAWS(req: any, res: Response) {
-        try {
-            // const url1 = await putObjectURL(req.query.key, "image/png")
-            console.log(req.file)
-            const data = await uploadToS3(req.file, "upload")
-            return res.status(200).json({
-                message: "resquest successfull",
-                status: false,
-                data: data
-            })
-        } catch (error) {
-            return res.status(500).json({
-                message: "Internal Server Error",
-                status: false
-            })
-        }
-    }
-
-    public async UploadImageMulter(req: any, res: Response) {
-        try {
-            console.log("123", req.files)
-            res.send('Successfully uploaded ' + req.files + ' files!')
-        } catch (error) {
-            console.log(error, "eroor")
-            return res.status(500).json({
-                message: "Internal Server Error",
-                status: false
-            })
-        }
-    }
-
 }
 
 export default UserController;

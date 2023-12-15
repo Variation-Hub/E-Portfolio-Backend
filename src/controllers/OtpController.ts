@@ -57,7 +57,7 @@ class OtpController {
             const { email, otp } = req.body
             if (!email || !otp) {
                 return res.status(512).json({
-                    message: "email and otp Field Required",
+                    message: "email and otp field required",
                     status: false
                 })
             }
@@ -66,7 +66,7 @@ class OtpController {
 
             if (!storeOtp) {
                 return res.status(404).json({
-                    message: "not found OTP",
+                    message: "OTP not found",
                     statotpus: false
                 })
             }
