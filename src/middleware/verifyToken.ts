@@ -1,13 +1,12 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from "express";
 import { UserRole } from '../util/enum/user_enum';
+import { CustomRequest } from '../util/Interface/expressInterface';
 
 const secret: string = process.env.SECRET_KEY
 
-interface CustomRequest extends Request {
-    role?: string;
-  }
-export const verifyTokenMiddleware = (req: Request, res: Response, next: NextFunction) => {
+
+export const verifyTokenMiddleware = (req: CustomRequest, res: Response, next: NextFunction) => {
     const BearerToken: string | undefined = req.header('authorization');
 
     if (BearerToken) {
@@ -21,7 +20,7 @@ export const verifyTokenMiddleware = (req: Request, res: Response, next: NextFun
         });
 
         if (!tokenResult) {
-            return res.status(552).json({
+            return res.status(401).json({
                 message: "Invalide token",
                 status: false
             });
@@ -31,23 +30,17 @@ export const verifyTokenMiddleware = (req: Request, res: Response, next: NextFun
         const { exp } = tokenResult;
 
         if (currentUnixTime > exp) {
-            return res.status(552).json({
+            return res.status(401).json({
                 message: "Token expired",
                 status: false
             });
         }
 
-        if (tokenResult.role !== UserRole.Admin) {
-            return res.status(552).json({
-                message: "Admin Token required",
-                status: false
-            });
-        }
-
+        req.token = tokenResult
     }
 
     else {
-        return res.status(552).json({
+        return res.status(401).json({
             message: "Unauthorized",
             status: false
         });
@@ -70,7 +63,7 @@ export const verifyAdminTokenMiddleware = (req: Request, res: Response, next: Ne
         });
         
         if (!tokenResult || tokenResult.role !==  UserRole.Admin) {
-            return res.status(552).json({
+            return res.status(401).json({
                 message: "Invalide token",
                 status: false
             });
@@ -80,7 +73,7 @@ export const verifyAdminTokenMiddleware = (req: Request, res: Response, next: Ne
         const { exp } = tokenResult;
 
         if (currentUnixTime > exp) {
-            return res.status(552).json({
+            return res.status(401).json({
                 message: "Token expired",
                 status: false
             });
@@ -89,7 +82,7 @@ export const verifyAdminTokenMiddleware = (req: Request, res: Response, next: Ne
     }
 
     else {
-        return res.status(552).json({
+        return res.status(401).json({
             message: "Unauthorized",
             status: false
         });
@@ -112,7 +105,7 @@ export const checkRoleTokenMiddleware = (req: CustomRequest, res: Response, next
         });
         
         if (!tokenResult ) {
-            return res.status(552).json({
+            return res.status(401).json({
                 message: "Invalide token",
                 status: false
             });
@@ -122,17 +115,17 @@ export const checkRoleTokenMiddleware = (req: CustomRequest, res: Response, next
         const { exp } = tokenResult;
 
         if (currentUnixTime > exp) {
-            return res.status(552).json({
+            return res.status(401).json({
                 message: "Token expired",
                 status: false
             });
         }
 
-        req.role = tokenResult.role
+        req.tokenrole = tokenResult.role
     }
 
     else {
-        return res.status(552).json({
+        return res.status(401).json({
             message: "Unauthorized",
             status: false
         });

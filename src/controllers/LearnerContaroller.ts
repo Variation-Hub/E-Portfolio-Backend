@@ -13,7 +13,7 @@ class LearnerController {
         try {
             const { first_name, last_name, email, mobile, date_of_birth } = req.body
             if (!first_name || !last_name || !email || !mobile || !date_of_birth) {
-                return res.status(512).json({
+                return res.status(400).json({
                     message: "All Field Required",
                     status: false
                 })
@@ -38,7 +38,7 @@ class LearnerController {
             }
 
             return res.status(200).json({
-                message: "resquest successfull",
+                message: "request successfull",
                 status: true,
                 data: savelearner
             })

@@ -13,19 +13,22 @@ class UserController {
 
     public async CreateUser(req: CustomRequest, res: Response) {
         try {
-            const { user_name, email, password, ssoid, role } = req.body
-            if (!user_name || !email || !password || !ssoid || !role) {
-                return res.status(512).json({
+            const { user_name, first_name, last_name, email, password, confrimpassword, sso_id, role } = req.body
+            if (!user_name || !first_name || !last_name || !email || !password || !sso_id || !role || !confrimpassword) {
+                return res.status(400).json({
                     message: "all Field Required",
                     status: false
                 })
             }
 
-            const userRepository = AppDataSource.getRepository(User)
-
-            if (req.file) {
-                req.body.avatar = await uploadToS3(req.file, "avatar")
+            if (password !== confrimpassword) {
+                return res.status(400).json({
+                    message: "password and confrimpassword not match",
+                    status: false
+                })
             }
+
+            const userRepository = AppDataSource.getRepository(User)
 
             req.body.password = await bcryptpassword(req.body.password)
             const user = await userRepository.create(req.body);
@@ -46,14 +49,14 @@ class UserController {
         }
     }
 
-    public async GetUser(req: Request, res: Response) {
+    public async GetUser(req: CustomRequest, res: Response) {
         try {
             const userRepository = AppDataSource.getRepository(User)
-            const id: number = parseInt(req.params.id);
+            const id: number = parseInt(req.token.user_id);
 
             const user = await userRepository
                 .createQueryBuilder("user")
-                .select(["user.user_name", "user.email", "user.ssoid", "user.avatar", "user.password_changed"])
+                .select(["user.user_name", "user.email", "user.sso_id", "user.avatar", "user.password_changed"])
                 .where("user.user_id = :id", { id })
                 .getOne();
 
@@ -82,14 +85,21 @@ class UserController {
 
     public async UpdateUser(req: any, res: Response) {
         try {
-            const { user_name, ssoid, role } = req.body;
+            const { user_name, first_name, last_name, sso_id, mobile, phone, role, time_zone } = req.body;
             const userId: number = parseInt(req.params.id);
 
-            if (!user_name && !ssoid && !(req.role === UserRole.Admin && role) && !req.file) {
-                return res.status(512).json({
+            if (!user_name && !first_name && !last_name && !sso_id && !mobile && !phone && !role && !time_zone) {
+                return res.status(400).json({
                     message: "At least one Field Required ",
                     status: false
                 });
+            }
+            console.log(req.tokenrole !== UserRole.Admin, Boolean(role), req.tokenrole)
+            if (req.tokenrole !== UserRole.Admin && Boolean(role)) {
+                return res.status(401).json({
+                    message: "Admin role is required",
+                    status: false
+                })
             }
 
 
@@ -107,15 +117,9 @@ class UserController {
             }
 
             for (const key in req.body) {
-                if (key === "user_name" || key === "ssoid" || key === "avatar" || (req.role === UserRole.Admin && key === "role")) {
+                if (key === "user_name" || key === "first_name" || key === "last_name" || key === "sso_id" || key === "mobile" || key === "phone" || key === "role" || key === "time_zone") {
                     (user as any)[key] = req.body[key];
                 }
-            }
-            if (req.file) {
-                if (user.avatar) {
-                    deleteFromS3(user.avatar)
-                }
-                user.avatar = await uploadToS3(req.file, "avatar")
             }
 
             const updatedUser = await userRepository.save(user)
@@ -141,7 +145,7 @@ class UserController {
 
             const { email, password } = req.body
             if (!email || !password) {
-                return res.status(512).json({
+                return res.status(400).json({
                     message: "password and email Field Required",
                     status: false
                 })
@@ -161,7 +165,7 @@ class UserController {
             const hashedPassword = await comparepassword(password, user.password)
 
             if (hashedPassword !== true) {
-                return res.status(512).json({
+                return res.status(402).json({
                     message: "Wrong Password",
                     status: true
                 })
@@ -173,7 +177,7 @@ class UserController {
                 user_id: user.user_id,
                 user_name: user.user_name,
                 email: user.email,
-                ssoid: user.ssoid,
+                sso_id: user.sso_id,
                 avatar: user.avatar,
                 password_changed: user.password_changed,
                 accessToken: accessToken
@@ -199,7 +203,7 @@ class UserController {
 
             const { email, password } = req.body
             if (!email || !password) {
-                return res.status(512).json({
+                return res.status(400).json({
                     message: "password and email Field Required",
                     status: false
                 })
@@ -234,12 +238,12 @@ class UserController {
         }
     }
 
-    public async DeleteUser(req: Request, res: Response) {
+    public async DeleteUser(req: CustomRequest, res: Response) {
         try {
             const userRepository = AppDataSource.getRepository(User);
             const learnerRepository = AppDataSource.getRepository(Learner);
 
-            const id: number = parseInt(req.params.id);
+            const id: number = parseInt(req.token.user_id);
 
             const user = await userRepository.findOne({ where: { user_id: id } });
 
@@ -249,12 +253,14 @@ class UserController {
                     status: false
                 });
             }
-            if (user.avatar) {
+            if (user?.avatar) {
                 deleteFromS3(user.avatar)
             }
-            const learners = await learnerRepository.findOneBy({ user_id: Equal(id) });
 
-            await learnerRepository.remove(learners);
+            const learners = await learnerRepository.findOneBy({ user_id: Equal(id) });
+            if (learners) {
+                await learnerRepository.remove(learners);
+            }
 
             await userRepository.remove(user);
 
@@ -310,6 +316,52 @@ class UserController {
                 total: Math.ceil(count / req.pagination.limit)
             })
 
+
+        } catch (error) {
+            return res.status(500).json({
+                message: "Internal Server Error",
+                status: false,
+                error: error.message
+            })
+        }
+    }
+
+    public async UploadAvatar(req: any, res: Response) {
+        try {
+            const userId: number = parseInt(req.token.user_id);
+
+            if (!req.file) {
+                return res.status(400).json({
+                    message: "avatar Field Required ",
+                    status: false
+                });
+            }
+
+            const userRepository = AppDataSource.getRepository(User)
+
+            const user = await userRepository.findOne({
+                where: { user_id: userId },
+            });
+
+            if (!user) {
+                return res.status(404).json({
+                    message: "user not found",
+                    status: false
+                })
+            }
+
+            if (user.avatar) {
+                deleteFromS3(user.avatar)
+            }
+            user.avatar = await uploadToS3(req.file, "avatar")
+
+            const updatedUser = await userRepository.save(user)
+
+            return res.status(200).json({
+                message: "resquest successfull",
+                status: true,
+                data: updatedUser
+            })
 
         } catch (error) {
             return res.status(500).json({

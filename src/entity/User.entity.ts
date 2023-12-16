@@ -12,6 +12,12 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   user_name: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  first_name: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  last_name: string;
+
   @Column({ type: 'varchar', unique: true })
   email: string;
 
@@ -19,7 +25,13 @@ export class User {
   password: string;
 
   @Column({ type: 'varchar', nullable: true })
-  ssoid: string;
+  sso_id: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  mobile: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  phone: string;
 
   @Column({ type: 'enum', enum: ["Learner", "Trainer", "Employer", "IQA", "EQA", "Admin"], default: "Learner" })
   role: string;
@@ -29,6 +41,9 @@ export class User {
 
   @Column({ type: 'boolean', default: false })
   password_changed: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  time_zone: string;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
@@ -40,11 +55,16 @@ export class User {
 export interface IUser {
   user_id: number;
   user_name?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
   email: string;
   password: string;
-  ssoid?: string | null;
+  sso_id?: string | null;
+  mobile?: string | null;
+  phone?: string | null;
   role: "Learner" | "Trainer" | "Employer" | "IQA" | "EQA" | "Admin";
-  avatar?: string | null;
+  avatar?: object | null;
+  password_changed: boolean;
   created_at: Date;
   updated_at: Date;
 }

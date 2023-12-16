@@ -12,7 +12,7 @@ class OtpController {
 
             const { email } = req.body
             if (!email) {
-                return res.status(512).json({
+                return res.status(400).json({
                     message: "email Field Required",
                     status: false
                 })
@@ -21,7 +21,7 @@ class OtpController {
             const sendmail = await sendOtpByEmail(email)
 
             if (!sendmail) {
-                return res.status(500).json({
+                return res.status(532).json({
                     message: "failed to send email",
                     status: false
                 })
@@ -56,7 +56,7 @@ class OtpController {
 
             const { email, otp } = req.body
             if (!email || !otp) {
-                return res.status(512).json({
+                return res.status(400).json({
                     message: "email and otp field required",
                     status: false
                 })
@@ -72,15 +72,15 @@ class OtpController {
             }
 
             if (otp !== storeOtp.otp) {
-                return res.status(511).json({
-                    message: "not valid OTP",
+                return res.status(402).json({
+                    message: "OTP invalid",
                     statotpus: false
                 })
             }
-            console.log(storeOtp, "storeotp")
+
             const expired = isOtpExpired(storeOtp.updated_at)
             if (expired) {
-                return res.status(552).json({
+                return res.status(402).json({
                     message: "OTP expired",
                     statotpus: false
                 })
