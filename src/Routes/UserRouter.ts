@@ -9,11 +9,11 @@ const userRoutes = express.Router();
 
 const Controller = new UserController();
 
-userRoutes.post("/create", verifyTokenMiddleware, trimMiddleware, Controller.CreateUser);
+userRoutes.post("/create", verifyAdminTokenMiddleware, trimMiddleware, Controller.CreateUser);
 userRoutes.get("/get", verifyTokenMiddleware, Controller.GetUser);
 userRoutes.patch("/update/:id", checkRoleTokenMiddleware, trimMiddleware, Controller.UpdateUser);
 userRoutes.post("/login", trimMiddleware, Controller.LoginUser);
-userRoutes.post("/updatepassword", verifyTokenMiddleware, trimMiddleware, Controller.PasswordChangeUser);
+userRoutes.post("/updatepassword", trimMiddleware, Controller.PasswordChangeUser);
 userRoutes.delete("/delete", verifyTokenMiddleware, Controller.DeleteUser);
 userRoutes.get("/list", verifyAdminTokenMiddleware, paginationMiddleware, Controller.GetUserList);
 

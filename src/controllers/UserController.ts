@@ -4,7 +4,7 @@ import { AppDataSource } from "../data-source";
 import { bcryptpassword, comparepassword } from "../util/bcrypt";
 import { generateToken } from "../util/JwtAuth";
 import { Learner } from "../entity/Learner.entity";
-import { Equal, Like } from "typeorm";
+import { Equal, ILike, Like } from "typeorm";
 import { UserRole } from "../util/enum/user_enum";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { CustomRequest } from "../util/Interface/expressInterface";
@@ -26,6 +26,9 @@ class UserController {
                     message: "password and confrimpassword not match",
                     status: false
                 })
+            }
+            if (role === UserRole.Admin) {
+                req.body.password_changed = true
             }
 
             const userRepository = AppDataSource.getRepository(User)
@@ -85,17 +88,17 @@ class UserController {
 
     public async UpdateUser(req: any, res: Response) {
         try {
-            const { user_name, first_name, last_name, sso_id, mobile, phone, role, time_zone } = req.body;
+            const { user_name, first_name, last_name, sso_id, mobile, phone, role, time_zone, email } = req.body;
             const userId: number = parseInt(req.params.id);
 
-            if (!user_name && !first_name && !last_name && !sso_id && !mobile && !phone && !role && !time_zone) {
+            if (!user_name && !first_name && !last_name && !sso_id && !mobile && !phone && !role && !time_zone && !email) {
                 return res.status(400).json({
                     message: "At least one Field Required ",
                     status: false
                 });
             }
-            console.log(req.tokenrole !== UserRole.Admin, Boolean(role), req.tokenrole)
-            if (req.tokenrole !== UserRole.Admin && Boolean(role)) {
+
+            if (req.tokenrole !== UserRole.Admin && (Boolean(role) || Boolean(email) || Boolean(mobile) || Boolean(sso_id))) {
                 return res.status(401).json({
                     message: "Admin role is required",
                     status: false
@@ -117,9 +120,7 @@ class UserController {
             }
 
             for (const key in req.body) {
-                if (key === "user_name" || key === "first_name" || key === "last_name" || key === "sso_id" || key === "mobile" || key === "phone" || key === "role" || key === "time_zone") {
-                    (user as any)[key] = req.body[key];
-                }
+                (user as any)[key] = req.body[key];
             }
 
             const updatedUser = await userRepository.save(user)
@@ -171,14 +172,9 @@ class UserController {
                 })
             }
 
-            let accessToken = generateToken({ user_id: user.user_id, user_name: user.user_name, email: user.email, role: user.role })
+            let accessToken = generateToken({ user_id: user.user_id, user_name: user.user_name, email: user.email, role: user.role, avatar: user.avatar, displayName: user.first_name + " " + user.last_name })
 
             let responce = {
-                user_id: user.user_id,
-                user_name: user.user_name,
-                email: user.email,
-                sso_id: user.sso_id,
-                avatar: user.avatar,
                 password_changed: user.password_changed,
                 accessToken: accessToken
             }
@@ -283,10 +279,13 @@ class UserController {
             let whereClause: any = {};
 
             if (req.query.email) {
-                whereClause.email = Like(`%${req.query.email}%`);
+                whereClause.email = ILike(`%${req.query.email}%`);
             }
             if (req.query.user_name) {
-                whereClause.user_name = Like(`%${req.query.user_name}%`);
+                whereClause.user_name = ILike(`%${req.query.user_name}%`);
+            }
+            if (req.query.first_name) {
+                whereClause.first_name = ILike(`%${req.query.first_name}%`);
             }
             if (req.query.role) {
                 whereClause.role = req.query.role;
