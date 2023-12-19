@@ -16,14 +16,24 @@ class UserController {
             const { user_name, first_name, last_name, email, password, confrimpassword, sso_id, role } = req.body
             if (!user_name || !first_name || !last_name || !email || !password || !sso_id || !role || !confrimpassword) {
                 return res.status(400).json({
-                    message: "all Field Required",
+                    message: "All Field Required",
+                    status: false
+                })
+            }
+            const userRepository = AppDataSource.getRepository(User)
+
+            const userEmail = await userRepository.findOne({ where: { email: email } });
+
+            if (userEmail) {
+                return res.status(409).json({
+                    message: "Email already exists",
                     status: false
                 })
             }
 
             if (password !== confrimpassword) {
                 return res.status(400).json({
-                    message: "password and confrimpassword not match",
+                    message: "Password and confrim password not match",
                     status: false
                 })
             }
@@ -31,7 +41,7 @@ class UserController {
                 req.body.password_changed = true
             }
 
-            const userRepository = AppDataSource.getRepository(User)
+
 
             req.body.password = await bcryptpassword(req.body.password)
             const user = await userRepository.create(req.body);
