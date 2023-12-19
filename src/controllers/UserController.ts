@@ -286,29 +286,23 @@ class UserController {
     public async GetUserList(req: any, res: Response) {
         try {
             const userRepository = AppDataSource.getRepository(User)
-            let whereClause: any = {};
+            const qb = userRepository.createQueryBuilder("user");
 
-            if (req.query.email) {
-                whereClause.email = ILike(`%${req.query.email}%`);
-            }
-            if (req.query.user_name) {
-                whereClause.user_name = ILike(`%${req.query.user_name}%`);
-            }
-            if (req.query.first_name) {
-                whereClause.first_name = ILike(`%${req.query.first_name}%`);
+            if (req.query.keyword) {
+                qb.andWhere("(user.email ILIKE :keyword OR user.user_name ILIKE :keyword OR user.first_name ILIKE :keyword OR user.last_name ILIKE :keyword)", { keyword: `${req.query.keyword}%` });
+
             }
             if (req.query.role) {
-                whereClause.role = req.query.role;
+                qb.andWhere("user.role = :role", { role: req.query.role });
+
             }
 
-            const [users, count] = await userRepository.findAndCount(
-                {
-                    where: whereClause,
-                    skip: Number(req.pagination.skip),
-                    take: Number(req.pagination.limit),
-                    order: { user_id: "ASC" }
-                }
-            )
+            const [users, count] = await await qb
+                .skip(Number(req.pagination.skip))
+                .take(Number(req.pagination.limit))
+                .orderBy("user.user_id", "ASC")
+                .getManyAndCount();
+
 
             if (users.length <= 0) {
                 return res.status(404).json({
@@ -318,11 +312,17 @@ class UserController {
             }
 
             return res.status(200).json({
-                message: "User get successfully",
+                message: "Users get successfully",
                 status: false,
                 data: users,
-                page: req.pagination.page,
-                total: Math.ceil(count / req.pagination.limit)
+                ...(req.query.meta === "true" && {
+                    meta_data: {
+                        page: req.pagination.page,
+                        items: count,
+                        page_size: req.pagination.limit,
+                        pages: Math.ceil(count / req.pagination.limit)
+                    }
+                })
             })
 
 
@@ -367,7 +367,7 @@ class UserController {
             const updatedUser = await userRepository.save(user)
 
             return res.status(200).json({
-                message: "resquest successfull",
+                message: "Avatar uploaded successfully",
                 status: true,
                 data: updatedUser
             })

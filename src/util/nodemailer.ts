@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer'
 import smtpTransport from "nodemailer-smtp-transport";
 
-export const SendEmailTemplet = async (email: string | undefined , subject: string, from?: any, body?: any, attachments?: any) => {
+export const SendEmailTemplet = async (email: string | undefined, subject: string, from?: any, body?: any, attachments?: any) => {
     try {
         const transporter = nodemailer.createTransport(
             smtpTransport({

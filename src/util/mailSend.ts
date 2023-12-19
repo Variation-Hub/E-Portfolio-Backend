@@ -130,7 +130,7 @@ export const sendOtpByEmail = async (email: string): Promise<any> => {
     </head>
     <body>
         <div class="container">
-            <div class="title">Account Created</div>
+            <div class="title">One-Time Password</div>
             <div class="message">
                 <p>Hello,</p>
                 <p>You are receiving this email because an account has been created for your Locker account.</p>
