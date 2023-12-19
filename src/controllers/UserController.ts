@@ -48,7 +48,7 @@ class UserController {
 
             const users = await userRepository.save(user)
             return res.status(200).json({
-                message: "resquest successfull",
+                message: "User create successfully",
                 status: true,
                 data: users
             })
