@@ -249,7 +249,7 @@ class UserController {
             const userRepository = AppDataSource.getRepository(User);
             const learnerRepository = AppDataSource.getRepository(Learner);
 
-            const id: number = parseInt(req.token.user_id);
+            const id: number = parseInt(req.params.id);
 
             const user = await userRepository.findOne({ where: { user_id: id } });
 
@@ -258,6 +258,12 @@ class UserController {
                     message: "User not found",
                     status: false
                 });
+            }
+            if (user.role === UserRole.Admin) {
+                return res.status(403).json({
+                    message: "Deleting admin account is restricted",
+                    status: false
+                })
             }
             if (user?.avatar) {
                 deleteFromS3(user.avatar)
@@ -271,7 +277,7 @@ class UserController {
             await userRepository.remove(user);
 
             return res.status(200).json({
-                message: "User and related learners deleted successfully",
+                message: "User deleted successfully",
                 status: true
             });
 

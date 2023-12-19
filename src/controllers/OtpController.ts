@@ -3,12 +3,14 @@ import { AppDataSource } from "../data-source";
 import { sendOtpByEmail } from "../util/mailSend";
 import { Otp } from "../entity/Otp.entity";
 import { isOtpExpired } from "../util/otpValid";
+import { User } from "../entity/User.entity";
 
 class OtpController {
 
     public async sendOTP(req: Request, res: Response) {
         try {
             const otpRepository = AppDataSource.getRepository(Otp)
+            const userRepository = AppDataSource.getRepository(User)
 
             const { email } = req.body
             if (!email) {
@@ -18,6 +20,13 @@ class OtpController {
                 })
             }
 
+            const user = await userRepository.findOne({ where: { email } });
+            if (!user) {
+                return res.status(404).json({
+                    message: "User not found for this Email",
+                    status: false
+                })
+            }
             const sendmail = await sendOtpByEmail(email)
 
             if (!sendmail) {

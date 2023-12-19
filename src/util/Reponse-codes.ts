@@ -7,4 +7,5 @@ export const ResponseCode = {
     NotFoundError: 404,
     serverError: 500,
     emailError: 532,
+    Forbidden: 403
 }
