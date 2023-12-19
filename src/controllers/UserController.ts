@@ -124,7 +124,7 @@ class UserController {
 
             if (!user) {
                 return res.status(404).json({
-                    message: "user not found",
+                    message: "User not found",
                     status: false
                 })
             }
@@ -136,7 +136,7 @@ class UserController {
             const updatedUser = await userRepository.save(user)
 
             return res.status(200).json({
-                message: "resquest successfull",
+                message: "User updated successfully",
                 status: true,
                 data: updatedUser
             })
