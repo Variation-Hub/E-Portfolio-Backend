@@ -309,14 +309,6 @@ class UserController {
                 .orderBy("user.user_id", "ASC")
                 .getManyAndCount();
 
-
-            if (users.length <= 0) {
-                return res.status(404).json({
-                    message: "Users not found",
-                    status: false
-                });
-            }
-
             return res.status(200).json({
                 message: "Users get successfully",
                 status: false,
