@@ -24,10 +24,16 @@ export const sendPasswordByEmail = async (email: string, password: any): Promise
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             }
     
+            .logo {
+                max-width: 150px;
+                height: auto;
+                margin-bottom: 20px;
+            }
+    
             .title {
                 font-size: 24px;
                 font-weight: bold;
-                margin-bottom: 20px;
+                margin-bottom: 10px;
                 color: #333;
             }
     
@@ -51,10 +57,12 @@ export const sendPasswordByEmail = async (email: string, password: any): Promise
     </head>
     <body>
         <div class="container">
-            <div class="title">Account Created</div>
+            <!-- Add your logo here -->
+            <img class="logo" src="https://jeel1.s3.ap-south-1.amazonaws.com/logo/logo.svg" alt="Locker Logo">
+    
+            <div class="title">Welcome to Locker</div>
             <div class="message">
-                <p>Hello,</p>
-                <p>You are receiving this email because an account has been created for your Locker account.</p>
+                <p>Congratulations! Your account has been successfully created.</p>
             </div>
             <div class="password">Your temporary password is: <strong>${password}</strong></div>
             <div class="footer">
@@ -62,9 +70,10 @@ export const sendPasswordByEmail = async (email: string, password: any): Promise
             </div>
         </div>
     </body>
-    </html>`
+    </html>
+    `
 
-    const responce = await SendEmailTemplet(email, "Welcome to Locker - Your New Account Has Been Created!", null, html)
+    const responce = await SendEmailTemplet(email, "Welcome", null, html)
     return true
 }
 
@@ -103,6 +112,12 @@ export const sendOtpByEmail = async (email: string): Promise<any> => {
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             }
     
+            .logo {
+                max-width: 150px;
+                height: auto;
+                margin-bottom: 20px;
+            }
+    
             .title {
                 font-size: 24px;
                 font-weight: bold;
@@ -130,18 +145,19 @@ export const sendOtpByEmail = async (email: string): Promise<any> => {
     </head>
     <body>
         <div class="container">
+        <img class="adapt-img" src="https://jeel1.s3.ap-south-1.amazonaws.com/logo/logo.svg" alt style="display: block;" width="180">
             <div class="title">One-Time Password</div>
             <div class="message">
-                <p>Hello,</p>
-                <p>You are receiving this email because an account has been created for your Locker account.</p>
+                <p>You are receiving this email because a request has been made to reset the password for your Locker account.</p>
             </div>
-            <div class="otp">Your one-time password is: <strong>${otp}</strong></div>
+            <div class="otp"><strong>${otp}</strong></div>
             <div class="footer">
+                <p>If you did not request a password reset or have any concerns, please ignore this email.</p>
                 <p>Thank you for using Locker.</p>
             </div>
         </div>
     </body>
-    </html>`;
+    </html> `;
 
     const response = await SendEmailTemplet(email, "Locker - One-Time Password for Your Account", null, html);
 

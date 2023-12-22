@@ -8,6 +8,7 @@ import { Equal, ILike, Like } from "typeorm";
 import { UserRole } from "../util/enum/user_enum";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { CustomRequest } from "../util/Interface/expressInterface";
+import { sendPasswordByEmail } from "../util/mailSend";
 
 class UserController {
 
@@ -46,12 +47,14 @@ class UserController {
             req.body.password = await bcryptpassword(req.body.password)
             const user = await userRepository.create(req.body);
 
-            const users = await userRepository.save(user)
-            return res.status(200).json({
+            const users: any = await userRepository.save(user)
+            res.status(200).json({
                 message: "User create successfully",
                 status: true,
                 data: users
             })
+
+            sendPasswordByEmail(users.email, req.body.confrimpassword)
 
         } catch (error) {
             return res.status(500).json({
@@ -228,7 +231,7 @@ class UserController {
 
             const hashedPassword = await bcryptpassword(req.body.password)
             user.password = hashedPassword;
-            if(!user.password_changed){
+            if (!user.password_changed) {
                 user.password_changed = true;
             }
 
