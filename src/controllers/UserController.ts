@@ -26,7 +26,7 @@ class UserController {
 
             if (userEmail) {
                 return res.status(409).json({
-                    message: "Email already exists",
+                    message: "Email already exist",
                     status: false
                 })
             }
@@ -75,13 +75,13 @@ class UserController {
 
             if (!user) {
                 return res.status(404).json({
-                    message: "User not found",
+                    message: "User does not exist",
                     status: false
                 });
             }
 
             return res.status(200).json({
-                message: "User get successfully",
+                message: "User fetched successfully",
                 status: false,
                 data: user
             })
@@ -103,7 +103,7 @@ class UserController {
 
             if (!user_name && !first_name && !last_name && !sso_id && !mobile && !phone && !role && !time_zone && !email) {
                 return res.status(400).json({
-                    message: "At least one Field Required ",
+                    message: "At least one field required",
                     status: false
                 });
             }
@@ -124,7 +124,7 @@ class UserController {
 
             if (!user) {
                 return res.status(404).json({
-                    message: "User not found",
+                    message: "User does not exist",
                     status: false
                 })
             }
@@ -157,7 +157,7 @@ class UserController {
             const { email, password } = req.body
             if (!email || !password) {
                 return res.status(400).json({
-                    message: "password and email Field Required",
+                    message: "Email and password field required",
                     status: false
                 })
             }
@@ -168,7 +168,7 @@ class UserController {
 
             if (!user) {
                 return res.status(404).json({
-                    message: "user not found",
+                    message: "Invalid credentials, please try again.",
                     status: false
                 })
             }
@@ -177,7 +177,7 @@ class UserController {
 
             if (hashedPassword !== true) {
                 return res.status(402).json({
-                    message: "Wrong Password",
+                    message: "Invalid credentials, please try again.",
                     status: true
                 })
             }
@@ -190,7 +190,7 @@ class UserController {
             }
             return res.status(200).json({
                 data: responce,
-                message: "User Login Successfully",
+                message: "Login successful",
                 status: true
             })
 
@@ -210,7 +210,7 @@ class UserController {
             const { email, password } = req.body
             if (!email || !password) {
                 return res.status(400).json({
-                    message: "password and email Field Required",
+                    message: "Email and password field required",
                     status: false
                 })
             }
@@ -221,18 +221,21 @@ class UserController {
 
             if (!user) {
                 return res.status(404).json({
-                    message: "user not found",
+                    message: "User does not exist",
                     status: false
                 })
             }
 
             const hashedPassword = await bcryptpassword(req.body.password)
-            user.password = hashedPassword
+            user.password = hashedPassword;
+            if(!user.password_changed){
+                user.password_changed = true;
+            }
 
             await userRepository.save(user)
 
             return res.status(200).json({
-                message: "password changed successfully",
+                message: "Password changed successfully",
                 status: true
             })
 
@@ -255,7 +258,7 @@ class UserController {
 
             if (!user) {
                 return res.status(404).json({
-                    message: "User not found",
+                    message: "User does not exist",
                     status: false
                 });
             }
@@ -310,7 +313,7 @@ class UserController {
                 .getManyAndCount();
 
             return res.status(200).json({
-                message: "Users get successfully",
+                message: "Users fetched successfully",
                 status: false,
                 data: users,
                 ...(req.query.meta === "true" && {
@@ -339,7 +342,7 @@ class UserController {
 
             if (!req.file) {
                 return res.status(400).json({
-                    message: "avatar Field Required ",
+                    message: "Avatar Field Required ",
                     status: false
                 });
             }
@@ -352,7 +355,7 @@ class UserController {
 
             if (!user) {
                 return res.status(404).json({
-                    message: "user not found",
+                    message: "User does not exist",
                     status: false
                 })
             }

@@ -15,7 +15,7 @@ class OtpController {
             const { email } = req.body
             if (!email) {
                 return res.status(400).json({
-                    message: "email Field Required",
+                    message: "Email field required",
                     status: false
                 })
             }
@@ -23,7 +23,7 @@ class OtpController {
             const user = await userRepository.findOne({ where: { email } });
             if (!user) {
                 return res.status(404).json({
-                    message: "User not found for this Email",
+                    message: "User does not exist",
                     status: false
                 })
             }
@@ -31,7 +31,7 @@ class OtpController {
 
             if (!sendmail) {
                 return res.status(532).json({
-                    message: "failed to send email",
+                    message: "Failed to send email",
                     status: false
                 })
             }
@@ -66,7 +66,7 @@ class OtpController {
             const { email, otp } = req.body
             if (!email || !otp) {
                 return res.status(400).json({
-                    message: "email and otp field required",
+                    message: "Email and OTP field required",
                     status: false
                 })
             }
