@@ -1,0 +1,40 @@
+name: Deploy React App
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Node.js and dependencies
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build React app
+        run: npm run build
+        
+      - name: Debugging Info Before Deploy
+        run: |
+          echo "${{ secrets.AWS_SECRET_ACCESS_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+      - name: SSH into the server and modify directory
+        run: |
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} 'cd /home/ubuntu/actions-runner/_work/E-portfolio-front-end/E-portfolio-front-end && rm -rf develop'
+          mkdir develop
+          cp -a build/* develop/
+          
+      # - name: Deploy to server
+      #   run: |
+      #     scp -i private_key.pem -r build/* ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/actions-runner/_work/E-portfolio-front-end/E-portfolio-front-end/develop
