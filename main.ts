@@ -25,5 +25,5 @@ AppDataSource.initialize().then(async () => {
 app.use('/api/v1', MainRoutes);
 
 app.listen(port, () => {
-    console.log(`Server is running at Port : ${port} `);
+    console.log(`Server is running at Port :: ${port} `);
 });
