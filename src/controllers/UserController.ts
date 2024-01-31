@@ -57,6 +57,7 @@ class UserController {
             sendPasswordByEmail(users.email, req.body.confrimpassword)
 
         } catch (error) {
+            console.log(error)
             return res.status(500).json({
                 message: "Internal Server Error",
                 status: false,

@@ -30,7 +30,7 @@ export class Employer {
   @Column({ type: 'varchar' })
   cohort: string;
 
-  @Column({ type: 'numeric' }) // Adjust the data type based on your needs
+  @Column({ type: 'numeric' })
   wage: number;
 
   @Column({ type: 'enum', enum: ['per_hour', 'per_annum'] })

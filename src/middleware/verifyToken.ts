@@ -51,7 +51,7 @@ export const verifyTokenMiddleware = (req: CustomRequest, res: Response, next: N
 
 export const verifyAdminTokenMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const BearerToken: string | undefined = req.header('authorization');
-
+    console.log('bearer token', BearerToken);
     if (BearerToken) {
 
         const tokenResult: any = jwt.verify(BearerToken.slice(7), secret, (err: any, decoded: any) => {
@@ -61,7 +61,7 @@ export const verifyAdminTokenMiddleware = (req: Request, res: Response, next: Ne
                 return decoded;
             }
         });
-        
+        console.log(tokenResult, secret);
         if (!tokenResult || tokenResult.role !==  UserRole.Admin) {
             return res.status(401).json({
                 message: "Invalide token",
