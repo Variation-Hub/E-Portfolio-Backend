@@ -17,6 +17,12 @@ export class Unit {
     @Column({ type: 'varchar' })
     title: string;
 
+    @Column({ type: 'numeric' })
+    level: number;
+
+    @Column({ type: 'numeric' })
+    GLH: number;
+
     @Column({ type: 'varchar' })
     status: string;
 

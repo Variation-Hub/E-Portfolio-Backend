@@ -6,9 +6,9 @@ import { CustomRequest } from '../util/Interface/expressInterface';
 class UnitController {
     public async createUnit(req: CustomRequest, res: Response) {
         try {
-            const { title, status, courseId } = req.body;
+            const { title, status, course_id, level, GLH, } = req.body;
 
-            if (!title || !status || !courseId) {
+            if (!title || !status) {
                 return res.status(400).json({
                     message: 'All fields are required',
                     status: false,
@@ -17,13 +17,12 @@ class UnitController {
 
             const unitRepository = AppDataSource.getRepository(Unit);
 
-            // You may need to check if the courseId exists before creating the unit
-            // Example: const course = await Course.findOneOrFail(courseId);
-
             const unit = unitRepository.create({
                 title,
                 status,
-                course_id: courseId,
+                course_id,
+                level,
+                GLH
             });
 
             const savedUnit = await unitRepository.save(unit);
@@ -65,10 +64,10 @@ class UnitController {
 
     public async getUnit(req: Request, res: Response) {
         try {
-            const unitId = parseInt(req.params.id);
+            const unit_id = parseInt(req.params.id);
             const unitRepository = AppDataSource.getRepository(Unit);
 
-            const unit = await unitRepository.findOne({ where: { unit_id: unitId } });
+            const unit = await unitRepository.findOne({ where: { unit_id } });
 
             if (!unit) {
                 return res.status(404).json({
@@ -94,18 +93,11 @@ class UnitController {
 
     public async updateUnit(req: CustomRequest, res: Response) {
         try {
-            const unitId = parseInt(req.params.id);
-            const { title, status, courseId } = req.body;
-
-            if (!title || !status || !courseId) {
-                return res.status(400).json({
-                    message: 'All fields are required',
-                    status: false,
-                });
-            }
+            const unit_id = parseInt(req.params.id);
+            const { title, status, course_id, level, GLH } = req.body;
 
             const unitRepository = AppDataSource.getRepository(Unit);
-            const unit = await unitRepository.findOne({ where: { unit_id: unitId } });
+            const unit = await unitRepository.findOne({ where: { unit_id } });
 
             if (!unit) {
                 return res.status(404).json({
@@ -113,10 +105,12 @@ class UnitController {
                     status: false,
                 });
             }
-            
+
             unit.title = title;
             unit.status = status;
-            unit.course_id = courseId;
+            unit.course_id = course_id;
+            unit.level = level;
+            unit.GLH = GLH;
 
             const updatedUnit = await unitRepository.save(unit);
 

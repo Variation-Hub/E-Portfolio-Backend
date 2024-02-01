@@ -11,8 +11,8 @@ class LearnerController {
 
     public async CreateLearner(req: CustomRequest, res: Response) {
         try {
-            const { first_name, last_name, email, mobile, date_of_birth } = req.body
-            if (!first_name || !last_name || !email || !mobile || !date_of_birth) {
+            const { user_name, first_name, last_name, email, password, confrimpassword, mobile } = req.body
+            if (!user_name || !first_name || !last_name || !email || !password || !confrimpassword) {
                 return res.status(400).json({
                     message: "All Field Required",
                     status: false
@@ -21,7 +21,23 @@ class LearnerController {
             const userRepository = AppDataSource.getRepository(User)
             const learnerRepository = AppDataSource.getRepository(Learner)
 
-            req.body.password = await bcryptpassword(req.body.mobile)
+            const userEmail = await userRepository.findOne({ where: { email: email } });
+
+            if (userEmail) {
+                return res.status(409).json({
+                    message: "Email already exist",
+                    status: false
+                })
+            }
+
+            if (password !== confrimpassword) {
+                return res.status(400).json({
+                    message: "Password and confrim password not match",
+                    status: false
+                })
+            }
+
+            req.body.password = await bcryptpassword(req.body.password)
             const user: any = await userRepository.save(await userRepository.create(req.body))
 
             req.body.user_id = user.user_id
@@ -29,7 +45,7 @@ class LearnerController {
 
             const savelearner = await learnerRepository.save(learner)
 
-            const sendResult = await sendPasswordByEmail(email, mobile)
+            const sendResult = await sendPasswordByEmail(email, password)
             if (!sendResult) {
                 return res.status(500).json({
                     message: "Failed to send the email",

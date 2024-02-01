@@ -1,6 +1,5 @@
 import * as express from 'express';
 import OtpController from '../controllers/OtpController';
-import { verifyTokenMiddleware } from '../middleware/verifyToken';
 
 const otpRoutes = express.Router();
 
