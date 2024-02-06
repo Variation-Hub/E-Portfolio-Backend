@@ -10,16 +10,37 @@ export class Course {
     units: Unit[];
 
     @Column({ type: 'varchar' })
-    name: string;
-
-    @Column({ type: 'varchar' })
-    course_code: string;
+    title: string;
 
     @Column({ type: 'varchar' })
     level: string;
 
     @Column({ type: 'varchar' })
-    discription: string;
+    sector: string;
+
+    @Column({ type: 'varchar' })
+    internal_external: string;
+
+    @Column({ type: 'varchar' })
+    qualification_type: string;
+
+    @Column({ type: 'varchar' })
+    assessment_language: string;
+
+    @Column({ type: 'varchar' })
+    recommended_minimum_age: string;
+
+    @Column({ type: 'varchar' })
+    total_credits: string;
+
+    @Column({ type: 'varchar' })
+    operational_start_date: string;
+
+    @Column({ type: 'varchar' })
+    assessment_methods: string;
+
+    @Column({ type: 'text' })
+    brand_guidelines: string;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;

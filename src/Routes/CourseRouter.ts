@@ -8,6 +8,7 @@ const CourseRoutes = express.Router();
 const Controller = new CourseController();
 
 CourseRoutes.post("/convert", singleFileUpload("pdf"), Controller.GenerateCourse);
-
+CourseRoutes.post("/create", Controller.CreateCourse);
+CourseRoutes.delete('/delete/:id', Controller.DeleteCourse);
 
 export default CourseRoutes;

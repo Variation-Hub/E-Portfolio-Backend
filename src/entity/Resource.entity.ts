@@ -19,6 +19,9 @@ export class Resource {
     @Column({ type: 'varchar' })
     size: string;
 
+    @Column({ type: 'json' })
+    url: object;
+
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
 

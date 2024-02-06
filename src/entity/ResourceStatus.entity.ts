@@ -14,9 +14,6 @@ export class ResourceStatus {
     @Column({ type: 'varchar' })
     last_viewed: string;
 
-    @Column({ type: 'varchar' })
-    size: string;
-
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
 

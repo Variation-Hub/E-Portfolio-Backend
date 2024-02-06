@@ -14,17 +14,23 @@ export class Unit {
     @OneToMany(() => Resource, resource => resource.unit_id)
     resources: Resource[];
 
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     title: string;
 
-    @Column({ type: 'numeric' })
+    @Column({ type: 'numeric', nullable: true })
     level: number;
 
-    @Column({ type: 'numeric' })
+    @Column({ type: 'numeric', nullable: true })
     GLH: number;
 
-    @Column({ type: 'varchar' })
+    @Column({ type: 'enum', enum: ["Mandatory", "Optional"], default: "Mandatory" })
     status: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    unit_ref: string;
+
+    @Column({ type: 'numeric', nullable: true })
+    credit_value: number;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;

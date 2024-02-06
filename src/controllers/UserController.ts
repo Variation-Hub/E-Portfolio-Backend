@@ -4,7 +4,7 @@ import { AppDataSource } from "../data-source";
 import { bcryptpassword, comparepassword } from "../util/bcrypt";
 import { generateToken } from "../util/JwtAuth";
 import { Learner } from "../entity/Learner.entity";
-import { Equal, ILike, Like } from "typeorm";
+import { Equal } from "typeorm";
 import { UserRole } from "../util/enum/user_enum";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { CustomRequest } from "../util/Interface/expressInterface";
@@ -57,7 +57,6 @@ class UserController {
             sendPasswordByEmail(users.email, req.body.confrimpassword)
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 message: "Internal Server Error",
                 status: false,
@@ -205,7 +204,6 @@ class UserController {
             })
         }
     }
-
 
     public async PasswordChangeUser(req: Request, res: Response) {
         try {

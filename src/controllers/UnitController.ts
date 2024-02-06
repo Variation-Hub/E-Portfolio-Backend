@@ -6,7 +6,7 @@ import { CustomRequest } from '../util/Interface/expressInterface';
 class UnitController {
     public async createUnit(req: CustomRequest, res: Response) {
         try {
-            const { title, status, course_id, level, GLH, } = req.body;
+            const { title, status, course_id, level, GLH, unit_ref, credit_value } = req.body;
 
             if (!title || !status) {
                 return res.status(400).json({
@@ -22,7 +22,9 @@ class UnitController {
                 status,
                 course_id,
                 level,
-                GLH
+                GLH,
+                unit_ref,
+                credit_value
             });
 
             const savedUnit = await unitRepository.save(unit);
@@ -94,7 +96,6 @@ class UnitController {
     public async updateUnit(req: CustomRequest, res: Response) {
         try {
             const unit_id = parseInt(req.params.id);
-            const { title, status, course_id, level, GLH } = req.body;
 
             const unitRepository = AppDataSource.getRepository(Unit);
             const unit = await unitRepository.findOne({ where: { unit_id } });
@@ -105,15 +106,9 @@ class UnitController {
                     status: false,
                 });
             }
-
-            unit.title = title;
-            unit.status = status;
-            unit.course_id = course_id;
-            unit.level = level;
-            unit.GLH = GLH;
+            Object.assign(unit, req.body);
 
             const updatedUnit = await unitRepository.save(unit);
-
             return res.status(200).json({
                 message: 'Unit updated successfully',
                 status: true,

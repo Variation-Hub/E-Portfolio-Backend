@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Learner } from "../entity/Learner.entity";
-import { IUser, User } from "../entity/User.entity";
+import { User } from "../entity/User.entity";
 import { bcryptpassword } from "../util/bcrypt";
 import { sendPasswordByEmail } from "../util/mailSend";
 import { CustomRequest } from "../util/Interface/expressInterface";

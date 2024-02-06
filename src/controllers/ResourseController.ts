@@ -3,23 +3,29 @@ import { AppDataSource } from '../data-source';
 import { Resource } from '../entity/Resource.entity';
 import { CustomRequest } from '../util/Interface/expressInterface';
 import { Unit } from '../entity/Unit.entity';
+import { uploadToS3 } from '../util/aws';
 
 class ResourceController {
     public async createResource(req: CustomRequest, res: Response) {
         try {
-            const { unitId, name, discription, size } = req.body;
-
-            if (!unitId || !name || !discription || !size) {
+            const { unit_id, name, discription, size } = req.body;
+            if (!unit_id || !name || !discription || !size) {
                 return res.status(400).json({
                     message: 'All fields are required',
                     status: false,
+                });
+            }
+            if (!req.file) {
+                return res.status(400).json({
+                    message: "File Required",
+                    status: false
                 });
             }
 
             const resourceRepository = AppDataSource.getRepository(Resource);
             const unitRepository = AppDataSource.getRepository(Unit);
 
-            const unit = await unitRepository.findOne(unitId);
+            const unit = await unitRepository.findOne({ where: { unit_id } });
 
             if (!unit) {
                 return res.status(404).json({
@@ -28,12 +34,14 @@ class ResourceController {
                 });
             }
 
+            const url = await uploadToS3(req.file, "Resourse")
             const resource = resourceRepository.create({
                 unit_id: unit,
                 name,
                 discription,
                 size,
-            });
+                url,
+            })
 
             const savedResource = await resourceRepository.save(resource);
 
@@ -106,9 +114,9 @@ class ResourceController {
     public async updateResource(req: CustomRequest, res: Response) {
         try {
             const resourceId = parseInt(req.params.id);
-            const { unitId, name, discription, size } = req.body;
+            const { unit_id, name, discription, size } = req.body;
 
-            if (!unitId && !name && !discription && !size) {
+            if (!unit_id && !name && !discription && !size) {
                 return res.status(400).json({
                     message: 'At least one field required',
                     status: false,
@@ -127,8 +135,8 @@ class ResourceController {
                 });
             }
 
-            if (unitId) {
-                const unit = await unitRepository.findOne(unitId);
+            if (unit_id) {
+                const unit = await unitRepository.findOne({ where: { unit_id } });
 
                 if (!unit) {
                     return res.status(404).json({
@@ -190,6 +198,44 @@ class ResourceController {
             });
         }
     }
+
+    public async getUnitResources(req: CustomRequest, res: Response) {
+        try {
+            const unitId = parseInt(req.params.id);
+
+            const unitRepository = AppDataSource.getRepository(Unit);
+            const unit = await unitRepository
+                .createQueryBuilder('unit')
+                .leftJoinAndSelect('unit.resources', 'resources')
+                .where('unit.unit_id = :unitId', { unitId })
+                .getOne();
+
+
+            if (!unit) {
+                return res.status(404).json({
+                    message: 'Unit not found',
+                    status: false,
+                });
+            }
+
+            // Access the resources through the 'resources' property
+            const resources = unit.resources;
+
+            return res.status(200).json({
+                message: 'Resources retrieved successfully',
+                status: true,
+                data: resources,
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                status: false,
+                error: error.message,
+            });
+        }
+    }
+
 }
 
 export default ResourceController;

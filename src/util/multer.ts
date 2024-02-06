@@ -1,5 +1,5 @@
 import multer from 'multer';
-const storage = multer.memoryStorage(); // Use memory storage for simplicity
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 export const singleFileUpload = (fieldName) => {
