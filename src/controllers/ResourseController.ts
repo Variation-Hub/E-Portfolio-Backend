@@ -51,7 +51,6 @@ class ResourceController {
                 data: savedResource,
             });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,
@@ -62,7 +61,6 @@ class ResourceController {
 
     public async getResources(req: Request, res: Response) {
         try {
-            const resourceId = parseInt(req.params.id);
             const resourceRepository = AppDataSource.getRepository(Resource);
 
             const resources = await resourceRepository.find();
@@ -73,7 +71,6 @@ class ResourceController {
                 data: resources,
             });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,
@@ -102,7 +99,6 @@ class ResourceController {
                 data: resource,
             });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,
@@ -160,7 +156,6 @@ class ResourceController {
                 data: updatedResource,
             });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,
@@ -190,7 +185,6 @@ class ResourceController {
                 status: true,
             });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,
@@ -199,55 +193,18 @@ class ResourceController {
         }
     }
 
-    // public async getUnitResources(req: CustomRequest, res: Response) {
-    //     try {
-    //         const unitId = parseInt(req.params.id);
-
-    //         const unitRepository = AppDataSource.getRepository(Unit);
-    //         const unit = await unitRepository
-    //             .createQueryBuilder('unit')
-    //             .leftJoinAndSelect('unit.resources', 'resources')
-    //             .where('unit.unit_id = :unitId', { unitId })
-    //             .getOne();
-
-
-    //         if (!unit) {
-    //             return res.status(404).json({
-    //                 message: 'Unit not found',
-    //                 status: false,
-    //             });
-    //         }
-
-    //         // Access the resources through the 'resources' property
-    //         const resources = unit.resources;
-
-    //         return res.status(200).json({
-    //             message: 'Resources retrieved successfully',
-    //             status: true,
-    //             data: resources,
-    //         });
-    //     } catch (error) {
-    //         console.error(error);
-    //         return res.status(500).json({
-    //             message: 'Internal Server Error',
-    //             status: false,
-    //             error: error.message,
-    //         });
-    //     }
-    // }
-
     public async getUnitResources(req: CustomRequest, res: Response) {
         try {
             const unitId = parseInt(req.params.id);
-            const userId = req.user.user_id;
-
+            const userId = req.query.user_id;
             const unitRepository = AppDataSource.getRepository(Unit);
             const unit = await unitRepository
                 .createQueryBuilder('unit')
                 .leftJoinAndSelect('unit.resources', 'resources')
-                .leftJoinAndSelect('resources.resourceStatus', 'resourceStatus', 'resourceStatus.unit_id = :userId', { userId })
+                .leftJoinAndSelect('resources.resourceStatus', 'resourceStatus', 'resourceStatus.user = :userId', { userId: 19 })
                 .where('unit.unit_id = :unitId', { unitId })
                 .getOne();
+
 
             if (!unit) {
                 return res.status(404).json({
@@ -267,7 +224,6 @@ class ResourceController {
                 data: resources,
             });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,

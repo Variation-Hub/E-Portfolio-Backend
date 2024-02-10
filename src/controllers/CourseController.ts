@@ -231,12 +231,9 @@ class CourseController {
             }
 
             learner.courses = [...(learner.courses || []), course];
-            console.log(learner.courses.length, "++++++++++++++++++++++++++++++++++++++++++++++++");
             await learnerRepository.save(learner);
-            console.log("++++++++++++++++++++++++++++++++++++++++++++++++")
             return res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 error: error.message,
@@ -263,7 +260,6 @@ class CourseController {
                 status: true
             });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 error: error.message,
@@ -295,7 +291,6 @@ class CourseController {
 
             return res.status(200).json({ message: 'Trainer assigned to course successfully', status: true });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 error: error.message,

@@ -3,10 +3,8 @@ import { AppDataSource } from '../data-source';
 import { Resource } from '../entity/Resource.entity';
 import { CustomRequest } from '../util/Interface/expressInterface';
 import { Unit } from '../entity/Unit.entity';
-import { uploadToS3 } from '../util/aws';
 import { User } from '../entity/User.entity';
 import { ResourceStatus } from '../entity/ResourceStatus.entity';
-import { Equal, FindOperator } from 'typeorm';
 
 class ResourceStatusController {
 
@@ -41,7 +39,6 @@ class ResourceStatusController {
                 data: resources,
             });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,
@@ -50,60 +47,22 @@ class ResourceStatusController {
         }
     }
 
-    // public async logResourceAccess(req: CustomRequest, res: Response) {
-    //     try {
-    //         const userId = req.user.id; // Assuming you have a user object with an 'id' property
-    //         const resourceId = parseInt(req.params.resourceId);
-
-    //         const user = await AppDataSource.getRepository(User).findOne(userId);
-    //         const resourceStatusRepository = AppDataSource.getRepository(ResourceStatus);
-
-    //         // Check if the user has already accessed the resource
-    //         const existingResourceStatus = await resourceStatusRepository.findOne({
-    //             where: {
-    //                 user_id: userId,
-    //                 resourceId,
-    //             },
-    //         });
-
-    //         if (existingResourceStatus) {
-    //             return res.status(400).json({
-    //                 message: 'User has already accessed this resource',
-    //                 status: false,
-    //             });
-    //         }
-
-    //         // Log the resource access
-    //         const newResourceStatus = resourceStatusRepository.create({
-    //             userId,
-    //             resourceId,
-    //             last_viewed: new Date().toISOString(), // You may adjust this based on your requirements
-    //         });
-
-    //         await resourceStatusRepository.save(newResourceStatus);
-
-    //         return res.status(200).json({
-    //             message: 'Resource access logged successfully',
-    //             status: true,
-    //         });
-    //     } catch (error) {
-    //         console.error(error);
-    //         return res.status(500).json({
-    //             message: 'Internal Server Error',
-    //             status: false,
-    //             error: error.message,
-    //         });
-    //     }
-
-    // }
-
     public async addResourceStatus(req: Request, res: Response) {
-        const { resource_id, user_id } = req.body;
-
-        const resourceStatusRepository = AppDataSource.getRepository(ResourceStatus);
-        const userRepository = AppDataSource.getRepository(User);
-
         try {
+            const { resource_id, user_id } = req.body;
+
+            const userRepository = AppDataSource.getRepository(User);
+            const ResourceRepository = AppDataSource.getRepository(Resource);
+            const resourceStatusRepository = AppDataSource.getRepository(ResourceStatus);
+
+            const user = await userRepository.findOne({ where: { user_id: parseInt(user_id) } })
+            if (!user) {
+                return res.status(404).json({ message: 'User not found', status: false });
+            }
+            const resource = await ResourceRepository.findOne({ where: { resource_id } })
+            if (!resource) {
+                return res.status(404).json({ message: 'Resource not found', status: false });
+            }
             let resourceStatus = await resourceStatusRepository.findOne({
                 relations: ['resource', 'user'],
                 where: {
@@ -111,12 +70,6 @@ class ResourceStatusController {
                     user: { user_id },
                 },
             });
-            console.log(resourceStatus, "++++++++++++++++++++++++++++++++++++++++++++++++");
-            const user = await userRepository.findOne({ where: { user_id: parseInt(user_id) } })
-
-            if (!user) {
-                return res.status(404).json({ message: 'User not found', status: false });
-            }
             if (!resourceStatus) {
                 resourceStatus = await resourceStatusRepository.create({ user, resource: resource_id, last_viewed: new Date() });
             }
@@ -124,11 +77,9 @@ class ResourceStatusController {
             resourceStatus.user = user;
             resourceStatus.last_viewed = new Date()
 
-            const a = await resourceStatusRepository.save(resourceStatus);
-            console.log(a, "response")
+            await resourceStatusRepository.save(resourceStatus);
             return res.status(200).json({ message: 'User added to ResourceStatus successfully', status: true });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({ message: 'Internal server error' });
         }
     }

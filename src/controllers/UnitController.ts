@@ -35,7 +35,6 @@ class UnitController {
                 data: savedUnit,
             });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,
@@ -55,7 +54,6 @@ class UnitController {
                 data: units,
             });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,
@@ -84,7 +82,6 @@ class UnitController {
                 data: unit,
             });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,
@@ -115,7 +112,6 @@ class UnitController {
                 data: updatedUnit,
             });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,
@@ -145,7 +141,6 @@ class UnitController {
                 status: true,
             });
         } catch (error) {
-            console.error(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,

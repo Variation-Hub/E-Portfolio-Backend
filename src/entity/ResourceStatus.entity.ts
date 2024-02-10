@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, ManyToMany, JoinTable, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, ManyToMany, JoinTable, OneToOne, JoinColumn } from 'typeorm';
 import { Resource } from './Resource.entity';
 import { User } from './User.entity';
 
@@ -8,10 +8,11 @@ export class ResourceStatus {
     resource_status_id: number;
 
     @ManyToOne(() => Resource, resource => resource.resourceStatus)
+    @JoinColumn({ name: 'resource_id' })
     resource: Resource;
 
-    @OneToOne(() => User)
-    @JoinTable()
+    @ManyToOne(() => User)
+    @JoinColumn({ name: 'user_id' })
     user: User;
 
     @Column({ type: 'timestamp' })

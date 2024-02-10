@@ -1,6 +1,6 @@
 import * as express from 'express';
 import UserController from '../controllers/UserController';
-import { paginationMiddleware } from '../entity/pagination';
+import { paginationMiddleware } from '../middleware/pagination';
 import { authorizeRoles } from '../middleware/verifyToken';
 import { singleFileUpload } from '../util/multer';
 import { trimMiddleware } from '../middleware/trimMiddleware';
