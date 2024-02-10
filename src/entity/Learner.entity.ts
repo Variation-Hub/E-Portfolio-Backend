@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable } from 'typeorm';
 import { User } from './User.entity';
+import { Course } from './Course.entity';
 
 @Entity('learner')
 export class Learner {
@@ -10,11 +11,18 @@ export class Learner {
   @JoinColumn({ name: 'user_id', referencedColumnName: 'user_id' })
   user_id: User;
 
+  @ManyToMany(() => Course, course => course.learners, { nullable: true })
+  @JoinTable()
+  courses: Course[];
+
   @Column({ type: 'varchar' })
   first_name: string;
 
   @Column({ type: 'varchar' })
   last_name: string;
+
+  @Column({ type: 'varchar' })
+  user_name: string;
 
   @Column({ type: 'varchar', unique: true })
   email: string;
@@ -22,7 +30,7 @@ export class Learner {
   @Column({ type: 'varchar' })
   mobile: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   national_ins_no: string;
 
   // @Column({ type: 'varchar' })
@@ -63,6 +71,9 @@ export class Learner {
 
   @Column({ type: 'varchar', nullable: true })
   avatar: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  funding_body: string;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

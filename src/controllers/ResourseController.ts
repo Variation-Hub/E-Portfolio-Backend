@@ -199,17 +199,55 @@ class ResourceController {
         }
     }
 
+    // public async getUnitResources(req: CustomRequest, res: Response) {
+    //     try {
+    //         const unitId = parseInt(req.params.id);
+
+    //         const unitRepository = AppDataSource.getRepository(Unit);
+    //         const unit = await unitRepository
+    //             .createQueryBuilder('unit')
+    //             .leftJoinAndSelect('unit.resources', 'resources')
+    //             .where('unit.unit_id = :unitId', { unitId })
+    //             .getOne();
+
+
+    //         if (!unit) {
+    //             return res.status(404).json({
+    //                 message: 'Unit not found',
+    //                 status: false,
+    //             });
+    //         }
+
+    //         // Access the resources through the 'resources' property
+    //         const resources = unit.resources;
+
+    //         return res.status(200).json({
+    //             message: 'Resources retrieved successfully',
+    //             status: true,
+    //             data: resources,
+    //         });
+    //     } catch (error) {
+    //         console.error(error);
+    //         return res.status(500).json({
+    //             message: 'Internal Server Error',
+    //             status: false,
+    //             error: error.message,
+    //         });
+    //     }
+    // }
+
     public async getUnitResources(req: CustomRequest, res: Response) {
         try {
             const unitId = parseInt(req.params.id);
+            const userId = req.user.user_id;
 
             const unitRepository = AppDataSource.getRepository(Unit);
             const unit = await unitRepository
                 .createQueryBuilder('unit')
                 .leftJoinAndSelect('unit.resources', 'resources')
+                .leftJoinAndSelect('resources.resourceStatus', 'resourceStatus', 'resourceStatus.unit_id = :userId', { userId })
                 .where('unit.unit_id = :unitId', { unitId })
                 .getOne();
-
 
             if (!unit) {
                 return res.status(404).json({
@@ -218,8 +256,10 @@ class ResourceController {
                 });
             }
 
-            // Access the resources through the 'resources' property
-            const resources = unit.resources;
+            const resources = unit.resources.map(resource => ({
+                ...resource,
+                isAccessed: resource.resourceStatus.length > 0,
+            }));
 
             return res.status(200).json({
                 message: 'Resources retrieved successfully',

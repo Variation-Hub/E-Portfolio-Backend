@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Unit } from './Unit.entity';
+import { ResourceStatus } from './ResourceStatus.entity';
 
 @Entity('resource')
 export class Resource {
@@ -21,6 +22,9 @@ export class Resource {
 
     @Column({ type: 'json' })
     url: object;
+
+    @OneToMany(() => ResourceStatus, resourceStatus => resourceStatus.resource)
+    resourceStatus: ResourceStatus[];
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;

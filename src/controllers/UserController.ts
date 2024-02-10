@@ -68,11 +68,12 @@ class UserController {
     public async GetUser(req: CustomRequest, res: Response) {
         try {
             const userRepository = AppDataSource.getRepository(User)
-            const id: number = parseInt(req.token.user_id);
+            const id: number = parseInt(req.user.user_id);
 
             const user = await userRepository
                 .createQueryBuilder("user")
-                .select(["user.user_name", "user.email", "user.sso_id", "user.avatar", "user.password_changed"])
+                .select(["user.user_name", "user.email", "user.sso_id", "user.avatar", "user.password_changed", "user.course"])
+                .leftJoinAndSelect("user.course", "course")
                 .where("user.user_id = :id", { id })
                 .getOne();
 

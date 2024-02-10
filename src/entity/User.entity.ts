@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, JoinColumn, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
+import { Course } from './Course.entity';
 
 @Entity('users')
 export class User {
@@ -17,6 +18,9 @@ export class User {
 
   @Column({ type: 'varchar', nullable: true })
   last_name: string;
+
+  // @ManyToOne(() => Course, course => course.trainer, { nullable: true })
+  // course: Course;
 
   @Column({ type: 'varchar', unique: true })
   email: string;

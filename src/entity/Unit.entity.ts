@@ -21,7 +21,7 @@ export class Unit {
     level: number;
 
     @Column({ type: 'numeric', nullable: true })
-    GLH: number;
+    glh: number;
 
     @Column({ type: 'enum', enum: ["Mandatory", "Optional"], default: "Mandatory" })
     status: string;

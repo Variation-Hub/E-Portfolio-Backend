@@ -11,7 +11,7 @@ class LearnerController {
 
     public async CreateLearner(req: CustomRequest, res: Response) {
         try {
-            const { user_name, first_name, last_name, email, password, confrimpassword, mobile } = req.body
+            const { user_name, first_name, last_name, email, password, confrimpassword, mobile, funding_body } = req.body
             if (!user_name || !first_name || !last_name || !email || !password || !confrimpassword) {
                 return res.status(400).json({
                     message: "All Field Required",
@@ -70,9 +70,9 @@ class LearnerController {
 
     public async getLearner(req: Request, res: Response): Promise<Response> {
         try {
-            const learnerId: number = parseInt(req.params.id);
+            const learner_id: number = parseInt(req.params.id);
             const learnerRepository = AppDataSource.getRepository(Learner);
-            const learner = await learnerRepository.findOne({ where: { learner_id: learnerId } });
+            const learner = await learnerRepository.findOne({ where: { learner_id }, relations: ['courses'] })
 
             if (!learner) {
                 return res.status(404).json({

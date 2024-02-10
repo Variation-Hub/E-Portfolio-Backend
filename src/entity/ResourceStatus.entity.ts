@@ -1,18 +1,21 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, ManyToMany, JoinTable, OneToOne } from 'typeorm';
+import { Resource } from './Resource.entity';
+import { User } from './User.entity';
 
 @Entity('resourceStatus')
 export class ResourceStatus {
     @PrimaryGeneratedColumn()
     resource_status_id: number;
 
-    @Column({ type: 'varchar' })
-    unit_id: string;
+    @ManyToOne(() => Resource, resource => resource.resourceStatus)
+    resource: Resource;
 
-    @Column({ type: 'varchar' })
-    resource_id: string;
+    @OneToOne(() => User)
+    @JoinTable()
+    user: User;
 
-    @Column({ type: 'varchar' })
-    last_viewed: string;
+    @Column({ type: 'timestamp' })
+    last_viewed: Date;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;

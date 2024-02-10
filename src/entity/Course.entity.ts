@@ -1,5 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 import { Unit } from './Unit.entity';
+import { User } from './User.entity';
+import { Learner } from './Learner.entity';
 
 @Entity('course')
 export class Course {
@@ -10,7 +12,7 @@ export class Course {
     units: Unit[];
 
     @Column({ type: 'varchar' })
-    title: string;
+    course_name: string;
 
     @Column({ type: 'varchar' })
     level: string;
@@ -18,8 +20,8 @@ export class Course {
     @Column({ type: 'varchar' })
     sector: string;
 
-    @Column({ type: 'varchar' })
-    internal_external: string;
+    @Column({ type: 'varchar', name: 'internal/external' })
+    internalExternal: string;
 
     @Column({ type: 'varchar' })
     qualification_type: string;
@@ -41,6 +43,13 @@ export class Course {
 
     @Column({ type: 'text' })
     brand_guidelines: string;
+
+    @ManyToMany(() => Learner, learner => learner.courses, { nullable: true })
+    @JoinTable()
+    learners: Learner[];
+
+    // @ManyToOne(() => User, user => user.course, { nullable: true })
+    // trainer: User;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;

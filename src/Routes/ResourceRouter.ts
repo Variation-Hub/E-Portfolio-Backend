@@ -14,7 +14,7 @@ ResourceRoute.get("/get/:id", Controller.getResource);
 ResourceRoute.get("/list", Controller.getResources);
 ResourceRoute.patch("/update/:id", trimMiddleware, Controller.updateResource);
 ResourceRoute.delete("/delete/:id", Controller.deleteResource);
-ResourceRoute.get("/list/:id", Controller.getUnitResources);
+ResourceRoute.get("/list/:id", authorizeRoles(UserRole.Admin,UserRole.EQA, UserRole.Employer, UserRole.IQA, UserRole.Learner, UserRole.Trainer ),Controller.getUnitResources);
 
 
 export default ResourceRoute;

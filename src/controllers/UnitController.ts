@@ -6,7 +6,7 @@ import { CustomRequest } from '../util/Interface/expressInterface';
 class UnitController {
     public async createUnit(req: CustomRequest, res: Response) {
         try {
-            const { title, status, course_id, level, GLH, unit_ref, credit_value } = req.body;
+            const { title, status, course_id, level, glh, unit_ref, credit_value } = req.body;
 
             if (!title || !status) {
                 return res.status(400).json({
@@ -22,7 +22,7 @@ class UnitController {
                 status,
                 course_id,
                 level,
-                GLH,
+                glh,
                 unit_ref,
                 credit_value
             });

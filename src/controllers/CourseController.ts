@@ -5,6 +5,8 @@ import { Course } from "../entity/Course.entity";
 import fs from "fs";
 import { spawn } from "child_process"
 import { Unit } from "../entity/Unit.entity";
+import { User } from "../entity/User.entity";
+import { Learner } from "../entity/Learner.entity";
 
 class CourseController {
 
@@ -20,41 +22,41 @@ class CourseController {
 
             const courseRepository = AppDataSource.getRepository(Course);
             const unitRepository = AppDataSource.getRepository(Unit);
-
+            const ie = "internal/external"
             const obj: any = {
-                title: data.title,
-                level: data.Level,
-                sector: data.Sector,
-                internal_external: data['Internal/External'],
-                qualification_type: data['Qualification Type'],
-                assessment_language: data['Assessment Language'],
-                recommended_minimum_age: parseInt(data['Recommended Minimum Age']),
-                total_credits: parseInt(data['Total Credits']),
-                operational_start_date: new Date(data['Operational Start Date']),
-                assessment_methods: data['Assessment Methods'],
-                brand_guidelines: data['Brand Guidelines'],
+                course_name: data.course_name,
+                level: data.level,
+                sector: data.sector,
+                internalExternal: data['internal/external'],
+                qualification_type: data['qualification_type'],
+                assessment_language: data['assessment_language'],
+                recommended_minimum_age: parseInt(data['recommended_minimum_age']),
+                total_credits: parseInt(data['total_credits']),
+                operational_start_date: new Date(data['operational_start_date']),
+                assessment_methods: data['assessment_methods'],
+                brand_guidelines: data['brand_guidelines'],
             }
             const course = courseRepository.create(obj);
             const savedCourse: any = await courseRepository.save(course);
 
-            const mandatoryUnits = req.body.data["Mandatory units"]?.map(unit => {
+            const mandatoryUnits = req.body.data["mandatory_units"]?.map(unit => {
                 return {
-                    unit_ref: unit["Unit ref."],
-                    title: unit["Title"],
-                    level: unit["Level"],
-                    GLH: unit["GLH"],
-                    credit_value: unit["Credit Value"],
+                    unit_ref: unit["unit_ref"],
+                    title: unit["title"],
+                    level: unit["level"],
+                    glh: unit["glh"],
+                    credit_value: unit["credit_value"],
                     status: "Mandatory",
                     course_id: savedCourse.course_id
                 }
             });
-            const optionalUnits = req.body.data["Optional units"]?.map(unit => {
+            const optionalUnits = req.body.data["optional_units"]?.map(unit => {
                 return {
-                    unit_ref: unit["Unit ref."],
-                    title: unit["Title"],
-                    level: unit["Level"],
-                    GLH: unit["GLH"],
-                    credit_value: unit["Credit Value"],
+                    unit_ref: unit["unit_ref"],
+                    title: unit["title"],
+                    level: unit["level"],
+                    glh: unit["glh"],
+                    credit_value: unit["credit_value"],
                     status: "Optional",
                     course_id: savedCourse.course_id
                 }
@@ -181,6 +183,127 @@ class CourseController {
         }
     }
 
+    public async updateCourse(req: Request, res: Response): Promise<Response> {
+        try {
+            const courseId: number = parseInt(req.params.id);
+
+            const courseRepository = AppDataSource.getRepository(Course);
+            const existingCourse = await courseRepository.findOne({ where: { course_id: courseId } });
+
+            if (!existingCourse) {
+                return res.status(404).json({
+                    message: 'Course not found',
+                    status: false,
+                });
+            }
+            if ('unit' in req.body) {
+                delete req.body.unit;
+            }
+            courseRepository.merge(existingCourse, req.body);
+            const updatedCourse = await courseRepository.save(existingCourse);
+
+            return res.status(200).json({
+                message: 'Course updated successfully',
+                status: true,
+                data: updatedCourse,
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                error: error.message,
+                status: false,
+            });
+        }
+    }
+
+    public async addLearnerToCourse(req: Request, res: Response): Promise<Response> {
+        try {
+            const { learner_id, course_id } = req.body
+
+            const learnerRepository = AppDataSource.getRepository(Learner);
+            const courseRepository = AppDataSource.getRepository(Course);
+
+            const learner = await learnerRepository.findOne({ where: { learner_id }, relations: ['courses'] });
+            const course = await courseRepository.findOne({ where: { course_id } });
+
+            if (!learner || !course) {
+                return res.status(404).json({ message: 'Learner or course not found', status: false });
+            }
+
+            learner.courses = [...(learner.courses || []), course];
+            console.log(learner.courses.length, "++++++++++++++++++++++++++++++++++++++++++++++++");
+            await learnerRepository.save(learner);
+            console.log("++++++++++++++++++++++++++++++++++++++++++++++++")
+            return res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                error: error.message,
+                status: false,
+            });
+        }
+    };
+
+    public async getCourse(req: Request, res: Response): Promise<Response> {
+        try {
+            const course_id = parseInt(req.params.id);
+
+            const courseRepository = AppDataSource.getRepository(Course);
+
+            const course = await courseRepository.findOne({ where: { course_id }, relations: ['learners', 'units'] });
+
+            if (!course) {
+                return res.status(404).json({ message: 'Course not found', status: false });
+            }
+
+            return res.status(200).json({
+                message: "Course get successfully",
+                data: course,
+                status: true
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                error: error.message,
+                status: false,
+            });
+        }
+    }
+
+    public async addTrainerToCourse(req: Request, res: Response): Promise<Response> {
+        try {
+            const { course_id, trainer_id } = req.body
+            const userRepository = AppDataSource.getRepository(User);
+            const courseRepository = AppDataSource.getRepository(Course);
+
+            const trainer = await userRepository.findOne({ where: { user_id: trainer_id } });
+            const course = await courseRepository.findOne({ where: { course_id }, relations: ['trainer'] });
+
+            if (!trainer || !course) {
+                return res.status(404).json({ message: 'Trainer or course not found', status: false });
+            }
+
+            if (trainer.role !== 'Trainer') {
+                return res.status(403).json({ message: 'User does not have the role Trainer', status: false });
+            }
+
+            // course.trainer = trainer;
+
+            await courseRepository.save(course);
+
+            return res.status(200).json({ message: 'Trainer assigned to course successfully', status: true });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                error: error.message,
+                status: false,
+            });
+        }
+
+    }
 }
 
 export default CourseController;

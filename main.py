@@ -67,7 +67,7 @@ def extract_specific_title(pdf_path):
             for i in range(len(indices)-1):
                 key = modified_values[indices[i]]
                 ind = modified_values.index(key)
-                data[key] = modified_values[ind+1]
+                data[key.lower().replace(' ', '_')] = modified_values[ind+1]
 
 
             page2 = pdf_reader.pages[3]
@@ -96,7 +96,7 @@ def extract_specific_title(pdf_path):
                         if table and current_table is not None:
                             current_table.extend(table[len(table)-1])
 
-            header = ['Unit ref.', 'Title', 'Level', 'GLH', 'Credit Value']
+            header = ['unit_ref', 'title', 'level', 'glh', 'credit_value']
             converted_data_mandatory_units = []
             converted_data_optional_units = []
 
@@ -114,7 +114,7 @@ def extract_specific_title(pdf_path):
                     converted_data_optional_units.append(entry)
 
 
-            return {"id": content_id, "title": title, **data, "Brand Guidelines": guideline_paragraph, "Mandatory units": converted_data_mandatory_units, "Optional units": converted_data_optional_units}
+            return {"course_code": content_id, "course_name": title, **data, "brand_guidelines": guideline_paragraph, "mandatory_units": converted_data_mandatory_units, "optional_units": converted_data_optional_units}
 
     except FileNotFoundError:
         print(f"Error: The file '{pdf_path}' was not found.")

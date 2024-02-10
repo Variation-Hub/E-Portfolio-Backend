@@ -4,7 +4,7 @@ const secret: string = process.env.SECRET_KEY
 
 export const generateToken = (payload): any => {
 
-    return jwt.sign(payload, secret, { expiresIn: '2d' });
+    return jwt.sign(payload, secret, { expiresIn: '20d' });
 };
 
 export const verifyToken = (token: string): Promise<any> => {
