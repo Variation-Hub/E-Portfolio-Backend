@@ -20,8 +20,8 @@ export class Course {
     @Column({ type: 'varchar' })
     sector: string;
 
-    @Column({ type: 'varchar', name: 'internal/external' })
-    internalExternal: string;
+    @Column({ type: 'varchar' })
+    internal_external: string;
 
     @Column({ type: 'varchar' })
     qualification_type: string;

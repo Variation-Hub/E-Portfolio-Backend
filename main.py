@@ -67,7 +67,13 @@ def extract_specific_title(pdf_path):
             for i in range(len(indices)-1):
                 key = modified_values[indices[i]]
                 ind = modified_values.index(key)
-                data[key.lower().replace(' ', '_')] = modified_values[ind+1]
+                print(key, ind)
+                if key == "Internal/External":
+                    new_key = key.lower().replace('/', '_')
+                else:
+                    new_key = key.lower().replace(' ', '_')
+
+                data[new_key] = modified_values[ind+1]
 
 
             page2 = pdf_reader.pages[3]

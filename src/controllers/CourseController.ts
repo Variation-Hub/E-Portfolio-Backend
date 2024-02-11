@@ -22,12 +22,11 @@ class CourseController {
 
             const courseRepository = AppDataSource.getRepository(Course);
             const unitRepository = AppDataSource.getRepository(Unit);
-            const ie = "internal/external"
             const obj: any = {
                 course_name: data.course_name,
                 level: data.level,
                 sector: data.sector,
-                internalExternal: data['internal/external'],
+                internal_external: data['internal_external'],
                 qualification_type: data['qualification_type'],
                 assessment_language: data['assessment_language'],
                 recommended_minimum_age: parseInt(data['recommended_minimum_age']),
