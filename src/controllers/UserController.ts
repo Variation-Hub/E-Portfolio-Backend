@@ -14,8 +14,8 @@ class UserController {
 
     public async CreateUser(req: CustomRequest, res: Response) {
         try {
-            const { user_name, first_name, last_name, email, password, confrimpassword, sso_id, role } = req.body
-            if (!user_name || !first_name || !last_name || !email || !password || !sso_id || !role || !confrimpassword) {
+            const { user_name, first_name, last_name, email, password, confrimpassword, role } = req.body
+            if (!user_name || !first_name || !last_name || !email || !password || !role || !confrimpassword) {
                 return res.status(400).json({
                     message: "All Field Required",
                     status: false

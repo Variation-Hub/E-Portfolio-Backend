@@ -2,7 +2,7 @@ import sys
 import PyPDF2
 import json
 import pdfplumber
-
+import re
 def extract_specific_title(pdf_path):
     try:
         # Open the PDF file
@@ -32,33 +32,47 @@ def extract_specific_title(pdf_path):
 
             all_values = lines_page1
 
+            temp = []
+
+            for item in all_values:
+                if "Guided Learning Hours" in item:
+                    parts = re.split(r'(\d+)', item)
+                    temp.extend([part.strip() for part in parts if part.strip()])
+                elif "Sector" in item:
+                    parts = re.split(r'([A-Za-z]+)', item)
+                    temp.extend([part.strip() for part in parts if part.strip()])
+                elif "Pass/FailInternal/External" in item:
+                    parts = item.split("Internal/External")
+                    temp.append(parts[0].strip())
+                    temp.append("Internal/External")
+                    temp.append(parts[1].strip())
+                else:
+                    temp.append(item)
+
+            all_values = list(filter(None, temp))
+
             data_fields = [
                 'Level',
                 'Sector',
                 'Internal/External',
                 'Qualification Type',
+                'Guided Learning Hours',
                 'Assessment Language',
                 'Recommended Minimum Age',
                 'Total Credits',
                 'Operational Start Date',
                 'Assessment Methods',
-                'Qualification Status'
+                'Qualification Status',
+                'Overall Grading Type',
+                "Permitted Delivery Types",
+                " "
             ]
-
-            split_substrings = ['570', 'Pass/Fail']
 
             # Iterate through the list and split values based on substrings
             modified_values = []
 
             for value in all_values:
-                for substring in split_substrings:
-                    if substring in value:
-                        parts = value.split(substring)
-                        modified_values.append(substring)
-                        modified_values.extend([part.strip() for part in parts])
-                        break
-                else:
-                    modified_values.append(value)
+                modified_values.append(value)
 
             # Find all values from all_values that are in data_fields
             indices = [modified_values.index(value) for value in data_fields if value in modified_values]
@@ -67,7 +81,7 @@ def extract_specific_title(pdf_path):
             for i in range(len(indices)-1):
                 key = modified_values[indices[i]]
                 ind = modified_values.index(key)
-                print(key, ind)
+                # print(key, ind)
                 if key == "Internal/External":
                     new_key = key.lower().replace('/', '_')
                 else:
@@ -119,6 +133,8 @@ def extract_specific_title(pdf_path):
                     entry = {header[i]: row[i] for i in range(len(header))}
                     converted_data_optional_units.append(entry)
 
+            converted_data_mandatory_units = [row for row in converted_data_mandatory_units if all(value is not None for value in row.values())]
+            converted_data_optional_units = [row for row in converted_data_optional_units if all(value is not None for value in row.values())]
 
             return {"course_code": content_id, "course_name": title, **data, "brand_guidelines": guideline_paragraph, "mandatory_units": converted_data_mandatory_units, "optional_units": converted_data_optional_units}
 
@@ -141,6 +157,8 @@ def main():
 
     # Get the PDF path from the command-line arguments
     pdf_path = sys.argv[1]
+
+    # pdf_path = "pdf2.pdf"
 
     # Call the function with the provided PDF path
     title_data = extract_specific_title(pdf_path)

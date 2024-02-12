@@ -29,13 +29,7 @@ export class User {
   password: string;
 
   @Column({ type: 'varchar', nullable: true })
-  sso_id: string;
-
-  @Column({ type: 'varchar', nullable: true })
   mobile: string;
-
-  @Column({ type: 'varchar', nullable: true })
-  phone: string;
 
   @Column({ type: 'enum', enum: ["Learner", "Trainer", "Employer", "IQA", "EQA", "Admin"], default: "Learner" })
   role: string;
