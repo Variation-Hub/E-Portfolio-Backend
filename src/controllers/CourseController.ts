@@ -274,6 +274,9 @@ class CourseController {
                 .leftJoinAndSelect('course.units', 'units')
                 .leftJoinAndSelect('course.learners', 'learners')
 
+            if (req.query.keyword) {
+                qb.andWhere("(course.course_name ILIKE :keyword)", { keyword: `${req.query.keyword}%` });
+            }
             const [course, count] = await qb
                 .skip(Number(req.pagination.skip))
                 .take(Number(req.pagination.limit))

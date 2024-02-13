@@ -74,6 +74,9 @@ class LearnerController {
 
             const qb = learnerRepository.createQueryBuilder("learner")
 
+            if (req.query.keyword) {
+                qb.andWhere("(learner.email ILIKE :keyword OR learner.user_name ILIKE :keyword OR learner.first_name ILIKE :keyword OR learner.last_name ILIKE :keyword)", { keyword: `${req.query.keyword}%` });
+            }
             const [learner, count] = await qb
                 .skip(Number(req.pagination.skip))
                 .take(Number(req.pagination.limit))
