@@ -15,6 +15,9 @@ export class Course {
     course_name: string;
 
     @Column({ type: 'varchar' })
+    course_code: string;
+
+    @Column({ type: 'varchar' })
     level: string;
 
     @Column({ type: 'varchar' })
@@ -40,6 +43,9 @@ export class Course {
 
     @Column({ type: 'varchar' })
     assessment_methods: string;
+
+    @Column({ type: 'varchar' })
+    guided_learning_hours: string;
 
     @Column({ type: 'text' })
     brand_guidelines: string;

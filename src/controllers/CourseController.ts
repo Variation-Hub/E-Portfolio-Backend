@@ -37,6 +37,8 @@ class CourseController {
                 qualification_status: data['qualification_status'],
                 overall_grading_type: data['overall_grading_type'],
                 permitted_delivery_types: data['permitted_delivery_types'],
+                guided_learning_hours: data['guided_learning_hours'],
+                course_code: data['course_code'],
             }
             const course = courseRepository.create(obj);
             const savedCourse: any = await courseRepository.save(course);
