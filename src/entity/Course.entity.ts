@@ -44,6 +44,15 @@ export class Course {
     @Column({ type: 'text' })
     brand_guidelines: string;
 
+    @Column({ type: 'varchar', nullable: true })
+    qualification_status: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    overall_grading_type: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    permitted_delivery_types: string;
+
     @ManyToMany(() => Learner, learner => learner.courses, { nullable: true })
     @JoinTable()
     learners: Learner[];

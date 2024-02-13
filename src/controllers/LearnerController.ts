@@ -70,22 +70,29 @@ class LearnerController {
 
     public async getLearnerList(req: Request, res: Response): Promise<Response> {
         try {
-            const learner_id: number = parseInt(req.params.id);
             const learnerRepository = AppDataSource.getRepository(Learner);
-            const learner = await learnerRepository.find()
 
-            if (!learner) {
-                return res.status(404).json({
-                    message: 'Learner not found',
-                    status: false,
-                });
-            }
+            const qb = learnerRepository.createQueryBuilder("learner")
+
+            const [learner, count] = await qb
+                .skip(Number(req.pagination.skip))
+                .take(Number(req.pagination.limit))
+                .orderBy("learner.learner_id", "ASC")
+                .getManyAndCount();
 
             return res.status(200).json({
-                message: 'Learner retrieved successfully',
+                message: "Learner fetched successfully",
                 status: true,
                 data: learner,
-            });
+                ...(req.query.meta === "true" && {
+                    meta_data: {
+                        page: req.pagination.page,
+                        items: count,
+                        page_size: req.pagination.limit,
+                        pages: Math.ceil(count / req.pagination.limit)
+                    }
+                })
+            })
         } catch (error) {
             return res.status(500).json({
                 message: 'Internal Server Error',

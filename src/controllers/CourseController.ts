@@ -34,6 +34,9 @@ class CourseController {
                 operational_start_date: new Date(data['operational_start_date']),
                 assessment_methods: data['assessment_methods'],
                 brand_guidelines: data['brand_guidelines'],
+                qualification_status: data['qualification_status'],
+                overall_grading_type: data['overall_grading_type'],
+                permitted_delivery_types: data['permitted_delivery_types'],
             }
             const course = courseRepository.create(obj);
             const savedCourse: any = await courseRepository.save(course);
@@ -92,25 +95,21 @@ class CourseController {
         }
     }
 
-
     public async GenerateCourse(req: any, res: any) {
         if (!req.file) {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        // Save the uploaded PDF file temporarily in the current module's directory
         const pdfPath = `temp.pdf`;
         const jsonPath = `temp.json`;
 
         fs.writeFileSync(pdfPath, req.file.buffer);
 
-        // Run the Python script
         const pythonProcess = spawn('python', ['main.py', pdfPath]);
 
         pythonProcess.on('exit', (code) => {
             if (code === 0) {
 
-                // Read the JSON file
                 fs.readFile(jsonPath, 'utf-8', (err, data) => {
                     if (err) {
                         return res.status(500).json({ error: 'Failed to read JSON file' });
@@ -267,6 +266,42 @@ class CourseController {
         }
     }
 
+    public async getAllCourse(req: Request, res: Response): Promise<Response> {
+        try {
+            const courseRepository = AppDataSource.getRepository(Course);
+
+            const qb = courseRepository.createQueryBuilder("course")
+                .leftJoinAndSelect('course.units', 'units')
+                .leftJoinAndSelect('course.learners', 'learners')
+
+            const [course, count] = await qb
+                .skip(Number(req.pagination.skip))
+                .take(Number(req.pagination.limit))
+                .orderBy("course.course_id", "ASC")
+                .getManyAndCount();
+
+            return res.status(200).json({
+                message: "Course fetched successfully",
+                status: true,
+                data: course,
+                ...(req.query.meta === "true" && {
+                    meta_data: {
+                        page: req.pagination.page,
+                        items: count,
+                        page_size: req.pagination.limit,
+                        pages: Math.ceil(count / req.pagination.limit)
+                    }
+                })
+            })
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                error: error.message,
+                status: false,
+            });
+        }
+    }
+
     public async addTrainerToCourse(req: Request, res: Response): Promise<Response> {
         try {
             const { course_id, trainer_id } = req.body
@@ -283,8 +318,6 @@ class CourseController {
             if (trainer.role !== 'Trainer') {
                 return res.status(403).json({ message: 'User does not have the role Trainer', status: false });
             }
-
-            // course.trainer = trainer;
 
             await courseRepository.save(course);
 

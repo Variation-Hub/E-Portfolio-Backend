@@ -67,7 +67,7 @@ class UnitController {
             const unit_id = parseInt(req.params.id);
             const unitRepository = AppDataSource.getRepository(Unit);
 
-            const unit = await unitRepository.findOne({ where: { unit_id } });
+            const unit = await unitRepository.findOne({ where: { unit_id }, relations: ['resources'] });
 
             if (!unit) {
                 return res.status(404).json({

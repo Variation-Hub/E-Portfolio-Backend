@@ -195,14 +195,13 @@ class ResourceController {
 
     public async getUnitResources(req: CustomRequest, res: Response) {
         try {
-            const unitId = parseInt(req.params.id);
-            const userId = req.query.user_id;
+            const { user_id, unit_id } = req.query;
             const unitRepository = AppDataSource.getRepository(Unit);
             const unit = await unitRepository
                 .createQueryBuilder('unit')
                 .leftJoinAndSelect('unit.resources', 'resources')
-                .leftJoinAndSelect('resources.resourceStatus', 'resourceStatus', 'resourceStatus.user = :userId', { userId: 19 })
-                .where('unit.unit_id = :unitId', { unitId })
+                .leftJoinAndSelect('resources.resourceStatus', 'resourceStatus', 'resourceStatus.user = :user_id', { user_id })
+                .where('unit.unit_id = :unit_id', { unit_id })
                 .getOne();
 
 
