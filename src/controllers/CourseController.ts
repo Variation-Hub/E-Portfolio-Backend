@@ -107,7 +107,7 @@ class CourseController {
 
         fs.writeFileSync(pdfPath, req.file.buffer);
 
-        const pythonProcess = spawn('python', ['main.py', pdfPath]);
+        const pythonProcess = spawn('python3', ['main.py', pdfPath]);
 
         pythonProcess.on('exit', (code) => {
             if (code === 0) {
