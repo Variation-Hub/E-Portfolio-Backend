@@ -15,10 +15,22 @@ export class Resource {
     name: string;
 
     @Column({ type: 'varchar' })
-    discription: string;
+    description: string;
+
+    @Column({ type: 'numeric' })
+    hours: number;
+
+    @Column({ type: 'numeric' })
+    minute: number;
 
     @Column({ type: 'varchar' })
-    size: string;
+    job_type: string;
+
+    @Column({ type: 'numeric' })
+    size: number;
+
+    @Column({ type: 'varchar' })
+    resource_type: string;
 
     @Column({ type: 'json' })
     url: object;

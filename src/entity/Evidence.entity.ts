@@ -16,7 +16,7 @@ export class Evidence {
     evidence_title: string;
 
     @Column({ type: 'varchar' })
-    evidence_discription: string;
+    evidence_description: string;
 
     @Column({ type: 'varchar' })
     point_improvement: string;

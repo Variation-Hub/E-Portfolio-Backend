@@ -8,8 +8,8 @@ import { uploadToS3 } from '../util/aws';
 class ResourceController {
     public async createResource(req: CustomRequest, res: Response) {
         try {
-            const { unit_id, name, discription, size } = req.body;
-            if (!unit_id || !name || !discription || !size) {
+            const { unit_id, name, description, size, hours, minute, job_type, resource_type } = req.body;
+            if (!unit_id || !name || !description || !size || !hours || !minute || !job_type || !resource_type) {
                 return res.status(400).json({
                     message: 'All fields are required',
                     status: false,
@@ -38,9 +38,13 @@ class ResourceController {
             const resource = resourceRepository.create({
                 unit_id: unit,
                 name,
-                discription,
+                description,
                 size,
-                url,
+                hours,
+                minute,
+                job_type,
+                resource_type,
+                url
             })
 
             const savedResource = await resourceRepository.save(resource);
@@ -110,9 +114,9 @@ class ResourceController {
     public async updateResource(req: CustomRequest, res: Response) {
         try {
             const resourceId = parseInt(req.params.id);
-            const { unit_id, name, discription, size } = req.body;
+            const { unit_id, name, description, size } = req.body;
 
-            if (!unit_id && !name && !discription && !size) {
+            if (!unit_id && !name && !description && !size) {
                 return res.status(400).json({
                     message: 'At least one field required',
                     status: false,
@@ -145,7 +149,7 @@ class ResourceController {
             }
 
             resource.name = name || resource.name;
-            resource.discription = discription || resource.discription;
+            resource.description = description || resource.description;
             resource.size = size || resource.size;
 
             const updatedResource = await resourceRepository.save(resource);

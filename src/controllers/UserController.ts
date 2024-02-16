@@ -186,7 +186,7 @@ class UserController {
                 })
             }
 
-            let accessToken = generateToken({ user_id: user.user_id, user_name: user.user_name, email: user.email, role: user.role, avatar: user.avatar, displayName: user.first_name + " " + user.last_name })
+            let accessToken = generateToken({ ...user, displayName: user.first_name + " " + user.last_name })
 
             let responce = {
                 password_changed: user.password_changed,
@@ -341,7 +341,7 @@ class UserController {
 
     public async UploadAvatar(req: any, res: Response) {
         try {
-            const userId: number = parseInt(req.token.user_id);
+            const userId: number = parseInt(req.user.user_id);
 
             if (!req.file) {
                 return res.status(400).json({
