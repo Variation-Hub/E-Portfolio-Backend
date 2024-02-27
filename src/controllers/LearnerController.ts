@@ -191,6 +191,34 @@ class LearnerController {
         }
     }
 
+    public async getLearnerByToken(req: CustomRequest, res: Response): Promise<Response> {
+        try {
+            const learner_id: number = req.user.userId;
+            console.log(`getLearnerByToken`, learner_id);
+            const learnerRepository = AppDataSource.getRepository(Learner);
+            const learner = await learnerRepository.findOne({ where: { learner_id }, relations: ['courses'] })
+
+            if (!learner) {
+                return res.status(404).json({
+                    message: 'Learner not found',
+                    status: false,
+                });
+            }
+
+            return res.status(200).json({
+                message: 'Learner retrieved successfully',
+                status: true,
+                data: learner,
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                error: error.message,
+                status: false,
+            });
+        }
+    }
+
 }
 
 export default LearnerController;
