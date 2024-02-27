@@ -193,10 +193,10 @@ class LearnerController {
 
     public async getLearnerByToken(req: CustomRequest, res: Response): Promise<Response> {
         try {
-            const learner_id: number = req.user.userId;
-            console.log(`getLearnerByToken`, learner_id);
+            const id = req.user.user_id;
+
             const learnerRepository = AppDataSource.getRepository(Learner);
-            const learner = await learnerRepository.findOne({ where: { learner_id }, relations: ['courses'] })
+            const learner = await learnerRepository.findOne({ where: { user_id: id }, relations: ['courses'] })
 
             if (!learner) {
                 return res.status(404).json({
