@@ -7,6 +7,8 @@ import { spawn } from "child_process"
 import { Unit } from "../entity/Unit.entity";
 import { User } from "../entity/User.entity";
 import { Learner } from "../entity/Learner.entity";
+import { sendMessageToUser } from "../socket/socketEvent";
+import { SendNotification } from "../util/socket/notification";
 
 class CourseController {
 
@@ -216,14 +218,14 @@ class CourseController {
         }
     }
 
-    public async addLearnerToCourse(req: Request, res: Response): Promise<Response> {
+    public async addLearnerToCourse(req: CustomRequest, res: Response): Promise<Response> {
         try {
             const { learner_id, course_id } = req.body
 
             const learnerRepository = AppDataSource.getRepository(Learner);
             const courseRepository = AppDataSource.getRepository(Course);
 
-            const learner = await learnerRepository.findOne({ where: { learner_id }, relations: ['courses'] });
+            const learner = await learnerRepository.findOne({ where: { learner_id }, relations: ['courses', 'user_id'] });
             const course = await courseRepository.findOne({ where: { course_id } });
 
             if (!learner || !course) {
@@ -232,7 +234,11 @@ class CourseController {
 
             learner.courses = [...(learner.courses || []), course];
             await learnerRepository.save(learner);
-            return res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
+
+            res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
+            const userRepository = AppDataSource.getRepository(User);
+            const admin = await userRepository.findOne({ where: { user_id: req.user.user_id } });
+            SendNotification(learner.user_id.user_id, { title: "Course Allocation", message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course.`, })
         } catch (error) {
             return res.status(500).json({
                 message: 'Internal Server Error',

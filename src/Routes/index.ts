@@ -6,6 +6,7 @@ import UnitRoute from './UnitRouter';
 import ResourceRoute from './ResourceRouter';
 import CourseRoutes from './CourseRouter';
 import ResourceStatusRoute from './ResourceStatusRouter';
+import NotificationRoutes from './NotificationRouter';
 
 const Routes = express.Router();
 
@@ -16,5 +17,6 @@ Routes.use("/unit", UnitRoute)
 Routes.use("/resource", ResourceRoute)
 Routes.use("/course", CourseRoutes)
 Routes.use("/resource-status", ResourceStatusRoute)
+Routes.use("/notification", NotificationRoutes)
 
 export default Routes; 

@@ -19,6 +19,7 @@
       "@types/cors": "^2.8.17",
       "@types/morgan": "^1.9.9",
       "@types/mqtt": "^2.5.0",
+      "@types/socket.io": "^3.0.2",
       "bcrypt": "^5.1.1",
       "body-parser": "^1.20.2",
       "child_process": "^1.0.2",
@@ -35,6 +36,7 @@
       "nodemailer-smtp-transport": "^2.7.4",
       "pg": "^8.4.0",
       "reflect-metadata": "^0.1.13",
+      "socket.io": "^4.7.4",
       "typeorm": "0.3.17"
    },
    "scripts": {
