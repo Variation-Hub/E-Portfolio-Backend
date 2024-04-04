@@ -238,7 +238,8 @@ class CourseController {
             res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
             const userRepository = AppDataSource.getRepository(User);
             const admin = await userRepository.findOne({ where: { user_id: req.user.user_id } });
-            SendNotification(learner.user_id.user_id, { title: "Course Allocation", message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course.`, })
+            const data = { title: "Course Allocation", message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course.`, domain: "Course Allocation" }
+            SendNotification(learner.user_id.user_id, data)
         } catch (error) {
             return res.status(500).json({
                 message: 'Internal Server Error',
@@ -326,9 +327,9 @@ class CourseController {
                 return res.status(404).json({ message: 'Trainer or course not found', status: false });
             }
 
-            if (trainer.role !== 'Trainer') {
-                return res.status(403).json({ message: 'User does not have the role Trainer', status: false });
-            }
+            // if (trainer.role !== 'Trainer') {
+            //     return res.status(403).json({ message: 'User does not have the role Trainer', status: false });
+            // }
 
             await courseRepository.save(course);
 

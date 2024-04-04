@@ -14,8 +14,8 @@ class UserController {
 
     public async CreateUser(req: CustomRequest, res: Response) {
         try {
-            const { user_name, first_name, last_name, email, password, confrimpassword, role } = req.body
-            if (!user_name || !first_name || !last_name || !email || !password || !role || !confrimpassword) {
+            const { user_name, first_name, last_name, email, password, confrimpassword, roles } = req.body
+            if (!user_name || !first_name || !last_name || !email || !password || !roles || !confrimpassword) {
                 return res.status(400).json({
                     message: "All Field Required",
                     status: false
@@ -38,11 +38,9 @@ class UserController {
                     status: false
                 })
             }
-            if (role === UserRole.Admin) {
+            if (roles.includes(UserRole.Admin)) {
                 req.body.password_changed = true
             }
-
-
 
             req.body.password = await bcryptpassword(req.body.password)
             const user = await userRepository.create(req.body);
@@ -102,17 +100,17 @@ class UserController {
 
     public async UpdateUser(req: any, res: Response) {
         try {
-            const { user_name, first_name, last_name, sso_id, mobile, phone, role, time_zone, email } = req.body;
+            const { user_name, first_name, last_name, sso_id, mobile, phone, roles, time_zone, email } = req.body;
             const userId: number = parseInt(req.params.id);
 
-            if (!user_name && !first_name && !last_name && !sso_id && !mobile && !phone && !role && !time_zone && !email) {
+            if (!user_name && !first_name && !last_name && !sso_id && !mobile && !phone && !roles && !time_zone && !email) {
                 return res.status(400).json({
                     message: "At least one field required",
                     status: false
                 });
             }
 
-            if (req.tokenrole !== UserRole.Admin && (Boolean(role) || Boolean(email) || Boolean(mobile) || Boolean(sso_id))) {
+            if (req.tokenrole !== UserRole.Admin && (Boolean(roles.length) || Boolean(email) || Boolean(mobile) || Boolean(sso_id))) {
                 return res.status(401).json({
                     message: "Admin role is required",
                     status: false
@@ -186,7 +184,7 @@ class UserController {
                 })
             }
 
-            let accessToken = generateToken({ ...user, displayName: user.first_name + " " + user.last_name })
+            let accessToken = generateToken({ ...user, displayName: user.first_name + " " + user.last_name, role: user.roles[user.roles.length - 1] })
 
             let responce = {
                 password_changed: user.password_changed,
@@ -265,12 +263,12 @@ class UserController {
                     status: false
                 });
             }
-            if (user.role === UserRole.Admin) {
-                return res.status(403).json({
-                    message: "Deleting admin account is restricted",
-                    status: false
-                })
-            }
+            // if (user.role === UserRole.Admin) {
+            //     return res.status(403).json({
+            //         message: "Deleting admin account is restricted",
+            //         status: false
+            //     })
+            // }
             if (user?.avatar) {
                 deleteFromS3(user.avatar)
             }
@@ -305,8 +303,7 @@ class UserController {
 
             }
             if (req.query.role) {
-                qb.andWhere("user.role = :role", { role: req.query.role });
-
+                qb.andWhere(":role = ANY(user.roles)", { role: req.query.role });
             }
 
             const [users, count] = await await qb
@@ -374,6 +371,40 @@ class UserController {
                 message: "Avatar uploaded successfully",
                 status: true,
                 data: updatedUser
+            })
+
+        } catch (error) {
+            return res.status(500).json({
+                message: "Internal Server Error",
+                status: false,
+                error: error.message
+            })
+        }
+    }
+
+    public async ChangeUserRole(req: any, res: Response) {
+        try {
+            const user_id: number = parseInt(req.user.user_id);
+            const { role } = req.body
+
+            const userRepository = AppDataSource.getRepository(User)
+            const user = await userRepository.findOne({ where: { user_id } });
+
+            if (!user.roles.includes(role)) {
+                return res.status(404).json({
+                    message: "You are not allowed to change this user role",
+                    status: false,
+                })
+            }
+
+            let accessToken = generateToken({ ...user, displayName: user.first_name + " " + user.last_name, role })
+
+            return res.status(200).json({
+                message: "user has been updated",
+                status: true,
+                data: {
+                    accessToken: accessToken
+                }
             })
 
         } catch (error) {

@@ -6,7 +6,6 @@ import MainRoutes from "./src/Routes/index";
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import { initSocket } from './src/socket/socket';
-import { connectUser, sendMessageToUser } from './src/socket/socketEvent';
 
 const app: Express = express();
 const port = process.env.PORT || 4000;
@@ -25,13 +24,6 @@ AppDataSource.initialize().then(async () => {
 
 // config mainRoute
 app.use('/api/v1', MainRoutes);
-
-app.get('/send/:userId', (req, res) => {
-    const userId = req.params.userId;
-    // sendMessageToUser(userId, 'Hello from server');
-    res.send('Message sent to user');
-});
-
 
 const server = app.listen(port, () => {
     console.log(`Server is running at Port :: ${port} `);

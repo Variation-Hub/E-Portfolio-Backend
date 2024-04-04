@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, JoinColumn, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
 import { Course } from './Course.entity';
+import { UserRole } from '../util/enum/user_enum';
 
 @Entity('users')
 export class User {
@@ -31,8 +32,13 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   mobile: string;
 
-  @Column({ type: 'enum', enum: ["Learner", "Trainer", "Employer", "IQA", "EQA", "Admin"], default: "Learner" })
-  role: string;
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    array: true,
+    default: [UserRole.Learner]
+  })
+  roles: UserRole[];
 
   @Column({ type: 'json', nullable: true })
   avatar: object;

@@ -1,11 +1,10 @@
 import { getIo } from './socket';
 
 interface UserSocketMap {
-    [userId: string]: string;
+    [userId: string]: string[];
 }
 
 const userSocketMap: UserSocketMap = {};
-
 export function connectUser(userId: string): void {
     const io = getIo();
     console.log('Connecting')
@@ -13,19 +12,19 @@ export function connectUser(userId: string): void {
         console.log(userId + ' connected')
         console.log('A user connected', socket.id, userId);
 
-        if (!userSocketMap[userId]) {
-            userSocketMap[userId] = socket.id;
-        }
+        userSocketMap[userId] = [...(userSocketMap[userId] ?? []), ...(userSocketMap[userId] && userSocketMap[userId].includes(socket.id) ? [] : [socket.id])];
 
         socket.on('disconnect', () => {
-            console.log('User disconnected');
-            delete userSocketMap[userId];
+            console.log('socket disconnected')
+            userSocketMap[userId].reduce((acc, curr) => curr !== socket.id ? acc.concat(curr) : acc, [])
+            console.log('socket disconnected', userSocketMap)
         });
+        console.log(userSocketMap, 'userSocketMap')
     });
     io.emit('connect_user', userId);
 }
 
-export function sendMessageToUser(userId: string, data: { title: string, message: string }): void {
+export function sendMessageToUser(userId: string, data: { title: string, message: string, domain: string }): void {
     const io = getIo();
     if (userSocketMap[userId]) {
         io.to(userSocketMap[userId]).emit('message', data);

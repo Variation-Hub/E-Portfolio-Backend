@@ -34,6 +34,7 @@ export const authorizeRoles = (...roles: string[]) => {
                 });
             }
 
+            // console.log(tokenResult)
             const userRole: string | null = tokenResult.role;
 
             if (!userRole || (!roles.includes(userRole) && roles.length > 0)) {
