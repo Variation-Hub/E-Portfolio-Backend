@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, JoinColumn, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, JoinColumn, ManyToOne, ManyToMany, JoinTable, getRepository, DeleteDateColumn } from 'typeorm';
 import { Course } from './Course.entity';
 import { UserRole } from '../util/enum/user_enum';
 
@@ -46,8 +46,11 @@ export class User {
   @Column({ type: 'boolean', default: false })
   password_changed: boolean;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar', nullable: true, default: 'Europe/London' })
   time_zone: string;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
@@ -66,7 +69,7 @@ export interface IUser {
   sso_id?: string | null;
   mobile?: string | null;
   phone?: string | null;
-  role: "Learner" | "Trainer" | "Employer" | "IQA" | "EQA" | "Admin";
+  role: "Learner" | "Trainer" | "Employer" | "IQA" | "LIQA" | "EQA" | "Admin";
   avatar?: object | null;
   password_changed: boolean;
   created_at: Date;

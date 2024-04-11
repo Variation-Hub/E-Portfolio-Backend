@@ -24,13 +24,7 @@ export class Course {
     sector: string;
 
     @Column({ type: 'varchar' })
-    internal_external: string;
-
-    @Column({ type: 'varchar' })
     qualification_type: string;
-
-    @Column({ type: 'varchar' })
-    assessment_language: string;
 
     @Column({ type: 'varchar' })
     recommended_minimum_age: string;
@@ -40,9 +34,6 @@ export class Course {
 
     @Column({ type: 'varchar' })
     operational_start_date: string;
-
-    @Column({ type: 'varchar' })
-    assessment_methods: string;
 
     @Column({ type: 'varchar' })
     guided_learning_hours: string;

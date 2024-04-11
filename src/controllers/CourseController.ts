@@ -9,6 +9,7 @@ import { User } from "../entity/User.entity";
 import { Learner } from "../entity/Learner.entity";
 import { sendMessageToUser } from "../socket/socketEvent";
 import { SendNotification } from "../util/socket/notification";
+import { UserUnit } from "../entity/UserUnit.entity";
 
 class CourseController {
 
@@ -28,13 +29,10 @@ class CourseController {
                 course_name: data.course_name,
                 level: data.level,
                 sector: data.sector,
-                internal_external: data['internal_external'],
                 qualification_type: data['qualification_type'],
-                assessment_language: data['assessment_language'],
                 recommended_minimum_age: parseInt(data['recommended_minimum_age']),
                 total_credits: parseInt(data['total_credits']),
                 operational_start_date: new Date(data['operational_start_date']),
-                assessment_methods: data['assessment_methods'],
                 brand_guidelines: data['brand_guidelines'],
                 qualification_status: data['qualification_status'],
                 overall_grading_type: data['overall_grading_type'],
@@ -224,9 +222,10 @@ class CourseController {
 
             const learnerRepository = AppDataSource.getRepository(Learner);
             const courseRepository = AppDataSource.getRepository(Course);
+            const userUnitRepository = AppDataSource.getRepository(UserUnit);
 
             const learner = await learnerRepository.findOne({ where: { learner_id }, relations: ['courses', 'user_id'] });
-            const course = await courseRepository.findOne({ where: { course_id } });
+            const course = await courseRepository.findOne({ where: { course_id }, relations: ['units'] });
 
             if (!learner || !course) {
                 return res.status(404).json({ message: 'Learner or course not found', status: false });
@@ -240,6 +239,21 @@ class CourseController {
             const admin = await userRepository.findOne({ where: { user_id: req.user.user_id } });
             const data = { title: "Course Allocation", message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course.`, domain: "Course Allocation" }
             SendNotification(learner.user_id.user_id, data)
+
+            const UserUnitData = course.units.map(unit => {
+                return {
+                    learner_id,
+                    unit_id: unit.unit_id,
+                    sub_units: unit.sub_units.map(sub_unit => {
+                        return sub_unit.peta_unit.map(peta_unit => {
+                            return {
+                                ...peta_unit,
+
+                            }
+                        })
+                    })
+                }
+            });
         } catch (error) {
             return res.status(500).json({
                 message: 'Internal Server Error',

@@ -2,6 +2,18 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { Course } from './Course.entity';
 import { Resource } from './Resource.entity';
 
+interface PetaUnit {
+    peta_unit_id: string;
+    name: string;
+    status: 'pending' | 'Inprogress' | 'complete';
+}
+
+interface SubUnit {
+    sub_unit_id: string;
+    name: string;
+    peta_unit: PetaUnit[];
+}
+
 @Entity('unit')
 export class Unit {
     @PrimaryGeneratedColumn()
@@ -31,6 +43,9 @@ export class Unit {
 
     @Column({ type: 'numeric', nullable: true })
     credit_value: number;
+
+    @Column({ type: 'json', nullable: true })
+    sub_units: SubUnit[]
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;

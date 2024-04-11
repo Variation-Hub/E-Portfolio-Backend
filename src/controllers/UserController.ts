@@ -4,7 +4,7 @@ import { AppDataSource } from "../data-source";
 import { bcryptpassword, comparepassword } from "../util/bcrypt";
 import { generateToken } from "../util/JwtAuth";
 import { Learner } from "../entity/Learner.entity";
-import { Equal } from "typeorm";
+import { Equal, IsNull } from "typeorm";
 import { UserRole } from "../util/enum/user_enum";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { CustomRequest } from "../util/Interface/expressInterface";
@@ -269,16 +269,16 @@ class UserController {
             //         status: false
             //     })
             // }
-            if (user?.avatar) {
-                deleteFromS3(user.avatar)
-            }
+            // if (user?.avatar) {
+            //     deleteFromS3(user.avatar)
+            // }
 
             const learners = await learnerRepository.findOneBy({ user_id: Equal(id) });
             if (learners) {
-                await learnerRepository.remove(learners);
+                await learnerRepository.softDelete(learners.learner_id);
             }
 
-            await userRepository.remove(user);
+            await userRepository.softDelete(id);
 
             return res.status(200).json({
                 message: "User deleted successfully",
@@ -305,8 +305,12 @@ class UserController {
             if (req.query.role) {
                 qb.andWhere(":role = ANY(user.roles)", { role: req.query.role });
             }
+            else {
+                qb.andWhere("ARRAY_LENGTH(user.roles, 1) != 1 OR 'Learner' <> ANY(user.roles)")
+            }
 
-            const [users, count] = await await qb
+            const [users, count] = await qb
+
                 .skip(Number(req.pagination.skip))
                 .take(Number(req.pagination.limit))
                 .orderBy("user.user_id", "ASC")
@@ -328,6 +332,7 @@ class UserController {
 
 
         } catch (error) {
+            console.log(error)
             return res.status(500).json({
                 message: "Internal Server Error",
                 status: false,

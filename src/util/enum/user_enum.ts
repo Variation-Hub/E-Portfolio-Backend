@@ -1,8 +1,9 @@
 export enum UserRole {
-    Learner = 'Learner',
-    Trainer = 'Trainer',
-    Employer = 'Employer',
-    IQA = 'IQA',
-    EQA = 'EQA',
-    Admin = 'Admin',
-  }
+  Learner = 'Learner',
+  Trainer = 'Trainer',
+  Employer = 'Employer',
+  IQA = 'IQA',
+  LIQA = 'LIQA',
+  EQA = 'EQA',
+  Admin = 'Admin',
+}

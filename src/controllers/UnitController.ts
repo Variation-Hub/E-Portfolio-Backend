@@ -6,14 +6,16 @@ import { CustomRequest } from '../util/Interface/expressInterface';
 class UnitController {
     public async createUnit(req: CustomRequest, res: Response) {
         try {
-            const { title, status, course_id, level, glh, unit_ref, credit_value } = req.body;
+            const { title, status, course_id, level, glh, unit_ref, credit_value, sub_units } = req.body;
 
+            console.log(sub_units, "sub_units:")
             if (!title || !status) {
                 return res.status(400).json({
                     message: 'All fields are required',
                     status: false,
                 });
             }
+
 
             const unitRepository = AppDataSource.getRepository(Unit);
 
@@ -24,7 +26,8 @@ class UnitController {
                 level,
                 glh,
                 unit_ref,
-                credit_value
+                credit_value,
+                sub_units
             });
 
             const savedUnit = await unitRepository.save(unit);
