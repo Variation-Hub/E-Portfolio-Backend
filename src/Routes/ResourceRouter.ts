@@ -2,7 +2,7 @@ import * as express from 'express';
 import { authorizeRoles } from '../middleware/verifyToken';
 import { trimMiddleware } from '../middleware/trimMiddleware';
 import ResourceController from '../controllers/ResourseController';
-import { UserRole } from '../util/enum/user_enum';
+import { UserRole } from '../util/constants';
 import { singleFileUpload } from '../util/multer';
 import { paginationMiddleware } from '../middleware/pagination';
 

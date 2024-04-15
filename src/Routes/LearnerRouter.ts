@@ -2,7 +2,7 @@ import * as express from 'express';
 import LearnerController from '../controllers/LearnerController';
 import { authorizeRoles } from '../middleware/verifyToken';
 import { singleFileUpload } from '../util/multer';
-import { UserRole } from '../util/enum/user_enum';
+import { UserRole } from '../util/constants';
 import { paginationMiddleware } from '../middleware/pagination';
 
 const learnerRoutes = express.Router();

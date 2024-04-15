@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, JoinColumn, ManyToOne, ManyToMany, JoinTable, getRepository, DeleteDateColumn } from 'typeorm';
 import { Course } from './Course.entity';
-import { UserRole } from '../util/enum/user_enum';
+import { UserRole } from '../util/constants';
 
 @Entity('users')
 export class User {

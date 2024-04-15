@@ -3,6 +3,7 @@ import { Unit } from './Unit.entity';
 import { User } from './User.entity';
 import { Learner } from './Learner.entity';
 import { Resource } from './Resource.entity';
+import { Assignment } from './Assignment.entity';
 
 @Entity('course')
 export class Course {

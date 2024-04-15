@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { authorizeRoles } from '../middleware/verifyToken';
 import { trimMiddleware } from '../middleware/trimMiddleware';
-import { UserRole } from '../util/enum/user_enum';
+import { UserRole } from '../util/constants';
 import ResourceStatusController from '../controllers/ResourseStatusController';
 
 const ResourceStatusRoute = express.Router();

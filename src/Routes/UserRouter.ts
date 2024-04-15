@@ -4,7 +4,7 @@ import { paginationMiddleware } from '../middleware/pagination';
 import { authorizeRoles } from '../middleware/verifyToken';
 import { singleFileUpload } from '../util/multer';
 import { trimMiddleware } from '../middleware/trimMiddleware';
-import { UserRole } from '../util/enum/user_enum';
+import { UserRole } from '../util/constants';
 
 const userRoutes = express.Router();
 

@@ -2,7 +2,7 @@ import * as express from 'express';
 import { authorizeRoles } from '../middleware/verifyToken';
 import { trimMiddleware } from '../middleware/trimMiddleware';
 import UnitController from '../controllers/UnitController';
-import { UserRole } from '../util/enum/user_enum';
+import { UserRole } from '../util/constants';
 
 const UnitRoute = express.Router();
 
