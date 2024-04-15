@@ -2,14 +2,14 @@ import { Request, Response } from 'express';
 import { AppDataSource } from '../data-source';
 import { Resource } from '../entity/Resource.entity';
 import { CustomRequest } from '../util/Interface/expressInterface';
-import { Unit } from '../entity/Unit.entity';
-import { uploadToS3 } from '../util/aws';
+import { deleteFromS3, uploadToS3 } from '../util/aws';
+import { Course } from '../entity/Course.entity';
 
 class ResourceController {
     public async createResource(req: CustomRequest, res: Response) {
         try {
-            const { unit_id, name, description, size, hours, minute, job_type, resource_type } = req.body;
-            if (!unit_id || !name || !description || !size || !hours || !minute || !job_type || !resource_type) {
+            const { name, description, size, hours, minute, job_type, resource_type, course_id } = req.body;
+            if (!course_id || !name || !description || !size || !hours || !minute || !job_type || !resource_type) {
                 return res.status(400).json({
                     message: 'All fields are required',
                     status: false,
@@ -23,20 +23,20 @@ class ResourceController {
             }
 
             const resourceRepository = AppDataSource.getRepository(Resource);
-            const unitRepository = AppDataSource.getRepository(Unit);
+            const courseRepository = AppDataSource.getRepository(Course);
 
-            const unit = await unitRepository.findOne({ where: { unit_id } });
+            const course = await courseRepository.findOne({ where: { course_id } });
 
-            if (!unit) {
+            if (!course) {
                 return res.status(404).json({
-                    message: 'Unit not found',
+                    message: 'Course not found',
                     status: false,
                 });
             }
 
             const url = await uploadToS3(req.file, "Resourse")
             const resource = resourceRepository.create({
-                unit_id: unit,
+                course_id: course,
                 name,
                 description,
                 size,
@@ -114,9 +114,8 @@ class ResourceController {
     public async updateResource(req: CustomRequest, res: Response) {
         try {
             const resourceId = parseInt(req.params.id);
-            const { unit_id, name, description, size } = req.body;
-
-            if (!unit_id && !name && !description && !size) {
+            const { course_id, name, description, size, hours, minute, job_type, resource_type } = req.body;
+            if (!course_id && !name && !description && !size && !hours && !minute && !job_type && !resource_type && !req.file) {
                 return res.status(400).json({
                     message: 'At least one field required',
                     status: false,
@@ -124,7 +123,7 @@ class ResourceController {
             }
 
             const resourceRepository = AppDataSource.getRepository(Resource);
-            const unitRepository = AppDataSource.getRepository(Unit);
+            const courseRepository = AppDataSource.getRepository(Course);
 
             const resource = await resourceRepository.findOne({ where: { resource_id: resourceId } });
 
@@ -135,22 +134,31 @@ class ResourceController {
                 });
             }
 
-            if (unit_id) {
-                const unit = await unitRepository.findOne({ where: { unit_id } });
+            if (course_id) {
+                const course = await courseRepository.findOne({ where: { course_id } });
 
-                if (!unit) {
+                if (!course) {
                     return res.status(404).json({
-                        message: 'Unit not found',
+                        message: 'Course not found',
                         status: false,
                     });
                 }
 
-                resource.unit_id = unit;
+                resource.course_id = course;
+            }
+
+            if (req.file) {
+                deleteFromS3(resource.url)
+                resource.url = await uploadToS3(req.file, "Resourse")
             }
 
             resource.name = name || resource.name;
             resource.description = description || resource.description;
             resource.size = size || resource.size;
+            resource.hours = hours || resource.hours;
+            resource.minute = minute || resource.minute;
+            resource.job_type = job_type || resource.job_type;
+            resource.resource_type = resource_type || resource.resource_type;
 
             const updatedResource = await resourceRepository.save(resource);
 
@@ -197,26 +205,26 @@ class ResourceController {
         }
     }
 
-    public async getUnitResources(req: CustomRequest, res: Response) {
+    public async getCourseResources(req: CustomRequest, res: Response) {
         try {
-            const { user_id, unit_id } = req.query;
-            const unitRepository = AppDataSource.getRepository(Unit);
-            const unit = await unitRepository
-                .createQueryBuilder('unit')
-                .leftJoinAndSelect('unit.resources', 'resources')
+            const { user_id, course_id } = req.query;
+            const courseRepository = AppDataSource.getRepository(Course);
+            const course = await courseRepository
+                .createQueryBuilder('course')
+                .leftJoinAndSelect('course.resources', 'resources')
                 .leftJoinAndSelect('resources.resourceStatus', 'resourceStatus', 'resourceStatus.user = :user_id', { user_id })
-                .where('unit.unit_id = :unit_id', { unit_id })
+                .where('course.course_id = :course_id', { course_id })
                 .getOne();
 
 
-            if (!unit) {
+            if (!course) {
                 return res.status(404).json({
-                    message: 'Unit not found',
+                    message: 'course not found',
                     status: false,
                 });
             }
 
-            const resources = unit.resources.map(resource => ({
+            const resources = course.resources.map(resource => ({
                 ...resource,
                 isAccessed: resource.resourceStatus.length > 0,
             }));

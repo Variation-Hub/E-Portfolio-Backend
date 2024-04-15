@@ -13,9 +13,9 @@ const Controller = new ResourceController();
 ResourceRoute.post("/create", authorizeRoles(UserRole.Admin, UserRole.Trainer), trimMiddleware, singleFileUpload("file"), Controller.createResource);
 ResourceRoute.get("/get/:id", Controller.getResource);
 ResourceRoute.get("/list", paginationMiddleware, Controller.getResources);
-ResourceRoute.patch("/update/:id", trimMiddleware, Controller.updateResource);
+ResourceRoute.patch("/update/:id", singleFileUpload("file"), Controller.updateResource);
 ResourceRoute.delete("/delete/:id", Controller.deleteResource);
-ResourceRoute.get("/list-by-unit", authorizeRoles(UserRole.Admin,UserRole.EQA, UserRole.Employer, UserRole.IQA, UserRole.Learner, UserRole.Trainer ),Controller.getUnitResources);
+ResourceRoute.get("/list-by-course", authorizeRoles(UserRole.Admin, UserRole.EQA, UserRole.Employer, UserRole.IQA, UserRole.Learner, UserRole.Trainer), Controller.getCourseResources);
 
 
 export default ResourceRoute;

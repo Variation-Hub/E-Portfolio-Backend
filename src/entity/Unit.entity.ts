@@ -23,9 +23,6 @@ export class Unit {
     @JoinColumn({ name: 'course_id' })
     course_id: Course;
 
-    @OneToMany(() => Resource, resource => resource.unit_id)
-    resources: Resource[];
-
     @Column({ type: 'varchar', nullable: true })
     title: string;
 

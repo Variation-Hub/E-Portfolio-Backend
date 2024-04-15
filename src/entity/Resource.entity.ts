@@ -1,15 +1,16 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Unit } from './Unit.entity';
 import { ResourceStatus } from './ResourceStatus.entity';
+import { Course } from './Course.entity';
 
 @Entity('resource')
 export class Resource {
     @PrimaryGeneratedColumn()
     resource_id: number;
 
-    @ManyToOne(() => Unit, unit => unit.resources)
-    @JoinColumn({ name: 'unit_id' })
-    unit_id: Unit;
+    @ManyToOne(() => Course, course => course.resources)
+    @JoinColumn({ name: 'course_id' })
+    course_id: Course;
 
     @Column({ type: 'varchar' })
     name: string;

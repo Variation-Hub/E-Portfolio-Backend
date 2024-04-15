@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { Unit } from './Unit.entity';
 import { User } from './User.entity';
 import { Learner } from './Learner.entity';
+import { Resource } from './Resource.entity';
 
 @Entity('course')
 export class Course {
@@ -53,6 +54,9 @@ export class Course {
     @ManyToMany(() => Learner, learner => learner.courses, { nullable: true })
     @JoinTable()
     learners: Learner[];
+
+    @OneToMany(() => Resource, resource => resource.course_id)
+    resources: Resource[];
 
     // @ManyToOne(() => User, user => user.course, { nullable: true })
     // trainer: User;

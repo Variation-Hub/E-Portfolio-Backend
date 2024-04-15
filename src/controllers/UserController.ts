@@ -183,8 +183,15 @@ class UserController {
                     status: true
                 })
             }
+            delete user.password;
+            delete user.created_at;
+            delete user.updated_at;
+            delete user.deleted_at;
 
-            let accessToken = generateToken({ ...user, displayName: user.first_name + " " + user.last_name, role: user.roles[user.roles.length - 1] })
+            let accessToken = generateToken({
+                ...user
+                , displayName: user.first_name + " " + user.last_name, role: user.roles[user.roles.length - 1]
+            })
 
             let responce = {
                 password_changed: user.password_changed,
