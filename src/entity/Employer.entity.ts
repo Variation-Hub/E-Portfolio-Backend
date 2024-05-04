@@ -1,43 +1,74 @@
-// employer.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
+import { User } from './User.entity';
 
 @Entity('employer')
 export class Employer {
   @PrimaryGeneratedColumn()
   employer_id: number;
 
-  @Column({ type: 'varchar' })
-  job_title: string;
+  // @ManyToOne(() => User, user => user.employer_id)
+  // user_id: User;
+
+  @OneToOne(() => User, user => user.employer)
+  @JoinColumn()
+  user: User;
 
   @Column({ type: 'varchar' })
-  location: string;
+  employer_name: string;
 
   @Column({ type: 'varchar' })
-  manager_name: string;
+  msi_employer_id: string;
 
   @Column({ type: 'varchar' })
-  manager_job_title: string;
+  business_department: string;
 
   @Column({ type: 'varchar' })
-  mentor: string;
+  business_location: string;
 
   @Column({ type: 'varchar' })
-  funding_contractor: string;
+  branch_code: string;
 
   @Column({ type: 'varchar' })
-  area: string;
+  address_1: string;
 
   @Column({ type: 'varchar' })
-  cohort: string;
+  address_2: string;
+
+  @Column({ type: 'varchar' })
+  city: string;
+
+  @Column({ type: 'varchar' })
+  country: string;
 
   @Column({ type: 'numeric' })
-  wage: number;
+  postal_code: number;
 
-  @Column({ type: 'enum', enum: ['per_hour', 'per_annum'] })
-  wage_type: string;
+  @Column({ type: 'varchar' })
+  edrs_number: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  avatar: string;
+  @Column({ type: 'varchar' })
+  business_category: string;
+
+  @Column({ type: 'varchar' })
+  external_data_code: string;
+
+  @Column({ type: 'varchar' })
+  telephone: string;
+
+  @Column({ type: 'varchar' })
+  website: string;
+
+  @Column({ type: 'varchar' })
+  key_contact: string;
+
+  @Column({ type: 'varchar' })
+  business_description: string;
+
+  @Column({ type: 'varchar' })
+  comments: string;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

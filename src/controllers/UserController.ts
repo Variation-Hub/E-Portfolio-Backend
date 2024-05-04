@@ -5,10 +5,10 @@ import { bcryptpassword, comparepassword } from "../util/bcrypt";
 import { generateToken } from "../util/JwtAuth";
 import { Learner } from "../entity/Learner.entity";
 import { Equal, IsNull } from "typeorm";
-import { UserRole } from "../util/enum/user_enum";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { CustomRequest } from "../util/Interface/expressInterface";
 import { sendPasswordByEmail } from "../util/mailSend";
+import { UserRole } from "../util/constants";
 
 class UserController {
 
@@ -68,12 +68,9 @@ class UserController {
             const userRepository = AppDataSource.getRepository(User)
             const id: number = parseInt(req.user.user_id);
 
-            const user = await userRepository
-                .createQueryBuilder("user")
-                .select(["user.user_name", "user.email", "user.sso_id", "user.avatar", "user.password_changed", "user.course"])
-                .leftJoinAndSelect("user.course", "course")
-                .where("user.user_id = :id", { id })
-                .getOne();
+            const user = await userRepository.findOne({ where: { user_id: id }, relations: ["employer_id"] });
+
+            delete user.password;
 
             if (!user) {
                 return res.status(404).json({
@@ -88,8 +85,8 @@ class UserController {
                 data: user
             })
 
-
         } catch (error) {
+            console.log(error)
             return res.status(500).json({
                 message: "Internal Server Error",
                 status: false,

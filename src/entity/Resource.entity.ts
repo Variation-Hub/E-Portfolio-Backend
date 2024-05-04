@@ -1,5 +1,4 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
-import { Unit } from './Unit.entity';
 import { ResourceStatus } from './ResourceStatus.entity';
 import { Course } from './Course.entity';
 

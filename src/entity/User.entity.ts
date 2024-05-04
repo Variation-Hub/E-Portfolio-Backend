@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, JoinColumn, ManyToOne, ManyToMany, JoinTable, getRepository, DeleteDateColumn } from 'typeorm';
 import { Course } from './Course.entity';
 import { UserRole } from '../util/constants';
+import { Employer } from './Employer.entity';
 
 @Entity('users')
 export class User {
@@ -48,6 +49,10 @@ export class User {
 
   @Column({ type: 'varchar', nullable: true, default: 'Europe/London' })
   time_zone: string;
+
+  @OneToOne(() => Employer, employer => employer.user, { nullable: true })
+  @JoinColumn()
+  employer: Employer;
 
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deleted_at: Date;

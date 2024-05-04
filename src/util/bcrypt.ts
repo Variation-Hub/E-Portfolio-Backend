@@ -25,3 +25,21 @@ export const comparepassword = async (Password: string, hashPassword: string): P
         });
     });
 };
+
+export const generatePassword = () => {
+    const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+    const numbers = '0123456789';
+    const symbols = '!@#$%^&*()-_=+[{]}|;:,<.>/?';
+
+    const allChars = uppercaseChars + lowercaseChars + numbers + symbols;
+
+    let password = '';
+
+    for (let i = 0; i < 8; i++) {
+        const randomIndex = Math.floor(Math.random() * allChars.length);
+        password += allChars[randomIndex];
+    }
+
+    return password;
+}

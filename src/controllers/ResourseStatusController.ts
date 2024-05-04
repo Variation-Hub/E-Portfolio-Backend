@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { AppDataSource } from '../data-source';
 import { Resource } from '../entity/Resource.entity';
 import { CustomRequest } from '../util/Interface/expressInterface';
-import { Unit } from '../entity/Unit.entity';
 import { User } from '../entity/User.entity';
 import { ResourceStatus } from '../entity/ResourceStatus.entity';
 

@@ -4,18 +4,15 @@ import { CustomRequest } from "../util/Interface/expressInterface";
 import { Course } from "../entity/Course.entity";
 import fs from "fs";
 import { spawn } from "child_process"
-import { Unit } from "../entity/Unit.entity";
 import { User } from "../entity/User.entity";
 import { Learner } from "../entity/Learner.entity";
-import { sendMessageToUser } from "../socket/socketEvent";
 import { SendNotification } from "../util/socket/notification";
-import { UserUnit } from "../entity/UserUnit.entity";
-
+import { UserCourse } from "../entity/UserCourse.entity";
 class CourseController {
 
     public async CreateCourse(req: CustomRequest, res: Response) {
         try {
-            const { data } = req.body;
+            const data = req.body;
             if (!data) {
                 return res.status(400).json({
                     message: "please provide a data object",
@@ -24,7 +21,7 @@ class CourseController {
             }
 
             const courseRepository = AppDataSource.getRepository(Course);
-            const unitRepository = AppDataSource.getRepository(Unit);
+
             const obj: any = {
                 course_name: data.course_name,
                 level: data.level,
@@ -39,53 +36,15 @@ class CourseController {
                 permitted_delivery_types: data['permitted_delivery_types'],
                 guided_learning_hours: data['guided_learning_hours'],
                 course_code: data['course_code'],
+                units: data['units'],
             }
             const course = courseRepository.create(obj);
             const savedCourse: any = await courseRepository.save(course);
 
-            const mandatoryUnits = req.body.data["mandatory_units"]?.map(unit => {
-                return {
-                    unit_ref: unit["unit_ref"],
-                    title: unit["title"],
-                    level: unit["level"],
-                    glh: unit["glh"],
-                    credit_value: unit["credit_value"],
-                    status: "Mandatory",
-                    course_id: savedCourse.course_id
-                }
-            });
-            const optionalUnits = req.body.data["optional_units"]?.map(unit => {
-                return {
-                    unit_ref: unit["unit_ref"],
-                    title: unit["title"],
-                    level: unit["level"],
-                    glh: unit["glh"],
-                    credit_value: unit["credit_value"],
-                    status: "Optional",
-                    course_id: savedCourse.course_id
-                }
-            });
-
-            const savedMandatoryUnits = await unitRepository.insert(mandatoryUnits.map((unitData: any) => ({
-                ...unitData,
-                courseId: savedCourse.course_id,
-            })));
-
-            const savedOptionalUnits = await unitRepository.insert(optionalUnits.map((unitData: any) => ({
-                ...unitData,
-                courseId: savedCourse.course_id,
-            })));
-
-            const fetchedMandatoryUnits = await unitRepository.findByIds(savedMandatoryUnits.identifiers.map((id) => id.unit_id));
-            const fetchedOptionalUnits = await unitRepository.findByIds(savedOptionalUnits.identifiers.map((id) => id.unit_id));
-
-            savedCourse.units = [...fetchedMandatoryUnits, ...fetchedOptionalUnits];
-            const unitdata = await courseRepository.save(savedCourse);
-
             res.status(200).json({
                 message: "Course created successfully",
                 status: true,
-                data: unitdata,
+                data: savedCourse,
             });
 
         } catch (error) {
@@ -150,11 +109,9 @@ class CourseController {
             }
 
             const courseRepository = AppDataSource.getRepository(Course);
-            const unitRepository = AppDataSource.getRepository(Unit);
 
             const courseToDelete = await courseRepository
                 .createQueryBuilder('course')
-                .leftJoinAndSelect('course.units', 'units')
                 .where('course.course_id = :courseId', { courseId })
                 .getOne();
 
@@ -165,7 +122,6 @@ class CourseController {
                     status: false,
                 });
             }
-            await unitRepository.remove(courseToDelete.units);
 
             await courseRepository.remove(courseToDelete);
 
@@ -196,9 +152,7 @@ class CourseController {
                     status: false,
                 });
             }
-            if ('unit' in req.body) {
-                delete req.body.unit;
-            }
+
             courseRepository.merge(existingCourse, req.body);
             const updatedCourse = await courseRepository.save(existingCourse);
 
@@ -216,23 +170,32 @@ class CourseController {
         }
     }
 
-    public async addLearnerToCourse(req: CustomRequest, res: Response): Promise<Response> {
+    public async courseEnrollment(req: CustomRequest, res: Response): Promise<Response> {
         try {
-            const { learner_id, course_id } = req.body
+            const { learner_id, course_id, trainer_id, IQA_id, EQA_id, employer_id } = req.body
 
             const learnerRepository = AppDataSource.getRepository(Learner);
             const courseRepository = AppDataSource.getRepository(Course);
-            const userUnitRepository = AppDataSource.getRepository(UserUnit);
+            const userCourseRepository = AppDataSource.getRepository(UserCourse);
 
-            const learner = await learnerRepository.findOne({ where: { learner_id }, relations: ['courses', 'user_id'] });
-            const course = await courseRepository.findOne({ where: { course_id }, relations: ['units'] });
-
-            if (!learner || !course) {
-                return res.status(404).json({ message: 'Learner or course not found', status: false });
+            const course = await courseRepository.findOne({ where: { course_id }, relations: ['user_id'] });
+            const learner = await learnerRepository.findOne({ where: { learner_id } });
+            if (!course || !learner) {
+                return res.status(404).json({ message: 'course or learner not found', status: false });
             }
 
-            learner.courses = [...(learner.courses || []), course];
-            await learnerRepository.save(learner);
+            delete course.created_at, course.updated_at
+            const courseData = {
+                ...course,
+                units: course.units.map(unit => {
+                    return {
+                        ...unit,
+                        completed: false
+                    }
+                })
+
+            }
+            await userCourseRepository.create({ learner_id, trainer_id, IQA_id, EQA_id, employer_id, course: courseData })
 
             res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
             const userRepository = AppDataSource.getRepository(User);
@@ -240,20 +203,6 @@ class CourseController {
             const data = { title: "Course Allocation", message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course.`, domain: "Course Allocation" }
             SendNotification(learner.user_id.user_id, data)
 
-            const UserUnitData = course.units.map(unit => {
-                return {
-                    learner_id,
-                    unit_id: unit.unit_id,
-                    sub_units: unit.sub_units.map(sub_unit => {
-                        return sub_unit.peta_unit.map(peta_unit => {
-                            return {
-                                ...peta_unit,
-
-                            }
-                        })
-                    })
-                }
-            });
         } catch (error) {
             return res.status(500).json({
                 message: 'Internal Server Error',
@@ -269,7 +218,7 @@ class CourseController {
 
             const courseRepository = AppDataSource.getRepository(Course);
 
-            const course = await courseRepository.findOne({ where: { course_id }, relations: ['learners', 'units'] });
+            const course = await courseRepository.findOne({ where: { course_id } });
 
             if (!course) {
                 return res.status(404).json({ message: 'Course not found', status: false });
@@ -294,11 +243,9 @@ class CourseController {
             const courseRepository = AppDataSource.getRepository(Course);
 
             const qb = courseRepository.createQueryBuilder("course")
-                .leftJoinAndSelect('course.units', 'units')
-                .leftJoinAndSelect('course.learners', 'learners')
 
             if (req.query.keyword) {
-                qb.andWhere("(course.course_name I  LIKE :keyword)", { keyword: `%${req.query.keyword}%` });
+                qb.andWhere("(course.course_name ILIKE :keyword)", { keyword: `%${req.query.keyword}%` });
             }
             const [course, count] = await qb
                 .skip(Number(req.pagination.skip))

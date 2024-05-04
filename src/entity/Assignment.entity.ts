@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, ManyToMany, JoinTable, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from './User.entity';
 import { Course } from './Course.entity';
 import { AssessmentMethod } from '../util/constants';
@@ -41,6 +41,7 @@ export class Assignment {
         type: 'enum',
         enum: AssessmentMethod,
         array: true,
+        nullable: true
     })
     assessment_method: AssessmentMethod[];
 

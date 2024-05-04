@@ -11,10 +11,6 @@ export class Learner {
   @JoinColumn({ name: 'user_id', referencedColumnName: 'user_id' })
   user_id: User;
 
-  @ManyToMany(() => Course, course => course.learners, { nullable: true })
-  @JoinTable()
-  courses: Course[];
-
   @Column({ type: 'varchar' })
   first_name: string;
 

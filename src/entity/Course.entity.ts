@@ -1,17 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
-import { Unit } from './Unit.entity';
-import { User } from './User.entity';
-import { Learner } from './Learner.entity';
 import { Resource } from './Resource.entity';
-import { Assignment } from './Assignment.entity';
 
 @Entity('course')
 export class Course {
     @PrimaryGeneratedColumn()
     course_id: number;
-
-    @OneToMany(() => Unit, unit => unit.course_id)
-    units: Unit[];
 
     @Column({ type: 'varchar' })
     course_name: string;
@@ -49,18 +42,11 @@ export class Course {
     @Column({ type: 'varchar', nullable: true })
     overall_grading_type: string;
 
-    @Column({ type: 'varchar', nullable: true })
-    permitted_delivery_types: string;
-
-    @ManyToMany(() => Learner, learner => learner.courses, { nullable: true })
-    @JoinTable()
-    learners: Learner[];
+    @Column({ type: 'json', nullable: true })
+    units: Object[]
 
     @OneToMany(() => Resource, resource => resource.course_id)
     resources: Resource[];
-
-    // @ManyToOne(() => User, user => user.course, { nullable: true })
-    // trainer: User;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
