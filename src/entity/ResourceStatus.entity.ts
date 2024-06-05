@@ -7,7 +7,7 @@ export class ResourceStatus {
     @PrimaryGeneratedColumn()
     resource_status_id: number;
 
-    @ManyToOne(() => Resource, resource => resource.resourceStatus)
+    @ManyToOne(() => Resource, resource => resource.resourceStatus, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'resource_id' })
     resource: Resource;
 

@@ -110,11 +110,12 @@ class CourseController {
 
             const courseRepository = AppDataSource.getRepository(Course);
 
-            const courseToDelete = await courseRepository
-                .createQueryBuilder('course')
-                .where('course.course_id = :courseId', { courseId })
-                .getOne();
+            const courseToDelete = await courseRepository.findOne({
+                where: { course_id: courseId },
+                relations: ['resources'],
+            });
 
+            console.log(courseToDelete)
 
             if (!courseToDelete) {
                 return res.status(404).json({
@@ -126,11 +127,12 @@ class CourseController {
             await courseRepository.remove(courseToDelete);
 
             res.status(200).json({
-                message: "Course and associated units deleted successfully",
+                message: "Course deleted successfully",
                 status: true,
             });
 
         } catch (error) {
+            console.log(error);
             res.status(500).json({
                 message: "Internal Server Error",
                 error: error.message,

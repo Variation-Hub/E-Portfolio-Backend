@@ -7,7 +7,7 @@ export class Resource {
     @PrimaryGeneratedColumn()
     resource_id: number;
 
-    @ManyToOne(() => Course, course => course.resources)
+    @ManyToOne(() => Course, course => course.resources, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'course_id' })
     course_id: Course;
 
@@ -35,7 +35,7 @@ export class Resource {
     @Column({ type: 'json' })
     url: object;
 
-    @OneToMany(() => ResourceStatus, resourceStatus => resourceStatus.resource)
+    @OneToMany(() => ResourceStatus, resourceStatus => resourceStatus.resource, { cascade: true, onDelete: 'CASCADE' })
     resourceStatus: ResourceStatus[];
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
