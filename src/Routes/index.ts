@@ -10,7 +10,11 @@ import NotificationRoutes from './NotificationRouter';
 import AssignmentRoutes from './AssignmentRouter';
 import EmployerRoutes from './EmployerRouter';
 import cpdRoutes from './CpdRouter';
+import FileController from '../controllers/FileController';
+import { multipleFileUpload, singleFileUpload } from '../util/multer';
+import { authorizeRoles } from '../middleware/verifyToken';
 
+const fileController = new FileController;
 const Routes = express.Router();
 
 Routes.use("/user", userRoutes)
@@ -24,5 +28,8 @@ Routes.use("/notification", NotificationRoutes)
 Routes.use("/assignment", AssignmentRoutes)
 Routes.use("/employer", EmployerRoutes)
 Routes.use("/cpd", cpdRoutes)
+
+Routes.post("/upload/file", authorizeRoles(), singleFileUpload('file'), fileController.uploadSingleFile)
+Routes.post("/upload/files", authorizeRoles(), multipleFileUpload('files', 5), fileController.uploadMultipleFile)
 
 export default Routes; 
