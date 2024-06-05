@@ -57,7 +57,38 @@ class CpdController {
             })
 
         } catch (error) {
-            console.log(error)
+            return res.status(500).json({
+                message: "Internal Server Error",
+                status: false
+            })
+        }
+    }
+
+    public async getCpd(req: CustomRequest, res: Response) {
+        try {
+            const cpdRepository = AppDataSource.getRepository(CPD)
+
+            const { user_id } = req.params as any
+
+            console.log(user_id)
+            const cpd = await cpdRepository.findOne({
+                where: { user_id }
+            });
+            console.log(cpd)
+            if (!cpd) {
+                return res.status(404).json({
+                    message: "CPD not found",
+                    status: true,
+                })
+            }
+
+            return res.status(200).json({
+                message: "CPD fetch successfully",
+                status: true,
+                data: cpd
+            })
+
+        } catch (error) {
             return res.status(500).json({
                 message: "Internal Server Error",
                 status: false
