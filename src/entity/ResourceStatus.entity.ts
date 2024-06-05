@@ -18,6 +18,9 @@ export class ResourceStatus {
     @Column({ type: 'timestamp' })
     last_viewed: Date;
 
+    @Column({ type: 'json', nullable: true })
+    url: object;
+
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
 

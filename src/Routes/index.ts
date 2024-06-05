@@ -9,6 +9,7 @@ import ResourceStatusRoute from './ResourceStatusRouter';
 import NotificationRoutes from './NotificationRouter';
 import AssignmentRoutes from './AssignmentRouter';
 import EmployerRoutes from './EmployerRouter';
+import cpdRoutes from './CpdRouter';
 
 const Routes = express.Router();
 
@@ -22,5 +23,6 @@ Routes.use("/resource-status", ResourceStatusRoute)
 Routes.use("/notification", NotificationRoutes)
 Routes.use("/assignment", AssignmentRoutes)
 Routes.use("/employer", EmployerRoutes)
+Routes.use("/cpd", cpdRoutes)
 
 export default Routes; 

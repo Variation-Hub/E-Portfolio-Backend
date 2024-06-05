@@ -4,6 +4,7 @@ import { Resource } from '../entity/Resource.entity';
 import { CustomRequest } from '../util/Interface/expressInterface';
 import { User } from '../entity/User.entity';
 import { ResourceStatus } from '../entity/ResourceStatus.entity';
+import { uploadToS3 } from '../util/aws';
 
 class ResourceStatusController {
 
@@ -78,6 +79,36 @@ class ResourceStatusController {
 
             await resourceStatusRepository.save(resourceStatus);
             return res.status(200).json({ message: 'User added to ResourceStatus successfully', status: true });
+        } catch (error) {
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    }
+
+    public async updateResourceStatus(req: CustomRequest, res: Response) {
+        try {
+            const { resource_id, user_id, url } = req.body;
+
+            if (!req.file) {
+                return res.status(400).json({
+                    message: "File Required",
+                    status: false
+                });
+            }
+
+            const resourceStatusRepository = AppDataSource.getRepository(ResourceStatus);
+
+            let resourceStatus = await resourceStatusRepository.findOne({
+                relations: ['resource', 'user'],
+                where: {
+                    resource: { resource_id: Number(resource_id) },
+                    user: { user_id },
+                },
+            });
+
+            resourceStatus.url = await uploadToS3(req.file, "Resourse-user")
+
+            await resourceStatusRepository.save(resourceStatus);
+            return res.status(200).json({ message: 'ResourceStatus update successfully', status: true });
         } catch (error) {
             return res.status(500).json({ message: 'Internal server error' });
         }
