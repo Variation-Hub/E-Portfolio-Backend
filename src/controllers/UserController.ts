@@ -208,7 +208,7 @@ class UserController {
         }
     }
 
-    public async PasswordChangeUser(req: Request, res: Response) {
+    public async UpdatePassword(req: Request, res: Response) {
         try {
             const userRepository = AppDataSource.getRepository(User)
 
@@ -232,6 +232,61 @@ class UserController {
             }
 
             const hashedPassword = await bcryptpassword(req.body.password)
+            user.password = hashedPassword;
+            if (!user.password_changed) {
+                user.password_changed = true;
+            }
+
+            await userRepository.save(user)
+
+            return res.status(200).json({
+                message: "Password changed successfully",
+                status: true
+            })
+
+        } catch (error) {
+            return res.status(500).json({
+                message: "Internal Server Error",
+                status: false
+            })
+        }
+    }
+
+    public async ChangePassword(req: CustomRequest, res: Response) {
+        try {
+            const userRepository = AppDataSource.getRepository(User)
+
+            const { currentPassword, newPassword, confirmPassword } = req.body
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                return res.status(400).json({
+                    message: "All field required",
+                    status: false
+                })
+            }
+
+            if (newPassword !== confirmPassword) {
+                return res.status(400).json({
+                    message: "New password and Confirm Password must be the same",
+                    status: false
+                })
+            }
+
+            const user = await userRepository.findOne({ where: { user_id: req.user.user_id } });
+
+            if (!user) {
+                return res.status(404).json({
+                    message: "User does not exist",
+                    status: false
+                })
+            }
+            const compated = await comparepassword(currentPassword, user.password)
+            if (!compated) {
+                return res.status(400).json({
+                    message: "Current password is incorrect",
+                    status: false
+                })
+            }
+            const hashedPassword = await bcryptpassword(newPassword)
             user.password = hashedPassword;
             if (!user.password_changed) {
                 user.password_changed = true;

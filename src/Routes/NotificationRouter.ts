@@ -10,5 +10,7 @@ NotificationRoutes.post("/connect", authorizeRoles(), Controller.connectUser);
 NotificationRoutes.get("/list", authorizeRoles(), Controller.getNotificationForUser);
 NotificationRoutes.delete("/delete/:id", authorizeRoles(), Controller.deleteSingleNotification);
 NotificationRoutes.delete("/delete", authorizeRoles(), Controller.deletemultipleNotification);
+NotificationRoutes.patch("/read/:id", authorizeRoles(), Controller.readSingleNotification);
+NotificationRoutes.patch("/read", authorizeRoles(), Controller.readAllNotification);
 
 export default NotificationRoutes;
