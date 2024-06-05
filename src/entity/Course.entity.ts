@@ -45,7 +45,7 @@ export class Course {
     @Column({ type: 'json', nullable: true })
     units: Object[]
 
-    @OneToMany(() => Resource, resource => resource.course_id)
+    @OneToMany(() => Resource, resource => resource.course_id, { cascade: true })
     resources: Resource[];
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
