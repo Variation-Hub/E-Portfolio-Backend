@@ -46,6 +46,14 @@ class CpdController {
 
             let cpd = await cpdRepository.findOne({ where: { user_id, year: year } })
 
+            if (!cpd) {
+                return res.status(404).json({
+                    message: "CPD not found",
+                    status: true,
+                    data: cpd
+                })
+            }
+
             cpd.start_date = start_date || cpd.start_date
             cpd.end_date = end_date || cpd.end_date
             cpd.cpd_plan = cpd_plan || cpd.cpd_plan
