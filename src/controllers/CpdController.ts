@@ -11,6 +11,15 @@ class CpdController {
 
             const { year, start_date, end_date, cpd_plan, impact_on_you, impact_on_colleagues, impact_on_managers, impact_on_organisation } = req.body
 
+            const existingCPD = await cpdRepository.findOne({ where: { year, user_id: req.user.user_id } })
+
+            if (existingCPD) {
+                return res.status(400).json({
+                    message: "This year has already CPD information",
+                    status: false,
+                })
+            }
+
             let cpd = await cpdRepository.create({ user_id: req.user.user_id, year, start_date, end_date, cpd_plan, impact_on_you, impact_on_colleagues, impact_on_managers, impact_on_organisation })
 
             cpd = await cpdRepository.save(cpd)
