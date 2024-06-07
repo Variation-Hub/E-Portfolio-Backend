@@ -13,6 +13,7 @@ import cpdRoutes from './CpdRouter';
 import FileController from '../controllers/FileController';
 import { multipleFileUpload, singleFileUpload } from '../util/multer';
 import { authorizeRoles } from '../middleware/verifyToken';
+import supportRoutes from './SupportRouter';
 
 const fileController = new FileController;
 const Routes = express.Router();
@@ -20,7 +21,6 @@ const Routes = express.Router();
 Routes.use("/user", userRoutes)
 Routes.use("/learner", learnerRoutes)
 Routes.use("/otp", otpRoutes)
-// Routes.use("/unit", UnitRoute)
 Routes.use("/resource", ResourceRoute)
 Routes.use("/course", CourseRoutes)
 Routes.use("/resource-status", ResourceStatusRoute)
@@ -28,7 +28,9 @@ Routes.use("/notification", NotificationRoutes)
 Routes.use("/assignment", AssignmentRoutes)
 Routes.use("/employer", EmployerRoutes)
 Routes.use("/cpd", cpdRoutes)
+Routes.use("/support", supportRoutes)
 
+// API routes
 Routes.post("/upload/file", authorizeRoles(), singleFileUpload('file'), fileController.uploadSingleFile)
 Routes.post("/upload/files", authorizeRoles(), multipleFileUpload('files', 5), fileController.uploadMultipleFile)
 

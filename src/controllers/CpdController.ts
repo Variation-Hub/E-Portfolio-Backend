@@ -71,7 +71,7 @@ class CpdController {
             const { user_id } = req.params as any
 
             console.log(user_id)
-            const cpd = await cpdRepository.findOne({
+            const cpd = await cpdRepository.find({
                 where: { user_id }
             });
             console.log(cpd)
