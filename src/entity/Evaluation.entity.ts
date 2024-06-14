@@ -7,7 +7,7 @@ export class Evaluation {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => CPD, cpd => cpd.evaluations, { nullable: false })
+    @ManyToOne(() => CPD, cpd => cpd.evaluations, { nullable: false, onDelete: 'CASCADE' })
     @JoinColumn({ name: 'cpd_id' })
     cpd: CPD;
 

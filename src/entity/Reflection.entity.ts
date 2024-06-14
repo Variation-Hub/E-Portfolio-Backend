@@ -6,7 +6,7 @@ export class Reflection {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => CPD, cpd => cpd.reflections, { nullable: false })
+    @ManyToOne(() => CPD, cpd => cpd.reflections, { nullable: false, onDelete: 'CASCADE' })
     @JoinColumn({ name: 'cpd_id' })
     cpd: CPD;
 

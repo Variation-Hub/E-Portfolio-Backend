@@ -12,7 +12,7 @@ export class Activity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => CPD, cpd => cpd.activities, { nullable: false })
+    @ManyToOne(() => CPD, cpd => cpd.activities, { nullable: false, onDelete: 'CASCADE' })
     @JoinColumn({ name: 'cpd_id' })
     cpd: CPD;
 

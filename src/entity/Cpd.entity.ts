@@ -4,12 +4,6 @@ import { Activity } from './Activity.entity';
 import { Evaluation } from './Evaluation.entity';
 import { Reflection } from './Reflection.entity';
 
-enum CompletionStatus {
-  Fully = "Fully",
-  Partially = "Partially",
-  NotAtAll = "Not at all"
-}
-
 @Entity('cpd')
 export class CPD {
   toObject() {
@@ -47,39 +41,14 @@ export class CPD {
   @Column({ type: 'enum', enum: [1, 2, 3, 4, 5] })
   impact_on_organisation: number;
 
-  @OneToMany(() => Activity, activity => activity.cpd)
+  @OneToMany(() => Activity, activity => activity.cpd, { cascade: true, onDelete: 'CASCADE' })
   activities: Activity[];
 
-  @OneToMany(() => Evaluation, evaluation => evaluation.cpd)
+  @OneToMany(() => Evaluation, evaluation => evaluation.cpd, { cascade: true, onDelete: 'CASCADE' })
   evaluations: Evaluation[];
 
-  @OneToMany(() => Reflection, reflection => reflection.cpd)
+  @OneToMany(() => Reflection, reflection => reflection.cpd, { cascade: true, onDelete: 'CASCADE' })
   reflections: Reflection[];
-
-  // @Column({
-  //   type: "json",
-  //   default: () => "'{}'",
-  // })
-  // evaluation: {
-  //   learning_objective: string,
-  //   completed: CompletionStatus,
-  //   example_of_learning: string,
-  //   support_you: string,
-  //   feedback: string,
-  //   files: Object
-  // };
-
-  // @Column({
-  //   type: "json",
-  //   default: () => "'{}'",
-  // })
-  // reflection: {
-  //   learning_objective: string,
-  //   what_went_well: string,
-  //   differently_next_time: string,
-  //   feedback: string,
-  //   files: Object
-  // };
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

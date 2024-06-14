@@ -9,6 +9,7 @@ const Controller = new CpdController();
 cpdRoutes.post("/create", authorizeRoles(), Controller.createCpd);
 cpdRoutes.patch("/update", authorizeRoles(), Controller.updateCpd);
 cpdRoutes.get("/get/:user_id", authorizeRoles(), Controller.getCpd);
+cpdRoutes.delete("/delete/:id", authorizeRoles(), Controller.deleteCpd);
 
 //Activity routes
 cpdRoutes.post("/activity/create", authorizeRoles(), Controller.createActivity);

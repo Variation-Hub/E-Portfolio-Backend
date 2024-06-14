@@ -88,34 +88,78 @@ class CpdController {
 
     public async getCpd(req: CustomRequest, res: Response) {
         try {
-            const cpdRepository = AppDataSource.getRepository(CPD)
+            const cpdRepository = AppDataSource.getRepository(CPD);
             const relations = (req.query.table as string).split(',');
-
-            const { user_id } = req.params as any
+            const { user_id } = req.params as any;
 
             const cpd = await cpdRepository.find({
-                where: { user_id }, relations
+                where: { user_id },
+                relations
             });
 
-            if (!cpd) {
+            if (!cpd || cpd.length === 0) {
                 return res.status(404).json({
                     message: "CPD not found",
                     status: true,
-                })
+                });
             }
 
+            const transformedCpd = cpd.map(record => {
+                const year = record.year;
+                return {
+                    ...record,
+                    activities: record.activities.map(activity => ({ ...activity, year })),
+                    evaluations: record.evaluations.map(evaluation => ({ ...evaluation, year })),
+                    reflections: record.reflections.map(reflection => ({ ...reflection, year }))
+                };
+            });
+
             return res.status(200).json({
-                message: "CPD fetch successfully",
+                message: "CPD fetched successfully",
                 status: true,
-                data: cpd
-            })
+                data: transformedCpd
+            });
 
         } catch (error) {
             return res.status(500).json({
                 message: "Internal Server Error",
                 status: false,
                 error: error.message
-            })
+            });
+        }
+    }
+
+    public async deleteCpd(req: CustomRequest, res: Response) {
+        try {
+            const cpdRepository = AppDataSource.getRepository(CPD);
+            const cpd_id = req.params.id as any;
+
+            const cpd = await cpdRepository.findOne({
+                where: {
+                    id: cpd_id
+                }
+            });
+
+            if (!cpd) {
+                return res.status(404).json({
+                    message: "CPD not found",
+                    status: true,
+                });
+            }
+
+            await cpdRepository.remove(cpd);
+
+            return res.status(200).json({
+                message: "CPD deleted successfully",
+                status: true,
+            });
+
+        } catch (error) {
+            return res.status(500).json({
+                message: "Internal Server Error",
+                status: false,
+                error: error.message
+            });
         }
     }
 
