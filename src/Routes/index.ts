@@ -14,6 +14,7 @@ import FileController from '../controllers/FileController';
 import { multipleFileUpload, singleFileUpload } from '../util/multer';
 import { authorizeRoles } from '../middleware/verifyToken';
 import supportRoutes from './SupportRouter';
+import sessionRoutes from './SessionRouter';
 
 const fileController = new FileController;
 const Routes = express.Router();
@@ -29,6 +30,7 @@ Routes.use("/assignment", AssignmentRoutes)
 Routes.use("/employer", EmployerRoutes)
 Routes.use("/cpd", cpdRoutes)
 Routes.use("/support", supportRoutes)
+Routes.use("/session", sessionRoutes)
 
 // API routes
 Routes.post("/upload/file", authorizeRoles(), singleFileUpload('file'), fileController.uploadSingleFile)

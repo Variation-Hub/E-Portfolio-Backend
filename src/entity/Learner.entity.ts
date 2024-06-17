@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable, DeleteDateColumn } from 'typeorm';
 import { User } from './User.entity';
 import { Course } from './Course.entity';
+import { Session } from './Session.entity';
 
 @Entity('learner')
 export class Learner {
@@ -70,6 +71,9 @@ export class Learner {
 
   @Column({ type: 'varchar', nullable: true })
   funding_body: string;
+
+  @ManyToMany(() => Session, session => session.learners)
+  sessions: Session[];
 
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deleted_at: Date;
