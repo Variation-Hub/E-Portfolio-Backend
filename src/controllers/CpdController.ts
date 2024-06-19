@@ -89,7 +89,7 @@ class CpdController {
     public async getCpd(req: CustomRequest, res: Response) {
         try {
             const cpdRepository = AppDataSource.getRepository(CPD);
-            const relations = (req.query.table as string).split(',');
+            const relations = (req.query.table as string)?.split(',');
             const { user_id } = req.params as any;
 
             const cpd = await cpdRepository.find({
