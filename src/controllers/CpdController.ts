@@ -108,9 +108,9 @@ class CpdController {
                 const year = record.year;
                 return {
                     ...record,
-                    activities: record.activities.map(activity => ({ ...activity, year })),
-                    evaluations: record.evaluations.map(evaluation => ({ ...evaluation, year })),
-                    reflections: record.reflections.map(reflection => ({ ...reflection, year }))
+                    activities: record?.activities?.map(activity => ({ ...activity, year })),
+                    evaluations: record?.evaluations?.map(evaluation => ({ ...evaluation, year })),
+                    reflections: record?.reflections?.map(reflection => ({ ...reflection, year }))
                 };
             });
 
