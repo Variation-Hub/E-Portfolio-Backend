@@ -136,14 +136,29 @@ class SessionController {
             if (trainer_id) {
                 qb.andWhere('trainer.user_id = :trainer_id', { trainer_id });
             }
-            if (learners) {
-                qb.andWhere('learner.learner_id IN (:...learners)', { learners: learners.split(',') });
-            }
+            // if (learners) {
+            //     qb.andWhere('learner.learner_id IN (:...learners)', { learners: learners.split(',') });
+            // }
             if (type) {
                 qb.andWhere('session.type = :type', { type });
             }
             if (Attended) {
                 qb.andWhere('session.Attended = :Attended', { Attended });
+            }
+            if (learners) {
+                const learnerIds = learners.split(',');
+                const sessionsWithLearner = await sessionRepository.createQueryBuilder('session')
+                    .leftJoin('session.learners', 'learner')
+                    .where('learner.learner_id IN (:...learnerIds)', { learnerIds })
+                    .select('session.session_id')
+                    .getMany();
+
+                const sessionIds = sessionsWithLearner.map(session => session.session_id);
+                if (sessionIds.length === 0) {
+                    qb.andWhere('1 = 0');
+                } else {
+                    qb.andWhere('session.session_id IN (:...sessionIds)', { sessionIds });
+                }
             }
 
             qb.skip(req.pagination.skip)

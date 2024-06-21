@@ -8,6 +8,7 @@ import { User } from "../entity/User.entity";
 import { Learner } from "../entity/Learner.entity";
 import { SendNotification } from "../util/socket/notification";
 import { UserCourse } from "../entity/UserCourse.entity";
+import { userActive } from "../util/helper";
 class CourseController {
 
     public async CreateCourse(req: CustomRequest, res: Response) {
@@ -114,8 +115,6 @@ class CourseController {
                 where: { course_id: courseId },
                 relations: ['resources'],
             });
-
-            console.log(courseToDelete)
 
             if (!courseToDelete) {
                 return res.status(404).json({
@@ -276,35 +275,6 @@ class CourseController {
         }
     }
 
-    public async addTrainerToCourse(req: Request, res: Response): Promise<Response> {
-        try {
-            const { course_id, trainer_id } = req.body
-            const userRepository = AppDataSource.getRepository(User);
-            const courseRepository = AppDataSource.getRepository(Course);
-
-            const trainer = await userRepository.findOne({ where: { user_id: trainer_id } });
-            const course = await courseRepository.findOne({ where: { course_id }, relations: ['trainer'] });
-
-            if (!trainer || !course) {
-                return res.status(404).json({ message: 'Trainer or course not found', status: false });
-            }
-
-            // if (trainer.role !== 'Trainer') {
-            //     return res.status(403).json({ message: 'User does not have the role Trainer', status: false });
-            // }
-
-            await courseRepository.save(course);
-
-            return res.status(200).json({ message: 'Trainer assigned to course successfully', status: true });
-        } catch (error) {
-            return res.status(500).json({
-                message: 'Internal Server Error',
-                error: error.message,
-                status: false,
-            });
-        }
-
-    }
 }
 
 export default CourseController;

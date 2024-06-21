@@ -1,6 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, JoinColumn, ManyToOne, ManyToMany, JoinTable, getRepository, DeleteDateColumn } from 'typeorm';
-import { Course } from './Course.entity';
-import { UserRole } from '../util/constants';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn, DeleteDateColumn } from 'typeorm';
+import { UserRole, UserStatus } from '../util/constants';
 import { Employer } from './Employer.entity';
 
 @Entity('users')
@@ -53,6 +52,9 @@ export class User {
   @OneToOne(() => Employer, employer => employer.user, { nullable: true })
   @JoinColumn()
   employer: Employer;
+
+  @Column({ type: 'enum', enum: UserStatus, default: UserStatus.Active })
+  status: UserStatus;
 
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deleted_at: Date;

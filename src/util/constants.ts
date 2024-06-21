@@ -27,3 +27,8 @@ export const ChatEventEnum = {
     DISCONNECT_EVENT: "disconnect",
     NOTIFICATION: "notification",
 };
+
+export enum UserStatus {
+    Active = "Active",
+    InActive = "InActive"
+}

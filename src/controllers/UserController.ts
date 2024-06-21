@@ -97,17 +97,17 @@ class UserController {
 
     public async UpdateUser(req: any, res: Response) {
         try {
-            const { user_name, first_name, last_name, sso_id, mobile, phone, roles, time_zone, email } = req.body;
+            const { user_name, first_name, last_name, sso_id, mobile, phone, roles, time_zone, email, status } = req.body;
             const userId: number = parseInt(req.params.id);
 
-            if (!user_name && !first_name && !last_name && !sso_id && !mobile && !phone && !roles && !time_zone && !email) {
+            if (!user_name && !first_name && !last_name && !sso_id && !mobile && !phone && !roles && !time_zone && !email && !status) {
                 return res.status(400).json({
                     message: "At least one field required",
                     status: false
                 });
             }
 
-            if (req.tokenrole !== UserRole.Admin && (Boolean(roles.length) || Boolean(email) || Boolean(mobile) || Boolean(sso_id))) {
+            if (req.tokenrole !== UserRole.Admin && (Boolean(roles?.length) || Boolean(email) || Boolean(mobile) || Boolean(sso_id))) {
                 return res.status(401).json({
                     message: "Admin role is required",
                     status: false
@@ -141,6 +141,7 @@ class UserController {
             })
 
         } catch (error) {
+            console.log(error)
             return res.status(500).json({
                 message: "Internal Server Error",
                 status: false,

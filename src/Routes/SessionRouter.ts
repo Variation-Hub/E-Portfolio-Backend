@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { authorizeRoles } from '../middleware/verifyToken';
-import SessionController from '../controllers/sessionController';
 import { paginationMiddleware } from '../middleware/pagination';
+import SessionController from '../controllers/sessionController';
 
 const sessionRoutes = express.Router();
 

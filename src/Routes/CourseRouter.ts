@@ -13,7 +13,6 @@ CourseRoutes.post("/create", Controller.CreateCourse);
 CourseRoutes.delete('/delete/:id', Controller.DeleteCourse);
 CourseRoutes.patch('/update/:id', Controller.updateCourse);
 CourseRoutes.post('/enrollment', authorizeRoles(), Controller.courseEnrollment);
-CourseRoutes.post('/add-trainer', authorizeRoles(), Controller.addTrainerToCourse);
 CourseRoutes.get('/get/:id', authorizeRoles(), Controller.getCourse);
 CourseRoutes.get('/list', paginationMiddleware, Controller.getAllCourse);
 

@@ -167,7 +167,8 @@ class LearnerController {
         try {
             const learnerId: number = parseInt(req.params.id);
             const learnerRepository = AppDataSource.getRepository(Learner);
-            const learner = await learnerRepository.findOne({ where: { learner_id: learnerId } });
+            const userRepository = AppDataSource.getRepository(User);
+            const learner = await learnerRepository.findOne({ where: { learner_id: learnerId }, relations: ['user_id'] });
 
             if (!learner) {
                 return res.status(404).json({
@@ -176,7 +177,11 @@ class LearnerController {
                 });
             }
 
-            await learnerRepository.remove(learner);
+            if (learner.user_id) {
+                await userRepository.softDelete(learner.user_id.user_id)
+            }
+            await learnerRepository.softDelete(learner.learner_id);
+
 
             return res.status(200).json({
                 message: 'Learner deleted successfully',
