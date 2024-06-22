@@ -95,7 +95,7 @@ class InnovationController {
     public async getInnovations(req: CustomRequest, res: Response): Promise<Response> {
         try {
             const innovationRepository = AppDataSource.getRepository(Innovation);
-            const { status } = req.query;
+            const { status, user_id } = req.query;
 
             const qb = innovationRepository.createQueryBuilder('innovation')
                 .leftJoinAndSelect('innovation.innovation_propose_by_id', "user_id")
@@ -114,6 +114,9 @@ class InnovationController {
 
             if (status) {
                 qb.andWhere('innovation.status = :status', { status });
+            }
+            if (user_id) {
+                qb.andWhere('user_id.user_id = :user_id', { user_id });
             }
 
             qb.skip(req.pagination.skip)
