@@ -17,7 +17,7 @@ userRoutes.post("/login", trimMiddleware, Controller.LoginUser);
 userRoutes.post("/updatepassword", trimMiddleware, Controller.UpdatePassword);
 userRoutes.post("/password/change", authorizeRoles(), trimMiddleware, Controller.ChangePassword);
 userRoutes.delete("/delete/:id", authorizeRoles(UserRole.Admin), Controller.DeleteUser);
-userRoutes.get("/list", authorizeRoles(UserRole.Admin), paginationMiddleware, Controller.GetUserList);
+userRoutes.get("/list", authorizeRoles(), paginationMiddleware, Controller.GetUserList);
 userRoutes.post("/changerole", authorizeRoles(), Controller.ChangeUserRole);
 
 // avatar routes

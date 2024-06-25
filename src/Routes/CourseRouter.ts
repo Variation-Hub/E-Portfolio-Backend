@@ -9,11 +9,11 @@ const CourseRoutes = express.Router();
 const Controller = new CourseController();
 
 CourseRoutes.post("/convert", singleFileUpload("pdf"), Controller.GenerateCourse);
-CourseRoutes.post("/create", Controller.CreateCourse);
-CourseRoutes.delete('/delete/:id', Controller.DeleteCourse);
-CourseRoutes.patch('/update/:id', Controller.updateCourse);
+CourseRoutes.post("/create", authorizeRoles(), Controller.CreateCourse);
+CourseRoutes.delete('/delete/:id', authorizeRoles(), Controller.DeleteCourse);
+CourseRoutes.patch('/update/:id', authorizeRoles(), Controller.updateCourse);
 CourseRoutes.post('/enrollment', authorizeRoles(), Controller.courseEnrollment);
 CourseRoutes.get('/get/:id', authorizeRoles(), Controller.getCourse);
-CourseRoutes.get('/list', paginationMiddleware, Controller.getAllCourse);
+CourseRoutes.get('/list', authorizeRoles(), paginationMiddleware, Controller.getAllCourse);
 
 export default CourseRoutes;
