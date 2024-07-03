@@ -47,8 +47,8 @@ class AssignmentController {
     public async updateAssignment(req: CustomRequest, res: Response) {
         try {
             const AssignmentId = parseInt(req.params.id);
-            const { file, declaration, mobile, description, assessor_feedback, learner_comments, points_for_improvement, assessment_method, session, grade } = req.body;
-            if (!file && !declaration && !mobile && !description && !assessor_feedback && !learner_comments && !points_for_improvement && !assessment_method && !session && !grade) {
+            const { file, declaration, mobile, description, trainer_feedback, learner_comments, points_for_improvement, assessment_method, session, grade } = req.body;
+            if (!file && !declaration && !mobile && !description && !trainer_feedback && !learner_comments && !points_for_improvement && !assessment_method && !session && !grade) {
                 return res.status(400).json({
                     message: 'At least one field required',
                     status: false,
@@ -70,7 +70,7 @@ class AssignmentController {
             assignment.declaration = declaration || assignment.declaration;
             assignment.mobile = mobile || assignment.mobile;
             assignment.description = description || assignment.description;
-            assignment.assessor_feedback = assessor_feedback || assignment.assessor_feedback;
+            assignment.trainer_feedback = trainer_feedback || assignment.trainer_feedback;
             assignment.learner_comments = learner_comments || assignment.learner_comments;
             assignment.points_for_improvement = points_for_improvement || assignment.points_for_improvement;
             assignment.assessment_method = assessment_method || assignment.assessment_method;

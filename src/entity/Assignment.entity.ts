@@ -29,7 +29,7 @@ export class Assignment {
     description: string;
 
     @Column({ type: 'varchar', nullable: true })
-    assessor_feedback: string;
+    trainer_feedback: string;
 
     @Column({ type: 'varchar', nullable: true })
     learner_comments: string;

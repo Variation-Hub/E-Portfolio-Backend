@@ -16,6 +16,7 @@ import { authorizeRoles } from '../middleware/verifyToken';
 import supportRoutes from './SupportRouter';
 import sessionRoutes from './SessionRouter';
 import InnovationRoutes from './InnovationRouter';
+import FormRoutes from './FormRouter';
 
 const fileController = new FileController;
 const Routes = express.Router();
@@ -33,6 +34,7 @@ Routes.use("/cpd", cpdRoutes)
 Routes.use("/support", supportRoutes)
 Routes.use("/session", sessionRoutes)
 Routes.use("/innovation", InnovationRoutes)
+Routes.use("/form", FormRoutes)
 
 // API routes
 Routes.post("/upload/file", authorizeRoles(), singleFileUpload('file'), fileController.uploadSingleFile)
