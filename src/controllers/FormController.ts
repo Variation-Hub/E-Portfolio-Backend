@@ -207,7 +207,7 @@ class FormController {
 
             const usersToAddFiltered = usersToAdd.filter(user => !form.users.some(existingUser => existingUser.user_id === user.user_id));
 
-            form.users = [...form.users, ...usersToAddFiltered];
+            form.users = [...(form?.users || []), ...usersToAddFiltered];
 
             await formRepository.save(form);
 
