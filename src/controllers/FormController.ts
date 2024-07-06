@@ -229,6 +229,7 @@ class FormController {
         try {
             const userFormRepository = AppDataSource.getRepository(UserForm);
             const { form_id, form_data } = req.body;
+            console.log(form_id, req.user.user_id);
             let form = await userFormRepository.findOne({ where: { user: { user_id: req.user.user_id }, form: { id: form_id } } });
 
             if (form) {
@@ -248,6 +249,7 @@ class FormController {
                 status: true
             });
         } catch (error) {
+            console.log(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,
