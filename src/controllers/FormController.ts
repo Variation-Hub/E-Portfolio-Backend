@@ -260,7 +260,7 @@ class FormController {
         try {
             const userFormRepository = AppDataSource.getRepository(UserForm);
             const id = req.query.form_id as any;
-            let userForm = await userFormRepository.findOne({ where: { user: { user_id: req.user.user_id }, form: { id } } });
+            let userForm = await userFormRepository.findOne({ where: { user: { user_id: req.user.user_id }, form: { id } }, relations: ['form'] });
 
             if (!userForm) {
                 return res.status(404).json({
