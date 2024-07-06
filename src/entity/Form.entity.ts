@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from 'typeorm';
 import { User } from './User.entity';
 
 export enum FormType {
@@ -28,12 +28,9 @@ export class Form {
     @Column({ type: 'enum', enum: FormType, nullable: true })
     type: FormType;
 
-    @Column({ type: 'boolean', default: false })
-    admin_Form: boolean;
-
-    @ManyToOne(() => User, { nullable: false })
-    @JoinColumn({ name: 'user_id', referencedColumnName: 'user_id' })
-    user_id: User;
+    @ManyToMany(() => User)
+    @JoinTable()
+    users: User[];
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;

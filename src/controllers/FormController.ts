@@ -3,6 +3,8 @@ import { AppDataSource } from "../data-source";
 import { CustomRequest } from "../util/Interface/expressInterface";
 import { Form } from "../entity/Form.entity";
 import { UserRole } from "../util/constants";
+import { User } from "../entity/User.entity";
+import { UserForm } from "../entity/UserForm.entity";
 
 class FormController {
 
@@ -15,12 +17,7 @@ class FormController {
                 form_name,
                 description,
                 form_data,
-                type,
-                user_id: req.user.user_id,
-            }
-
-            if (req.user.role === UserRole.Admin) {
-                data['admin_Form'] = true;
+                type
             }
 
             const form = formRepository.create(data)
@@ -91,9 +88,7 @@ class FormController {
             const formRepository = AppDataSource.getRepository(Form);
 
             const form = await formRepository.createQueryBuilder('form')
-                .leftJoinAndSelect('form.user_id', 'user')
                 .where('form.id = :id', { id })
-                .select(['form', 'user.user_id', 'user.email', 'user.user_name'])
                 .getOne();
 
 
@@ -120,17 +115,20 @@ class FormController {
 
     public async getForms(req: CustomRequest, res: Response) {
         try {
-
             const formRepository = AppDataSource.getRepository(Form);
+            const qb = formRepository.createQueryBuilder('form')
 
-            const [forms, count] = await formRepository.createQueryBuilder('form')
-                .leftJoinAndSelect('form.user_id', 'user')
-                .where(req.user.role !== UserRole.Admin ? 'form.admin_Form = :admin_Form' : '1=1', { admin_Form: false })
-                .andWhere(req.user.role !== UserRole.Admin ? 'user.user_id = :user_id' : '1=1', { user_id: req.user.user_id })
-                .select(['form', 'user.user_id', 'user.email', 'user.user_name'])
-                .orderBy(`form.${(req.user.role === UserRole.Admin) ? 'id' : 'created_at'}`, `${(req.user.role === UserRole.Admin) ? 'ASC' : 'DESC'}`)
+            if (req.query.keyword) {
+                qb.andWhere("(form.form_name ILIKE :keyword)", { keyword: `%${req.query.keyword}%` });
+            }
+            if (req.user.role !== UserRole.Admin) {
+                qb.innerJoin('form.users', 'user', 'user.user_id = :user_id', { user_id: req.user.user_id })
+            }
+
+            const [forms, count] = await qb
                 .skip(Number(req.pagination.skip))
                 .take(Number(req.pagination.limit))
+                .orderBy(`form.id`, `ASC`)
                 .getManyAndCount();
 
             return res.status(200).json({
@@ -172,6 +170,109 @@ class FormController {
             return res.status(200).json({
                 message: 'Form deleted successfully',
                 status: true,
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                status: false,
+                error: error.message,
+            });
+        }
+    }
+
+    public async addUsersToForm(req: CustomRequest, res: Response) {
+        const formRepository = AppDataSource.getRepository(Form);
+        const userRepository = AppDataSource.getRepository(User);
+        const form_id = parseInt(req.params.id);
+        const { user_ids } = req.body;
+
+        try {
+            const form = await formRepository.findOne({ where: { id: form_id }, relations: ['users'] });
+
+            if (!form) {
+                return res.status(404).json({
+                    message: 'Form not found',
+                    status: false
+                });
+            }
+
+            const usersToAdd = await userRepository.findByIds(user_ids);
+
+            if (!usersToAdd.length) {
+                return res.status(404).json({
+                    message: 'Users not found',
+                    status: false,
+                });
+            }
+
+            const usersToAddFiltered = usersToAdd.filter(user => !form.users.some(existingUser => existingUser.user_id === user.user_id));
+
+            form.users = [...form.users, ...usersToAddFiltered];
+
+            await formRepository.save(form);
+
+            return res.status(200).json({
+                message: 'Users added to form successfully',
+                status: true,
+                form
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                status: false,
+                error: error.message,
+            });
+        }
+    }
+
+    public async createUserFormData(req: CustomRequest, res: Response) {
+        try {
+            const userFormRepository = AppDataSource.getRepository(UserForm);
+            const { form_id, form_data } = req.body;
+            let form = await userFormRepository.findOne({ where: { user: { user_id: req.user.user_id }, form: { id: form_id } } });
+
+            if (form) {
+                form.form_data = form_data;
+            } else {
+                form = userFormRepository.create({
+                    user: req.user.user_id,
+                    form: form_id,
+                    form_data
+                })
+            }
+
+            await userFormRepository.save(form);
+
+            return res.status(200).json({
+                message: 'User form data saved successfully',
+                status: true
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                status: false,
+                error: error.message,
+            });
+        }
+    }
+
+    public async getUserFormData(req: CustomRequest, res: Response) {
+        try {
+            const userFormRepository = AppDataSource.getRepository(UserForm);
+            const id = req.query.form_id as any;
+            let userForm = await userFormRepository.findOne({ where: { user: { user_id: req.user.user_id }, form: { id } } });
+
+            if (!userForm) {
+                return res.status(404).json({
+                    message: 'User form not found',
+                    status: false,
+                });
+            }
+
+            return res.status(200).json({
+                message: 'User form fetch successfully',
+                status: true,
+                data: userForm
             });
         } catch (error) {
             return res.status(500).json({
