@@ -8,15 +8,15 @@ export class UserForm {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, { nullable: false })
     @JoinColumn({ name: 'user_id' })
     user: User;
 
-    @ManyToOne(() => Form)
+    @ManyToOne(() => Form, { nullable: false })
     @JoinColumn({ name: 'id' })
     form: Form;
 
-    @Column({ type: 'json' })
+    @Column({ type: 'json', nullable: false })
     form_data: object;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
