@@ -184,10 +184,26 @@ class FormController {
         const formRepository = AppDataSource.getRepository(Form);
         const userRepository = AppDataSource.getRepository(User);
         const form_id = parseInt(req.params.id);
-        const { user_ids } = req.body;
+        const { user_ids, assign } = req.body;
 
         try {
-            const form = await formRepository.findOne({ where: { id: form_id }, relations: ['users'] });
+            const form = await formRepository
+                .createQueryBuilder('form')
+                .leftJoinAndSelect('form.users', 'user')
+                .select([
+                    'form.id',
+                    'form.form_name',
+                    'form.form_data',
+                    'form.description',
+                    'form.created_at',
+                    'form.type',
+                    'form.updated_at',
+                    'user.user_id',
+                    'user.user_name',
+                    'user.email'
+                ])
+                .where('form.id = :form_id', { form_id })
+                .getOne();
 
             if (!form) {
                 return res.status(404).json({
@@ -195,20 +211,51 @@ class FormController {
                     status: false
                 });
             }
+            let usersToAdd
+            if (user_ids) {
+                usersToAdd = await userRepository.findByIds(user_ids);
 
-            const usersToAdd = await userRepository.findByIds(user_ids);
+                if (!usersToAdd.length) {
+                    return res.status(404).json({
+                        message: 'Users not found',
+                        status: false,
+                    });
+                }
 
-            if (!usersToAdd.length) {
-                return res.status(404).json({
-                    message: 'Users not found',
-                    status: false,
-                });
+                const usersToAddFiltered = usersToAdd.filter(user => !form.users.some(existingUser => existingUser.user_id === user.user_id));
+
+                form.users = [...(form?.users || []), ...usersToAddFiltered];
+            } else if (assign) {
+
+                const roleMap = {
+                    "All": null,
+                    "All Learner": UserRole.Learner,
+                    "All Trainer": UserRole.Trainer,
+                    "All Employer": UserRole.Employer,
+                    "All IQA": UserRole.IQA,
+                    "All LIQA": UserRole.LIQA,
+                    "All EQA": UserRole.EQA
+                };
+
+                if (assign in roleMap) {
+                    if (assign === "All") {
+                        usersToAdd = await userRepository
+                            .createQueryBuilder("user")
+                            .select(["user.user_id", "user.roles"])
+                            .where("NOT :role = ANY(user.roles)", { role: UserRole.Admin })
+                            .getMany();
+                    } else {
+                        usersToAdd = await userRepository
+                            .createQueryBuilder("user")
+                            .select(["user.user_id", "user.roles"])
+                            .where(":role = ANY(user.roles)", { role: roleMap[assign] })
+                            .getMany();
+                    }
+                }
             }
-
             const usersToAddFiltered = usersToAdd.filter(user => !form.users.some(existingUser => existingUser.user_id === user.user_id));
 
             form.users = [...(form?.users || []), ...usersToAddFiltered];
-
             await formRepository.save(form);
 
             return res.status(200).json({
