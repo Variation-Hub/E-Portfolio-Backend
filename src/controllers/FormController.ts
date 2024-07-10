@@ -331,6 +331,60 @@ class FormController {
         }
     }
 
+    public async getUserForms(req: CustomRequest, res: Response) {
+        try {
+            const userFormRepository = AppDataSource.getRepository(UserForm);
+            const qb = userFormRepository.createQueryBuilder('user_form')
+                .innerJoinAndSelect('user_form.user', 'user')
+                .innerJoinAndSelect('user_form.form', 'form')
+                .select([
+                    'user_form.id',
+                    'user_form.form_data',
+                    'user_form.created_at',
+                    'user_form.updated_at',
+                    'user.user_name',
+                    'user.email',
+                    'form.id',
+                    'form.form_name',
+                    'form.description',
+                    'form.form_data',
+                    'form.type',
+                    'form.created_at',
+                    'form.updated_at',
+                ]);
+
+            if (req.query.keyword) {
+                qb.andWhere("(form.form_name ILIKE :keyword OR user.user_name ILIKE :keyword)", { keyword: `%${req.query.keyword}%` });
+            }
+
+            const [forms, count] = await qb
+                .skip(Number(req.pagination.skip))
+                .take(Number(req.pagination.limit))
+                .orderBy(`user_form.created_at`, 'DESC')
+                .getManyAndCount();
+
+            return res.status(200).json({
+                message: 'User Form retrieved successfully',
+                status: true,
+                data: forms,
+                ...(req.query.meta === "true" && {
+                    meta_data: {
+                        page: req.pagination.page,
+                        items: count,
+                        page_size: req.pagination.limit,
+                        pages: Math.ceil(count / req.pagination.limit)
+                    }
+                })
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                status: false,
+                error: error.message,
+            });
+        }
+    }
+
 }
 
 export default FormController;

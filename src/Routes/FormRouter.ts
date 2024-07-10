@@ -18,5 +18,6 @@ FormRoutes.delete("/delete/:id", authorizeRoles(UserRole.Admin), Controller.dele
 // UserForm routes
 FormRoutes.post('/user/create', authorizeRoles(), Controller.createUserFormData);
 FormRoutes.get("/user/:id", authorizeRoles(), Controller.getUserFormData);
+FormRoutes.get("/list/user", authorizeRoles(UserRole.Admin), paginationMiddleware, Controller.getUserForms);
 
 export default FormRoutes;
