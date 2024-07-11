@@ -86,7 +86,6 @@ class UserController {
             })
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 message: "Internal Server Error",
                 status: false,
@@ -141,7 +140,6 @@ class UserController {
             })
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 message: "Internal Server Error",
                 status: false,
@@ -153,6 +151,7 @@ class UserController {
     public async LoginUser(req: Request, res: Response) {
         try {
             const userRepository = AppDataSource.getRepository(User)
+            const learnerRepository = AppDataSource.getRepository(Learner)
 
             const { email, password } = req.body
             if (!email || !password) {
@@ -162,7 +161,7 @@ class UserController {
                 })
             }
 
-            const user = await userRepository.findOne({
+            let user: any = await userRepository.findOne({
                 where: { email: email },
             });
 
@@ -185,6 +184,11 @@ class UserController {
             delete user.created_at;
             delete user.updated_at;
             delete user.deleted_at;
+
+            const learner = await learnerRepository.findOne({ where: { user_id: user.user_id } })
+            if (learner) {
+                user.learner_id = learner.learner_id
+            }
 
             let accessToken = generateToken({
                 ...user
@@ -392,7 +396,6 @@ class UserController {
 
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 message: "Internal Server Error",
                 status: false,
@@ -453,13 +456,21 @@ class UserController {
             const { role } = req.body
 
             const userRepository = AppDataSource.getRepository(User)
-            const user = await userRepository.findOne({ where: { user_id } });
+            const learnerRepository = AppDataSource.getRepository(Learner)
+            let user: any = await userRepository.findOne({ where: { user_id } });
 
             if (!user.roles.includes(role)) {
                 return res.status(404).json({
                     message: "You are not allowed to change this user role",
                     status: false,
                 })
+            }
+
+            if (role === UserRole.Learner) {
+                const learner = await learnerRepository.findOne({ where: { user_id: { user_id: user.user_id } } })
+                if (learner) {
+                    user.learner_id = learner.learner_id
+                }
             }
 
             let accessToken = generateToken({ ...user, displayName: user.first_name + " " + user.last_name, role })

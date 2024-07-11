@@ -15,7 +15,10 @@ export class Forum {
     @JoinColumn({ name: 'course_id', referencedColumnName: 'course_id' })
     course: Course;
 
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'json', nullable: true })
+    file: object;
+
+    @Column({ type: 'varchar', nullable: true })
     message: string;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

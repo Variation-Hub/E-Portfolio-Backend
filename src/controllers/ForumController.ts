@@ -6,6 +6,7 @@ import { Forum } from "../entity/Forum.entity";
 import { UserCourse } from "../entity/UserCourse.entity";
 import { sendDataTOUser } from "../socket/socketEvent";
 import { SocketDomain, SocketEvents } from "../util/constants";
+import { deleteFromS3, uploadToS3 } from "../util/aws";
 
 class ForumController {
     constructor() {
@@ -52,7 +53,12 @@ class ForumController {
             const forumRepository = AppDataSource.getRepository(Forum)
             const { course_id, message } = req.body
 
-            let forum = forumRepository.create({ sender: req.user.user_id, course: course_id, message })
+            let file
+            if (req.file) {
+                file = await uploadToS3(req.file, "Forum")
+            }
+
+            let forum = forumRepository.create({ sender: req.user.user_id, course: course_id, message, file })
             forum = await forumRepository.save(forum)
 
             const uniqueUserIdArray = await this.getCourseUserIds(course_id)
@@ -89,6 +95,10 @@ class ForumController {
             }
 
             forum.message = message || forum.message
+            if (req.file) {
+                deleteFromS3(forum.file)
+                forum.file = await uploadToS3(req.file, "Forum")
+            }
             forum = await forumRepository.save(forum)
 
             const uniqueUserIdArray = await this.getCourseUserIds(forum.course.course_id)
@@ -144,7 +154,16 @@ class ForumController {
 
             const qb = forumRepository.createQueryBuilder('forum')
                 .innerJoin('forum.course', 'course')
+                .innerJoin('forum.sender', 'sender')
                 .where('course.course_id = :course_id', { course_id })
+                .select([
+                    'forum.id',
+                    'forum.message',
+                    'forum.created_at',
+                    'sender.user_id',
+                    'sender.user_name',
+                    'sender.avatar',
+                ])
 
             const [forum, count] = await qb
                 .skip(Number(req.pagination.skip))
