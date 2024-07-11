@@ -17,6 +17,7 @@ import supportRoutes from './SupportRouter';
 import sessionRoutes from './SessionRouter';
 import InnovationRoutes from './InnovationRouter';
 import FormRoutes from './FormRouter';
+import forumRoutes from './ForumRouter';
 
 const fileController = new FileController;
 const Routes = express.Router();
@@ -35,6 +36,7 @@ Routes.use("/support", supportRoutes)
 Routes.use("/session", sessionRoutes)
 Routes.use("/innovation", InnovationRoutes)
 Routes.use("/form", FormRoutes)
+Routes.use("/forum", forumRoutes)
 
 // API routes
 Routes.post("/upload/file", authorizeRoles(), singleFileUpload('file'), fileController.uploadSingleFile)

@@ -10,7 +10,7 @@ const userRoutes = express.Router();
 
 const Controller = new UserController();
 
-userRoutes.post("/create", authorizeRoles(UserRole.Admin), trimMiddleware, Controller.CreateUser);
+userRoutes.post("/create", trimMiddleware, Controller.CreateUser);
 userRoutes.get("/get", authorizeRoles(), Controller.GetUser);
 userRoutes.patch("/update/:id", authorizeRoles(), trimMiddleware, Controller.UpdateUser);
 userRoutes.post("/login", trimMiddleware, Controller.LoginUser);

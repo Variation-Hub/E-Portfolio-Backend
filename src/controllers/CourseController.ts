@@ -9,6 +9,7 @@ import { Learner } from "../entity/Learner.entity";
 import { SendNotification } from "../util/socket/notification";
 import { UserCourse } from "../entity/UserCourse.entity";
 import { userActive } from "../util/helper";
+import { SocketDomain } from "../util/constants";
 class CourseController {
 
     public async CreateCourse(req: CustomRequest, res: Response) {
@@ -200,7 +201,7 @@ class CourseController {
             res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
             const userRepository = AppDataSource.getRepository(User);
             const admin = await userRepository.findOne({ where: { user_id: req.user.user_id } });
-            const data = { title: "Course Allocation", message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course.`, domain: "Course Allocation" }
+            const data = { title: "Course Allocation", message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course.`, domain: SocketDomain.CourseAllocation }
             SendNotification(learner.user_id.user_id, data)
 
         } catch (error) {

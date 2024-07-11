@@ -32,3 +32,12 @@ export enum UserStatus {
     Active = "Active",
     InActive = "InActive"
 }
+
+export const SocketEvents = {
+    Notification: "notification",
+    Message: "message",
+}
+
+export const SocketDomain = {
+    CourseAllocation: "Course Allocation",
+}
