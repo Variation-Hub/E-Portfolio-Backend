@@ -196,7 +196,7 @@ class CourseController {
                 })
 
             }
-            await userCourseRepository.create({ learner_id, trainer_id, IQA_id, LIQA_id, EQA_id, employer_id, course: courseData })
+            await userCourseRepository.save(userCourseRepository.create({ learner_id, trainer_id, IQA_id, LIQA_id, EQA_id, employer_id, course: courseData }))
 
             const userRepository = AppDataSource.getRepository(User);
             const admin = await userRepository.findOne({ where: { user_id: req.user.user_id } });
