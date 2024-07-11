@@ -179,7 +179,7 @@ class CourseController {
             const courseRepository = AppDataSource.getRepository(Course);
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
 
-            const course = await courseRepository.findOne({ where: { course_id }, relations: ['user_id'] });
+            const course = await courseRepository.findOne({ where: { course_id } });
             const learner = await learnerRepository.findOne({ where: { learner_id } });
             if (!course || !learner) {
                 return res.status(404).json({ message: 'course or learner not found', status: false });
