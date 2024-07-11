@@ -5,6 +5,7 @@ import { User } from "../entity/User.entity";
 import { bcryptpassword } from "../util/bcrypt";
 import { sendPasswordByEmail } from "../util/mailSend";
 import { CustomRequest } from "../util/Interface/expressInterface";
+import { UserCourse } from "../entity/UserCourse.entity";
 
 
 class LearnerController {
@@ -107,8 +108,9 @@ class LearnerController {
 
     public async getLearner(req: Request, res: Response): Promise<Response> {
         try {
-            const learner_id: number = parseInt(req.params.id);
+            const learner_id = req.params.id as any;
             const learnerRepository = AppDataSource.getRepository(Learner);
+            const userCourseRepository = AppDataSource.getRepository(UserCourse);
             const learner = await learnerRepository.findOne({ where: { learner_id } })
 
             if (!learner) {
@@ -118,10 +120,12 @@ class LearnerController {
                 });
             }
 
+            const course = await userCourseRepository.find({ where: { learner_id } })
+
             return res.status(200).json({
                 message: 'Learner retrieved successfully',
                 status: true,
-                data: learner,
+                data: { ...learner, course },
             });
         } catch (error) {
             return res.status(500).json({
