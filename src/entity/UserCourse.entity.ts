@@ -21,6 +21,10 @@ export class UserCourse {
     IQA_id: User;
 
     @ManyToOne(() => User)
+    @JoinColumn({ name: 'LIQA_id', referencedColumnName: 'user_id' })
+    LIQA_id: User;
+
+    @ManyToOne(() => User)
     @JoinColumn({ name: 'EQA_id', referencedColumnName: 'user_id' })
     EQA_id: User;
 

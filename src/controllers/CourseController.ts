@@ -173,7 +173,7 @@ class CourseController {
 
     public async courseEnrollment(req: CustomRequest, res: Response): Promise<Response> {
         try {
-            const { learner_id, course_id, trainer_id, IQA_id, EQA_id, employer_id } = req.body
+            const { learner_id, course_id, trainer_id, IQA_id, LIQA_id, EQA_id, employer_id } = req.body
 
             const learnerRepository = AppDataSource.getRepository(Learner);
             const courseRepository = AppDataSource.getRepository(Course);
@@ -196,7 +196,7 @@ class CourseController {
                 })
 
             }
-            await userCourseRepository.create({ learner_id, trainer_id, IQA_id, EQA_id, employer_id, course: courseData })
+            await userCourseRepository.create({ learner_id, trainer_id, IQA_id, LIQA_id, EQA_id, employer_id, course: courseData })
 
             res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
             const userRepository = AppDataSource.getRepository(User);

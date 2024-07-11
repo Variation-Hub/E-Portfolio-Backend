@@ -9,16 +9,15 @@ class ForumController {
     public async sendMessage(req: CustomRequest, res: Response) {
         try {
             const forumRepository = AppDataSource.getRepository(Forum)
+            // const forumRepository = AppDataSource.getRepository(Forum)
 
             const { course_id, message } = req.body
-
-
 
             let forum = await forumRepository.create({ sender: req.user.user_id, course: course_id, message })
 
             forum = await forumRepository.save(forum)
 
-            // cosnt
+
 
             return res.status(200).json({
                 message: "Message send successfully",
