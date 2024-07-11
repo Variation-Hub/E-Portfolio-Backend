@@ -40,4 +40,7 @@ export const SocketEvents = {
 
 export const SocketDomain = {
     CourseAllocation: "Course Allocation",
+    MessageSend: "Message Send",
+    MessageUpdate: "Message Update",
+    MessageDelete: "Message Delete",
 }

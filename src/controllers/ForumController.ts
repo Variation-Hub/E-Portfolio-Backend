@@ -3,21 +3,60 @@ import { CustomRequest } from "../util/Interface/expressInterface";
 import { AppDataSource } from "../data-source";
 import { Notification } from "../entity/Notification.entity";
 import { Forum } from "../entity/Forum.entity";
+import { UserCourse } from "../entity/UserCourse.entity";
+import { sendDataTOUser } from "../socket/socketEvent";
+import { SocketDomain, SocketEvents } from "../util/constants";
 
 class ForumController {
+    constructor() {
+        this.sendMessage = this.sendMessage.bind(this);
+        this.updateMessage = this.updateMessage.bind(this);
+        this.getCourseUserIds = this.getCourseUserIds.bind(this);
+    }
+
+    getCourseUserIds = async (course_id: number) => {
+        const userCourseRepository = AppDataSource.getRepository(UserCourse)
+
+        const userCourses = await userCourseRepository.createQueryBuilder('user_course')
+            .leftJoin('user_course.learner_id', 'learner')
+            .leftJoin('learner.user_id', 'learner_user')
+            .leftJoin('user_course.trainer_id', 'trainer')
+            .leftJoin('user_course.IQA_id', 'IQA')
+            .leftJoin('user_course.LIQA_id', 'LIQA')
+            .leftJoin('user_course.EQA_id', 'EQA')
+            .leftJoin('user_course.employer_id', 'employer')
+            .where('user_course.course->>\'course_id\' = :course_id', { course_id })
+            .select([
+                'learner_user.user_id',
+                'trainer.user_id AS trainer_id',
+                'IQA.user_id AS iqa_id',
+                'LIQA.user_id AS liqa_id',
+                'EQA.user_id AS eqa_id',
+                'employer.user_id AS employer_id'
+            ])
+            .getRawMany();
+        const uniqueUserIdSet = new Set<number>();
+        userCourses.forEach(ids => {
+            uniqueUserIdSet.add(ids.learner_user_user_id);
+            uniqueUserIdSet.add(ids.trainer_id);
+            uniqueUserIdSet.add(ids.iqa_id);
+            uniqueUserIdSet.add(ids.liqa_id);
+            uniqueUserIdSet.add(ids.eqa_id);
+            uniqueUserIdSet.add(ids.employer_id);
+        });
+        return Array.from(uniqueUserIdSet)
+    }
 
     public async sendMessage(req: CustomRequest, res: Response) {
         try {
             const forumRepository = AppDataSource.getRepository(Forum)
-            // const forumRepository = AppDataSource.getRepository(Forum)
-
             const { course_id, message } = req.body
 
-            let forum = await forumRepository.create({ sender: req.user.user_id, course: course_id, message })
-
+            let forum = forumRepository.create({ sender: req.user.user_id, course: course_id, message })
             forum = await forumRepository.save(forum)
 
-
+            const uniqueUserIdArray = await this.getCourseUserIds(course_id)
+            sendDataTOUser(SocketEvents.Message, uniqueUserIdArray, { ...forum, domain: SocketDomain.MessageSend })
 
             return res.status(200).json({
                 message: "Message send successfully",
@@ -34,95 +73,59 @@ class ForumController {
         }
     }
 
-    public async getNotificationForUser(req: CustomRequest, res: Response) {
+    public async updateMessage(req: CustomRequest, res: Response) {
         try {
-            const notifictionRepository = AppDataSource.getRepository(Notification)
-            const userId = req.user.user_id;
+            const forumRepository = AppDataSource.getRepository(Forum)
+            const id = parseInt(req.params.id)
+            const { message } = req.body
 
-            const notification = await notifictionRepository.find({ where: { user_id: userId }, order: { created_at: "DESC" } })
+            let forum = await forumRepository.findOne({ where: { id }, relations: ['course'] })
 
-            res.status(200).json({
-                data: notification,
-                message: 'Notification fetched successfully',
-                status: true,
-            });
-        } catch (error) {
-            return res.status(500).json({
-                message: "Internal Server Error",
-                error: error.message,
-                status: false,
-            });
-        }
-    }
-
-    public async deleteSingleNotification(req: CustomRequest, res: Response) {
-        try {
-            const notificationRepository = AppDataSource.getRepository(Notification)
-
-            const id: any = req.params.id
-
-            const notification = await notificationRepository.findOne({ where: { notification_id: id } });
-
-            if (!notification) {
+            if (!forum) {
                 return res.status(404).json({
-                    message: 'notification not found',
-                    status: false,
-                });
+                    message: "Message Not Found",
+                    status: false
+                })
             }
 
-            await notificationRepository.remove(notification);
-            res.status(200).json({
-                message: 'Notification delete successfully',
+            forum.message = message || forum.message
+            forum = await forumRepository.save(forum)
+
+            const uniqueUserIdArray = await this.getCourseUserIds(forum.course.course_id)
+            sendDataTOUser(SocketEvents.Message, uniqueUserIdArray, { ...forum, domain: SocketDomain.MessageUpdate })
+            delete forum.course
+
+            return res.status(200).json({
+                message: "Message update successfully",
                 status: true,
-            });
+                data: forum
+            })
+
         } catch (error) {
             return res.status(500).json({
                 message: "Internal Server Error",
-                error: error.message,
                 status: false,
-            });
+                error: error.message
+            })
         }
     }
 
-    public async deletemultipleNotification(req: CustomRequest, res: Response) {
+    public async deleteForum(req: CustomRequest, res: Response) {
         try {
-            const notificationRepository = AppDataSource.getRepository(Notification)
+            const forumRepository = AppDataSource.getRepository(Forum)
+            const id = parseInt(req.params.id)
 
+            const deleteResult = await forumRepository.delete(id);
 
-            await notificationRepository.delete({
-                user_id: req.user.user_id,
-            });
-
-            res.status(200).json({
-                message: 'Notification delete successfully',
-                status: true,
-            });
-        } catch (error) {
-            return res.status(500).json({
-                message: "Internal Server Error",
-                error: error.message,
-                status: false,
-            });
-        }
-    }
-
-    public async readSingleNotification(req: CustomRequest, res: Response) {
-        try {
-            const notificationRepository = AppDataSource.getRepository(Notification)
-
-            const id: any = req.params.id
-
-            const updateResult = await notificationRepository.update({ notification_id: id }, { read: true });
-
-            if (updateResult.affected === 0) {
+            if (deleteResult.affected === 0) {
                 return res.status(404).json({
-                    message: 'Notification not found',
+                    message: 'Message not found',
                     status: false,
                 });
             }
 
             res.status(200).json({
-                message: 'Marked as read successfully',
+                message: 'Message delete successfully',
                 status: true,
             });
         } catch (error) {
@@ -134,30 +137,41 @@ class ForumController {
         }
     }
 
-    public async readAllNotification(req: CustomRequest, res: Response) {
+    public async getMessages(req: CustomRequest, res: Response) {
         try {
-            const notificationRepository = AppDataSource.getRepository(Notification);
+            const forumRepository = AppDataSource.getRepository(Forum)
+            const course_id = parseInt(req.params.course_id)
 
-            const updateResult = await notificationRepository.update({ user_id: req.user.user_id, read: false }, { read: true });
+            const qb = forumRepository.createQueryBuilder('forum')
+                .innerJoin('forum.course', 'course')
+                .where('course.course_id = :course_id', { course_id })
 
-            console.log(updateResult)
-            if (updateResult.affected === 0) {
-                return res.status(404).json({
-                    message: 'No notifications found for the user',
-                    status: false,
-                });
-            }
+            const [forum, count] = await qb
+                .skip(Number(req.pagination.skip))
+                .take(Number(req.pagination.limit))
+                .orderBy('forum.created_at', 'DESC')
+                .getManyAndCount();
 
-            res.status(200).json({
-                message: 'All notifications marked as read successfully',
+            return res.status(200).json({
+                message: 'Messages retrieved successfully',
                 status: true,
+                data: forum,
+                ...(req.query.meta === "true" && {
+                    meta_data: {
+                        page: req.pagination.page,
+                        items: count,
+                        page_size: req.pagination.limit,
+                        pages: Math.ceil(count / req.pagination.limit)
+                    }
+                })
             });
+
         } catch (error) {
             return res.status(500).json({
                 message: "Internal Server Error",
-                error: error.message,
                 status: false,
-            });
+                error: error.message
+            })
         }
     }
 

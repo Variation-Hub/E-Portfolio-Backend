@@ -34,7 +34,7 @@ export function sendMessageToUser(userId: string, data: { title: string, message
     }
 }
 
-export function sendDataTOUser(socketEvent: string, userIds: string[], data: any): void {
+export function sendDataTOUser(socketEvent: string, userIds: number[], data: any): void {
     const io = getIo();
     userIds.forEach(userId => {
         if (userSocketMap[userId]) {
