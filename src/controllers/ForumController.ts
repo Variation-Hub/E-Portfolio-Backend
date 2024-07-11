@@ -7,6 +7,8 @@ import { UserCourse } from "../entity/UserCourse.entity";
 import { sendDataTOUser } from "../socket/socketEvent";
 import { SocketDomain, SocketEvents } from "../util/constants";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
+import { Course } from "../entity/Course.entity";
+import { In } from "typeorm";
 
 class ForumController {
     constructor() {
@@ -194,6 +196,62 @@ class ForumController {
         }
     }
 
+    public async getForumChat(req: CustomRequest, res: Response) {
+        try {
+            const courseRepository = AppDataSource.getRepository(Course)
+            const userCourseRepository = AppDataSource.getRepository(UserCourse)
+
+            const userCourses = await userCourseRepository.createQueryBuilder('user_course')
+                .leftJoin('user_course.learner_id', 'learner')
+                .leftJoin('learner.user_id', 'learner_user')
+                .leftJoin('user_course.trainer_id', 'trainer')
+                .leftJoin('user_course.IQA_id', 'IQA')
+                .leftJoin('user_course.LIQA_id', 'LIQA')
+                .leftJoin('user_course.EQA_id', 'EQA')
+                .leftJoin('user_course.employer_id', 'employer')
+                .where('learner_user.user_id = :user_id OR trainer.user_id = :user_id OR IQA.user_id = :user_id OR LIQA.user_id = :user_id OR EQA.user_id = :user_id  OR employer.user_id = :user_id', { user_id: req.user.user_id })
+                .select([
+                    'user_course.course->\'course_id\' AS course_id'
+                ])
+                .getRawMany();
+            const courseIds = Array.from(new Set(userCourses.map(course => course.course_id)))
+
+            const chatList = await courseRepository.createQueryBuilder('course')
+                .leftJoinAndSelect(
+                    subQuery => {
+                        return subQuery
+                            .select('forum.course_id', 'course_id')
+                            .addSelect('MAX(forum.created_at)', 'latest_forum_created_at')
+                            .from(Forum, 'forum')
+                            .groupBy('forum.course_id');
+                    },
+                    'latest_forum',
+                    'course.course_id = latest_forum.course_id'
+                )
+                .where('course.course_id IN (:...courseIds)', { courseIds })
+                .select([
+                    'course.course_id',
+                    'course.course_name',
+                    'course.course_code',
+                    'latest_forum.latest_forum_created_at'
+                ])
+                .getRawMany();
+
+
+            return res.status(200).json({
+                message: 'Forum chat retrieved successfully',
+                status: true,
+                data: chatList
+            });
+
+        } catch (error) {
+            return res.status(500).json({
+                message: "Internal Server Error",
+                status: false,
+                error: error.message
+            })
+        }
+    }
 }
 
 export default ForumController;

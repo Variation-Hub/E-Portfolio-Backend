@@ -11,6 +11,7 @@ const Controller = new ForumController();
 forumRoutes.post("/send", authorizeRoles(), singleFileUpload('file'), Controller.sendMessage);
 forumRoutes.patch("/update/:id", authorizeRoles(), singleFileUpload('file'), Controller.updateMessage);
 forumRoutes.get("/messages/:course_id", authorizeRoles(), paginationMiddleware, Controller.getMessages);
+forumRoutes.get("/list", authorizeRoles(), Controller.getForumChat);
 forumRoutes.delete("/delete/:id", authorizeRoles(), Controller.deleteForum);
 
 export default forumRoutes;
