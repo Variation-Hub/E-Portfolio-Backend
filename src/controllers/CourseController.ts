@@ -180,7 +180,7 @@ class CourseController {
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
 
             const course = await courseRepository.findOne({ where: { course_id } });
-            const learner = await learnerRepository.findOne({ where: { learner_id } });
+            const learner = await learnerRepository.findOne({ where: { learner_id }, relations: ['user_id'] });
             if (!course || !learner) {
                 return res.status(404).json({ message: 'course or learner not found', status: false });
             }
@@ -198,11 +198,11 @@ class CourseController {
             }
             await userCourseRepository.create({ learner_id, trainer_id, IQA_id, LIQA_id, EQA_id, employer_id, course: courseData })
 
-            res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
             const userRepository = AppDataSource.getRepository(User);
             const admin = await userRepository.findOne({ where: { user_id: req.user.user_id } });
             const data = { title: "Course Allocation", message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course.`, domain: SocketDomain.CourseAllocation }
             SendNotification(learner.user_id.user_id, data)
+            res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
 
         } catch (error) {
             return res.status(500).json({
