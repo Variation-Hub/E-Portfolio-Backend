@@ -6,7 +6,6 @@ const NotificationRoutes = express.Router();
 
 const Controller = new NotificationController();
 
-NotificationRoutes.post("/connect", authorizeRoles(), Controller.connectUser);
 NotificationRoutes.get("/list", authorizeRoles(), Controller.getNotificationForUser);
 NotificationRoutes.delete("/delete/:id", authorizeRoles(), Controller.deleteSingleNotification);
 NotificationRoutes.delete("/delete", authorizeRoles(), Controller.deletemultipleNotification);

@@ -27,5 +27,6 @@ app.use('/api/v1', MainRoutes);
 
 const server = app.listen(port, () => {
     console.log(`Server is running at Port :: ${port} `);
-    initSocket(server)
 });
+
+initSocket(server)

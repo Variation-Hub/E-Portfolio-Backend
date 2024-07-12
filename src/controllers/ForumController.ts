@@ -3,10 +3,10 @@ import { CustomRequest } from "../util/Interface/expressInterface";
 import { AppDataSource } from "../data-source";
 import { Forum } from "../entity/Forum.entity";
 import { UserCourse } from "../entity/UserCourse.entity";
-import { sendDataTOUser } from "../socket/socketEvent";
 import { SocketDomain, SocketEvents } from "../util/constants";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { Course } from "../entity/Course.entity";
+import { sendDataToUser } from "../socket/socket";
 
 class ForumController {
     constructor() {
@@ -62,7 +62,7 @@ class ForumController {
             forum = await forumRepository.save(forum)
 
             const uniqueUserIdArray = await this.getCourseUserIds(course_id)
-            sendDataTOUser(SocketEvents.Message, uniqueUserIdArray, { ...forum, domain: SocketDomain.MessageSend })
+            sendDataToUser(SocketEvents.Message, uniqueUserIdArray, { ...forum, domain: SocketDomain.MessageSend })
 
             return res.status(200).json({
                 message: "Message send successfully",
@@ -102,7 +102,7 @@ class ForumController {
             forum = await forumRepository.save(forum)
 
             const uniqueUserIdArray = await this.getCourseUserIds(forum.course.course_id)
-            sendDataTOUser(SocketEvents.Message, uniqueUserIdArray, { ...forum, domain: SocketDomain.MessageUpdate })
+            sendDataToUser(SocketEvents.Message, uniqueUserIdArray, { ...forum, domain: SocketDomain.MessageUpdate })
             delete forum.course
 
             return res.status(200).json({

@@ -1,12 +1,14 @@
 import { AppDataSource } from "../../data-source";
 import { Notification } from "../../entity/Notification.entity";
-import { sendMessageToUser } from "../../socket/socketEvent";
+import { sendDataToUser } from "../../socket/socket";
+import { SocketEvents } from "../constants";
+
 
 export const SendNotification = async (user_id, data) => {
     try {
         const notificationRepository = AppDataSource.getRepository(Notification);
 
-        sendMessageToUser(user_id, data)
+        sendDataToUser(SocketEvents.Notification, [user_id], data)
         const resource = notificationRepository.create({
             user_id,
             title: data.title,
