@@ -1,14 +1,12 @@
 import { Response } from "express";
 import { CustomRequest } from "../util/Interface/expressInterface";
 import { AppDataSource } from "../data-source";
-import { Notification } from "../entity/Notification.entity";
 import { Forum } from "../entity/Forum.entity";
 import { UserCourse } from "../entity/UserCourse.entity";
 import { sendDataTOUser } from "../socket/socketEvent";
 import { SocketDomain, SocketEvents } from "../util/constants";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { Course } from "../entity/Course.entity";
-import { In } from "typeorm";
 
 class ForumController {
     constructor() {

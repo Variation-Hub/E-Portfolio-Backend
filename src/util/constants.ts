@@ -33,6 +33,12 @@ export enum UserStatus {
     InActive = "InActive"
 }
 
+export enum NotificationType {
+    Notification = "notification",
+    News = "news",
+    Allocation = "allocation"
+}
+
 export const SocketEvents = {
     Notification: "notification",
     Message: "message",

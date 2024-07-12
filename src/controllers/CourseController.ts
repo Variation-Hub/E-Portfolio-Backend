@@ -9,7 +9,7 @@ import { Learner } from "../entity/Learner.entity";
 import { SendNotification } from "../util/socket/notification";
 import { UserCourse } from "../entity/UserCourse.entity";
 import { userActive } from "../util/helper";
-import { SocketDomain } from "../util/constants";
+import { NotificationType, SocketDomain } from "../util/constants";
 class CourseController {
 
     public async CreateCourse(req: CustomRequest, res: Response) {
@@ -179,6 +179,19 @@ class CourseController {
             const courseRepository = AppDataSource.getRepository(Course);
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
 
+            const userCourse = await userCourseRepository.createQueryBuilder('user_course')
+                .leftJoinAndSelect('user_course.learner_id', 'learner')
+                .where('user_course.course->>\'course_id\' = :course_id', { course_id })
+                .andWhere('learner.learner_id = :learner_id', { learner_id })
+                .getOne();
+
+            if (userCourse) {
+                return res.status(400).json({
+                    message: "course already assigned",
+                    status: false
+                })
+            }
+
             const course = await courseRepository.findOne({ where: { course_id } });
             const learner = await learnerRepository.findOne({ where: { learner_id }, relations: ['user_id'] });
             if (!course || !learner) {
@@ -200,7 +213,7 @@ class CourseController {
 
             const userRepository = AppDataSource.getRepository(User);
             const admin = await userRepository.findOne({ where: { user_id: req.user.user_id } });
-            const data = { title: "Course Allocation", message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course.`, domain: SocketDomain.CourseAllocation }
+            const data = { title: "Course Allocation", message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course.`, domain: SocketDomain.CourseAllocation, type: NotificationType.Allocation }
             SendNotification(learner.user_id.user_id, data)
             res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
 
