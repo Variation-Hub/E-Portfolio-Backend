@@ -16,7 +16,7 @@ export function connectUser(userId: string): void {
         userSocketMap[userId] = [...(userSocketMap[userId] ?? []), ...(userSocketMap[userId] && userSocketMap[userId].includes(socket.id) ? [] : [socket.id])];
 
         socket.on('disconnect', () => {
-            console.log('socket disconnected')
+            console.log('socket disconnected', userSocketMap, socket.id)
             userSocketMap[userId].reduce((acc, curr) => curr !== socket.id ? acc.concat(curr) : acc, [])
             console.log('socket disconnected', userSocketMap)
         });
