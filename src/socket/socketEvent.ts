@@ -13,7 +13,7 @@ export function connectUser(userId: string): void {
         console.log(userId + ' connected')
         console.log('A user connected', socket.id, userId);
 
-        userSocketMap[userId] = [...(userSocketMap[userId] ?? []), ...(userSocketMap[userId] && userSocketMap[userId].includes(socket.id) ? [] : [socket.id])];
+        userSocketMap[userId] = [...(userSocketMap[userId].includes(socket.id) ? userSocketMap[userId] : [...userSocketMap[userId], socket.id])];
 
         socket.on('disconnect', () => {
             console.log('socket disconnected', userSocketMap, socket.id)
