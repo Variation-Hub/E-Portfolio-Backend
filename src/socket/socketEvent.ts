@@ -17,7 +17,7 @@ export function connectUser(userId: string): void {
 
         socket.on('disconnect', () => {
             console.log('socket disconnected', userSocketMap, socket.id)
-            userSocketMap[userId].filter(val => val !== socket.id)
+            userSocketMap[userId] = userSocketMap[userId].filter(val => val !== socket.id)
             console.log('socket disconnected', userSocketMap)
         });
         console.log(userSocketMap, 'userSocketMap')
