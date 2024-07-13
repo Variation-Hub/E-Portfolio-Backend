@@ -174,7 +174,7 @@ class ForumController {
             return res.status(200).json({
                 message: 'Messages retrieved successfully',
                 status: true,
-                data: forum,
+                data: forum.reverse(),
                 ...(req.query.meta === "true" && {
                     meta_data: {
                         page: req.pagination.page,

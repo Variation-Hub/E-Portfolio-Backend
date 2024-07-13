@@ -23,7 +23,7 @@ function connection(client: Client): void {
             userClientMap[userId] = [client];
         }
 
-        console.log(`User ${userId} connected`, userClientMap);
+        console.log(`User ${userId} connected`);
     });
 
     client.on('close', () => {
@@ -33,7 +33,7 @@ function connection(client: Client): void {
                 delete userClientMap[userId];
             }
         }
-        console.log('Client disconnected', userClientMap);
+        console.log('Client disconnected');
     });
 }
 
