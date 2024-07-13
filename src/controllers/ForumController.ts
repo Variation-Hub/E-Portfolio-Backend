@@ -3,7 +3,7 @@ import { CustomRequest } from "../util/Interface/expressInterface";
 import { AppDataSource } from "../data-source";
 import { Forum } from "../entity/Forum.entity";
 import { UserCourse } from "../entity/UserCourse.entity";
-import { SocketDomain, SocketEvents } from "../util/constants";
+import { SocketDomain, SocketEvents, UserRole } from "../util/constants";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { Course } from "../entity/Course.entity";
 import { sendDataToUser } from "../socket/socket";
@@ -199,22 +199,7 @@ class ForumController {
             const courseRepository = AppDataSource.getRepository(Course)
             const userCourseRepository = AppDataSource.getRepository(UserCourse)
 
-            const userCourses = await userCourseRepository.createQueryBuilder('user_course')
-                .leftJoin('user_course.learner_id', 'learner')
-                .leftJoin('learner.user_id', 'learner_user')
-                .leftJoin('user_course.trainer_id', 'trainer')
-                .leftJoin('user_course.IQA_id', 'IQA')
-                .leftJoin('user_course.LIQA_id', 'LIQA')
-                .leftJoin('user_course.EQA_id', 'EQA')
-                .leftJoin('user_course.employer_id', 'employer')
-                .where('learner_user.user_id = :user_id OR trainer.user_id = :user_id OR IQA.user_id = :user_id OR LIQA.user_id = :user_id OR EQA.user_id = :user_id  OR employer.user_id = :user_id', { user_id: req.user.user_id })
-                .select([
-                    'user_course.course->\'course_id\' AS course_id'
-                ])
-                .getRawMany();
-            const courseIds = Array.from(new Set(userCourses.map(course => course.course_id)))
-
-            const chatList = await courseRepository.createQueryBuilder('course')
+            const query = await courseRepository.createQueryBuilder('course')
                 .leftJoinAndSelect(
                     subQuery => {
                         return subQuery
@@ -226,20 +211,47 @@ class ForumController {
                     'latest_forum',
                     'course.course_id = latest_forum.course_id'
                 )
-                .where('course.course_id IN (:...courseIds)', { courseIds })
                 .select([
                     'course.course_id',
                     'course.course_name',
                     'course.course_code',
                     'latest_forum.latest_forum_created_at'
                 ])
-                .getRawMany();
+
+            if (req.user.role !== UserRole.Admin) {
+                const userCourses = await userCourseRepository.createQueryBuilder('user_course')
+                    .leftJoin('user_course.learner_id', 'learner')
+                    .leftJoin('learner.user_id', 'learner_user')
+                    .leftJoin('user_course.trainer_id', 'trainer')
+                    .leftJoin('user_course.IQA_id', 'IQA')
+                    .leftJoin('user_course.LIQA_id', 'LIQA')
+                    .leftJoin('user_course.EQA_id', 'EQA')
+                    .leftJoin('user_course.employer_id', 'employer')
+                    .where('learner_user.user_id = :user_id OR trainer.user_id = :user_id OR IQA.user_id = :user_id OR LIQA.user_id = :user_id OR EQA.user_id = :user_id  OR employer.user_id = :user_id', { user_id: req.user.user_id })
+                    .select([
+                        'user_course.course->\'course_id\' AS course_id'
+                    ])
+                    .getRawMany();
+                const courseIds = Array.from(new Set(userCourses.map(course => course.course_id)))
+                console.log(courseIds, req.user.user_id, req.user.role);
+                if (courseIds.length > 0) {
+                    query.where('course.course_id IN (:...courseIds)', { courseIds });
+                } else {
+                    query.where('0 = 1'); // This ensures no data is returned when courseIds is empty
+                }
+            }
+
+            const chatList = await query.getRawMany();
 
 
             return res.status(200).json({
                 message: 'Forum chat retrieved successfully',
                 status: true,
-                data: chatList
+                data: chatList.sort((a, b) => {
+                    if (a.latest_forum_created_at === null) return 1;
+                    if (b.latest_forum_created_at === null) return -1;
+                    return new Date(b.latest_forum_created_at).getTime() - new Date(a.latest_forum_created_at).getTime();
+                })
             });
 
         } catch (error) {
