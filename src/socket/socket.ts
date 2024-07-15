@@ -54,12 +54,14 @@ export function initSocket(server): void {
 
 export function sendDataToUser(userIds: number[], data: any): void {
     userIds.forEach(userId => {
-        console.log(userId, userClientMap.get(userId?.toString()), "{}{}{}{}{}{}")
-        userClientMap.get(userId?.toString())?.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
-                // console.log(client.readyState === WebSocket.OPEN, WebSocket.OPEN, client, "+++++++++++++++++++++++++++++++++++")
-                client.send(JSON.stringify(data))
-            }
-        });
+        if (userId) {
+            console.log(userId, userClientMap.get(userId.toString()), "{}{}{}{}{}{}")
+            userClientMap.get(userId.toString())?.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    // console.log(client.readyState === WebSocket.OPEN, WebSocket.OPEN, client, "+++++++++++++++++++++++++++++++++++")
+                    client.send(JSON.stringify(data))
+                }
+            });
+        }
     });
 }

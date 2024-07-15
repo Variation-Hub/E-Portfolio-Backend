@@ -213,7 +213,14 @@ class CourseController {
 
             const userRepository = AppDataSource.getRepository(User);
             const admin = await userRepository.findOne({ where: { user_id: req.user.user_id } });
-            const data = { title: "Course Allocation", message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course.`, domain: SocketDomain.CourseAllocation, type: NotificationType.Allocation }
+            const data = {
+                data: {
+                    title: "Course Allocation",
+                    message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course.`,
+                    type: NotificationType.Allocation
+                },
+                domain: SocketDomain.CourseAllocation
+            }
             SendNotification(learner.user_id.user_id, data)
             res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
 

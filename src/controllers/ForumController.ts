@@ -70,12 +70,14 @@ class ForumController {
                     'forum.id',
                     'forum.message',
                     'forum.created_at',
+                    'course.course_id',
                     'sender.user_id',
                     'sender.user_name',
                     'sender.avatar',
                 ])
                 .getOne();
 
+            console.log(uniqueUserIdArray)
             sendDataToUser(uniqueUserIdArray, { data: qb, domain: SocketDomain.MessageSend })
 
             return res.status(200).json({
@@ -116,7 +118,7 @@ class ForumController {
             forum = await forumRepository.save(forum)
 
             const uniqueUserIdArray = await this.getCourseUserIds(forum.course.course_id)
-            sendDataToUser(uniqueUserIdArray, { ...forum, domain: SocketDomain.MessageUpdate })
+            sendDataToUser(uniqueUserIdArray, { data: forum, domain: SocketDomain.MessageUpdate })
             delete forum.course
 
             return res.status(200).json({
