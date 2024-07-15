@@ -3,7 +3,7 @@ import { CustomRequest } from "../util/Interface/expressInterface";
 import { AppDataSource } from "../data-source";
 import { Forum } from "../entity/Forum.entity";
 import { UserCourse } from "../entity/UserCourse.entity";
-import { SocketDomain, SocketEvents, UserRole } from "../util/constants";
+import { SocketDomain, UserRole } from "../util/constants";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { Course } from "../entity/Course.entity";
 import { sendDataToUser } from "../socket/socket";
@@ -62,12 +62,26 @@ class ForumController {
             forum = await forumRepository.save(forum)
 
             const uniqueUserIdArray = await this.getCourseUserIds(course_id)
-            sendDataToUser(SocketEvents.Message, uniqueUserIdArray, { ...forum, domain: SocketDomain.MessageSend })
+            const qb = await forumRepository.createQueryBuilder('forum')
+                .innerJoin('forum.course', 'course')
+                .innerJoin('forum.sender', 'sender')
+                .where('forum.id = :id', { id: forum.id })
+                .select([
+                    'forum.id',
+                    'forum.message',
+                    'forum.created_at',
+                    'sender.user_id',
+                    'sender.user_name',
+                    'sender.avatar',
+                ])
+                .getOne();
+
+            sendDataToUser(uniqueUserIdArray, { data: qb, domain: SocketDomain.MessageSend })
 
             return res.status(200).json({
                 message: "Message send successfully",
                 status: true,
-                data: forum
+                data: qb
             })
 
         } catch (error) {
@@ -102,7 +116,7 @@ class ForumController {
             forum = await forumRepository.save(forum)
 
             const uniqueUserIdArray = await this.getCourseUserIds(forum.course.course_id)
-            sendDataToUser(SocketEvents.Message, uniqueUserIdArray, { ...forum, domain: SocketDomain.MessageUpdate })
+            sendDataToUser(uniqueUserIdArray, { ...forum, domain: SocketDomain.MessageUpdate })
             delete forum.course
 
             return res.status(200).json({
