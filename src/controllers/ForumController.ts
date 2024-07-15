@@ -15,7 +15,7 @@ class ForumController {
         this.getCourseUserIds = this.getCourseUserIds.bind(this);
     }
 
-    getCourseUserIds = async (course_id: number) => {
+    getCourseUserIds = async (course_id: number, sender_id) => {
         const userCourseRepository = AppDataSource.getRepository(UserCourse)
 
         const userCourses = await userCourseRepository.createQueryBuilder('user_course')
@@ -45,6 +45,7 @@ class ForumController {
             uniqueUserIdSet.add(ids.eqa_id);
             uniqueUserIdSet.add(ids.employer_id);
         });
+        uniqueUserIdSet.delete(sender_id)
         return Array.from(uniqueUserIdSet)
     }
 
@@ -61,7 +62,7 @@ class ForumController {
             let forum = forumRepository.create({ sender: req.user.user_id, course: course_id, message, file })
             forum = await forumRepository.save(forum)
 
-            const uniqueUserIdArray = await this.getCourseUserIds(course_id)
+            const uniqueUserIdArray = await this.getCourseUserIds(course_id, req.user.user_id)
             const qb = await forumRepository.createQueryBuilder('forum')
                 .innerJoin('forum.course', 'course')
                 .innerJoin('forum.sender', 'sender')
@@ -117,7 +118,7 @@ class ForumController {
             }
             forum = await forumRepository.save(forum)
 
-            const uniqueUserIdArray = await this.getCourseUserIds(forum.course.course_id)
+            const uniqueUserIdArray = await this.getCourseUserIds(forum.course.course_id, req.user.user_id)
             sendDataToUser(uniqueUserIdArray, { data: forum, domain: SocketDomain.MessageUpdate })
             delete forum.course
 
