@@ -39,12 +39,9 @@ export enum NotificationType {
     Allocation = "allocation"
 }
 
-export const SocketEvents = {
+export const SocketDomain = {
     Notification: "notification",
     Message: "message",
-}
-
-export const SocketDomain = {
     CourseAllocation: "Course Allocation",
     MessageSend: "Message Send",
     MessageUpdate: "Message Update",
