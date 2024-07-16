@@ -7,6 +7,7 @@ import { SocketDomain, UserRole } from "../util/constants";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { Course } from "../entity/Course.entity";
 import { sendDataToUser } from "../socket/socket";
+import { User } from "../entity/User.entity";
 
 class ForumController {
     constructor() {
@@ -17,6 +18,7 @@ class ForumController {
 
     getCourseUserIds = async (course_id: number, sender_id) => {
         const userCourseRepository = AppDataSource.getRepository(UserCourse)
+        const userRepository = AppDataSource.getRepository(User)
 
         const userCourses = await userCourseRepository.createQueryBuilder('user_course')
             .leftJoin('user_course.learner_id', 'learner')
@@ -36,6 +38,11 @@ class ForumController {
                 'employer.user_id AS employer_id'
             ])
             .getRawMany();
+
+        const adminUsers = await userRepository.createQueryBuilder('user')
+            .where(':role = ANY(user.roles)', { role: 'Admin' })
+            .getMany();
+
         const uniqueUserIdSet = new Set<number>();
         userCourses.forEach(ids => {
             uniqueUserIdSet.add(ids.learner_user_user_id);
@@ -45,8 +52,13 @@ class ForumController {
             uniqueUserIdSet.add(ids.eqa_id);
             uniqueUserIdSet.add(ids.employer_id);
         });
+
+        adminUsers.forEach(element => {
+            uniqueUserIdSet.add(element.user_id);
+        });
+
         uniqueUserIdSet.delete(sender_id)
-        return Array.from(uniqueUserIdSet)
+        return Array.from(uniqueUserIdSet).filter(a => a)
     }
 
     public async sendMessage(req: CustomRequest, res: Response) {
@@ -77,6 +89,8 @@ class ForumController {
                     'sender.avatar',
                 ])
                 .getOne();
+
+
 
             console.log(uniqueUserIdArray)
             sendDataToUser(uniqueUserIdArray, { data: qb, domain: SocketDomain.MessageSend })

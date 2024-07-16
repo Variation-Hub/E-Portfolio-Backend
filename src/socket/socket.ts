@@ -38,7 +38,7 @@ function connection(client: Client, req): void {
     } else {
         userClientMap.set(clientId, [client]);
     }
-    console.log(userClientMap, userClientMap.get(clientId)?.length, clientId,)
+    console.log(clientId)
 
     client.on('close', () => {
         removeClientFromMap(clientId, client);
@@ -53,9 +53,10 @@ export function initSocket(server): void {
 }
 
 export function sendDataToUser(userIds: number[], data: any): void {
+    console.log(userIds)
     userIds.forEach(userId => {
         if (userId) {
-            console.log(userClientMap, userId, userClientMap.get(userId.toString()), "{}{}{}{}{}{}")
+            // console.log(userId, userClientMap.get(userId.toString()), "{}{}{}{}{}{}")
             userClientMap.get(userId.toString())?.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
                     // console.log(client.readyState === WebSocket.OPEN, WebSocket.OPEN, client, "+++++++++++++++++++++++++++++++++++")
