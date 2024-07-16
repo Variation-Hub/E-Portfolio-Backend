@@ -82,6 +82,7 @@ class ForumController {
                 .select([
                     'forum.id',
                     'forum.message',
+                    'forum.file',
                     'forum.created_at',
                     'course.course_id',
                     'sender.user_id',
@@ -89,8 +90,6 @@ class ForumController {
                     'sender.avatar',
                 ])
                 .getOne();
-
-
 
             console.log(uniqueUserIdArray)
             sendDataToUser(uniqueUserIdArray, { data: qb, domain: SocketDomain.MessageSend })
