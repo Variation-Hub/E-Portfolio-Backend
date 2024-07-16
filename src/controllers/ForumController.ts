@@ -57,7 +57,7 @@ class ForumController {
             uniqueUserIdSet.add(element.user_id);
         });
 
-        uniqueUserIdSet.delete(sender_id)
+        // uniqueUserIdSet.delete(sender_id)
         return Array.from(uniqueUserIdSet).filter(a => a)
     }
 
