@@ -189,6 +189,7 @@ class ForumController {
                 .select([
                     'forum.id',
                     'forum.message',
+                    'forum.file',
                     'forum.created_at',
                     'sender.user_id',
                     'sender.user_name',
