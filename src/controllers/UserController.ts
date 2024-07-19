@@ -365,7 +365,6 @@ class UserController {
             if (req.query.role) {
                 qb.andWhere(":role = ANY(user.roles)", { role: req.query.role });
                 if (req.query.keyword) {
-                    console.log(req.query.keyword, "+++++");
                     qb.andWhere("(user.email ILIKE :keyword OR user.user_name ILIKE :keyword OR user.first_name ILIKE :keyword OR user.last_name ILIKE :keyword)", { keyword: `%${req.query.keyword}%` });
                 }
             } else if (req.query.keyword) {
