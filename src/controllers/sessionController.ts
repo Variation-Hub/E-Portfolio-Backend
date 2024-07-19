@@ -272,19 +272,12 @@ class SessionController {
                 .orderBy('session.startDate', 'ASC')
                 .getMany();
 
-            const groupedSessions = sessions.reduce((acc, session) => {
-                const dateKey = session.startDate.toISOString().split('T')[0];
-                if (!acc[dateKey]) {
-                    acc[dateKey] = [];
-                }
-                acc[dateKey].push(session);
-                return acc;
-            }, {});
+
 
             return res.status(200).json({
                 message: "Sessions fetched successfully",
                 status: true,
-                data: groupedSessions
+                data: sessions
             });
 
         } catch (error) {
