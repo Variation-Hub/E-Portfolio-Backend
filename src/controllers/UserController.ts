@@ -362,19 +362,20 @@ class UserController {
             const userRepository = AppDataSource.getRepository(User)
             const qb = userRepository.createQueryBuilder("user");
 
-            if (req.query.keyword) {
-                qb.andWhere("(user.email ILIKE :keyword OR user.user_name ILIKE :keyword OR user.first_name ILIKE :keyword OR user.last_name ILIKE :keyword)", { keyword: `${req.query.keyword}%` });
-
-            }
             if (req.query.role) {
                 qb.andWhere(":role = ANY(user.roles)", { role: req.query.role });
+                if (req.query.keyword) {
+                    console.log(req.query.keyword, "+++++");
+                    qb.andWhere("(user.email ILIKE :keyword OR user.user_name ILIKE :keyword OR user.first_name ILIKE :keyword OR user.last_name ILIKE :keyword)", { keyword: `%${req.query.keyword}%` });
+                }
+            } else if (req.query.keyword) {
+                qb.andWhere("((user.email ILIKE :keyword OR user.user_name ILIKE :keyword OR user.first_name ILIKE :keyword OR user.last_name ILIKE :keyword) AND (ARRAY_LENGTH(user.roles, 1) != 1 OR 'Learner' <> ANY(user.roles)))", { keyword: `%${req.query.keyword}%` });
             }
             else {
                 qb.andWhere("ARRAY_LENGTH(user.roles, 1) != 1 OR 'Learner' <> ANY(user.roles)")
             }
 
             const [users, count] = await qb
-
                 .skip(Number(req.pagination.skip))
                 .take(Number(req.pagination.limit))
                 .orderBy("user.user_id", "ASC")
