@@ -26,6 +26,9 @@ export class Assignment {
     mobile: string;
 
     @Column({ type: 'varchar', nullable: true })
+    title: string;
+
+    @Column({ type: 'varchar', nullable: true })
     description: string;
 
     @Column({ type: 'varchar', nullable: true })
