@@ -16,4 +16,8 @@ CourseRoutes.post('/enrollment', authorizeRoles(), Controller.courseEnrollment);
 CourseRoutes.get('/get/:id', authorizeRoles(), Controller.getCourse);
 CourseRoutes.get('/list', authorizeRoles(), paginationMiddleware, Controller.getAllCourse);
 
+//user Course routes
+CourseRoutes.get('/user/get', authorizeRoles(), Controller.getUserCourse);
+CourseRoutes.patch('/user/update/:id', authorizeRoles(), Controller.updateUserCourse);
+
 export default CourseRoutes;

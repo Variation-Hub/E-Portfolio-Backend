@@ -296,6 +296,65 @@ class CourseController {
         }
     }
 
+    public async getUserCourse(req: Request, res: Response): Promise<Response> {
+        try {
+            const { learner_id, course_id } = req.query as any;
+
+            const userCourseRepository = AppDataSource.getRepository(UserCourse);
+
+            const course = await userCourseRepository.createQueryBuilder('user_course')
+                .where('user_course.learner_id = :learner_id', { learner_id })
+                .andWhere('user_course.course ->> \'course_id\' = :course_id', { course_id })
+                .getOne();
+
+            if (!course) {
+                return res.status(404).json({ message: 'User Course not found', status: false });
+            }
+
+            return res.status(200).json({
+                message: "User Course get successfully",
+                data: course,
+                status: true
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                error: error.message,
+                status: false,
+            });
+        }
+    }
+
+    public async updateUserCourse(req: Request, res: Response): Promise<Response> {
+        try {
+            const user_course_id: number = parseInt(req.params.id);
+
+            const userCourseRepository = AppDataSource.getRepository(UserCourse);
+            const existingCourse = await userCourseRepository.findOne({ where: { user_course_id } });
+
+            if (!existingCourse) {
+                return res.status(404).json({
+                    message: 'User Course not found',
+                    status: false,
+                });
+            }
+
+            userCourseRepository.merge(existingCourse, req.body);
+            const updatedCourse = await userCourseRepository.save(existingCourse);
+
+            return res.status(200).json({
+                message: 'User Course updated successfully',
+                status: true,
+                data: updatedCourse,
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                error: error.message,
+                status: false,
+            });
+        }
+    }
 }
 
 export default CourseController;
