@@ -178,7 +178,7 @@ class EmployerController {
                 data: employer.map(emp => ({
                     ...emp,
                     email: emp.user?.email,
-                    mobile: emp.user?.mobile
+                    number: emp.user?.mobile
                 })),
                 ...(req.query.meta === "true" && {
                     meta_data: {
