@@ -139,10 +139,33 @@ class EmployerController {
 
             const qb = employerRepository.createQueryBuilder("employer")
                 .leftJoinAndSelect("employer.user", "user")
+                .select([
+                    "employer.employer_id",
+                    "employer.employer_name",
+                    "employer.msi_employer_id",
+                    "employer.business_department",
+                    "employer.business_location",
+                    "employer.branch_code",
+                    "employer.address_1",
+                    "employer.address_2",
+                    "employer.city",
+                    "employer.country",
+                    "employer.postal_code",
+                    "employer.edrs_number",
+                    "employer.business_category",
+                    "employer.external_data_code",
+                    "employer.telephone",
+                    "employer.website",
+                    "employer.key_contact",
+                    "employer.business_description",
+                    "employer.comments",
+                    "employer.deleted_at",
+                    "employer.created_at",
+                    "employer.updated_at",
+                    "user.email",
+                    "user.mobile"
+                ])
 
-            if (req.query.keyword) {
-                qb.andWhere("(learner.email ILIKE :keyword OR learner.user_name ILIKE :keyword OR learner.first_name ILIKE :keyword OR learner.last_name ILIKE :keyword)", { keyword: `${req.query.keyword}%` });
-            }
             const [employer, count] = await qb
                 .skip(Number(req.pagination.skip))
                 .take(Number(req.pagination.limit))
@@ -152,7 +175,11 @@ class EmployerController {
             return res.status(200).json({
                 message: "Employer fetched successfully",
                 status: true,
-                data: employer,
+                data: employer.map(emp => ({
+                    ...emp,
+                    email: emp.user?.email,
+                    mobile: emp.user?.mobile
+                })),
                 ...(req.query.meta === "true" && {
                     meta_data: {
                         page: req.pagination.page,
