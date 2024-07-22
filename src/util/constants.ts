@@ -39,6 +39,26 @@ export enum NotificationType {
     Allocation = "allocation"
 }
 
+export enum TimeLogActivityType {
+    VirtualTrainingSession = "Virtual Training Session",
+    TraditionalFace_to_facesession = "Traditional face-to-face session",
+    Trainerorassessorledtraining = "Trainer or assessor led training",
+    Electronicordistancelearningorself_study = "Electronic or distance learning, or self-study",
+    Coachingormentoring = "Coaching or mentoring",
+    Guidedlearningwithnotrainer_assessorpresent = "Guided learning with no trainer/assessor present",
+    Gainingtechnicalexperiencebydoingmyjob = "Gaining technical experience by doing my job",
+    Review_feedback_support = "Review/feedback/support",
+    Assessmentorexamination = "Assessment or examination",
+    Other = "Other",
+    Furloughed = "Furloughed"
+}
+
+export enum TimeLogType {
+    NotApplicable = "Not Applicable",
+    OnTheJob = "On the job",
+    OffTheJob = "Off the job"
+}
+
 export const SocketDomain = {
     Notification: "notification",
     Message: "message",

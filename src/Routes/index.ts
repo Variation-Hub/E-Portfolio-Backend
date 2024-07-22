@@ -18,6 +18,7 @@ import sessionRoutes from './SessionRouter';
 import InnovationRoutes from './InnovationRouter';
 import FormRoutes from './FormRouter';
 import forumRoutes from './ForumRouter';
+import TimeLogRoutes from './TimeLogRouter';
 
 const fileController = new FileController;
 const Routes = express.Router();
@@ -37,6 +38,7 @@ Routes.use("/session", sessionRoutes)
 Routes.use("/innovation", InnovationRoutes)
 Routes.use("/form", FormRoutes)
 Routes.use("/forum", forumRoutes)
+Routes.use("/time-log", TimeLogRoutes)
 
 // API routes
 Routes.post("/upload/file", authorizeRoles(), singleFileUpload('file'), fileController.uploadSingleFile)
