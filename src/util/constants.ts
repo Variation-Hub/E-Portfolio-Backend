@@ -1,10 +1,10 @@
 export enum UserRole {
     Learner = 'Learner',
-    Trainer = 'Trainer',
-    Employer = 'Employer',
+    EQA = 'EQA',
     IQA = 'IQA',
     LIQA = 'LIQA',
-    EQA = 'EQA',
+    Employer = 'Employer',
+    Trainer = 'Trainer',
     Admin = 'Admin',
 }
 
@@ -46,4 +46,23 @@ export const SocketDomain = {
     MessageSend: "Message Send",
     MessageUpdate: "Message Update",
     MessageDelete: "Message Delete",
+}
+
+export const rolePriority = [
+    UserRole.Admin,
+    UserRole.Trainer,
+    UserRole.Employer,
+    UserRole.LIQA,
+    UserRole.IQA,
+    UserRole.EQA,
+    UserRole.Learner
+];
+
+export function getHighestPriorityRole(roles: UserRole[]): UserRole | null {
+    for (const role of rolePriority) {
+        if (roles.includes(role)) {
+            return role;
+        }
+    }
+    return null;
 }
