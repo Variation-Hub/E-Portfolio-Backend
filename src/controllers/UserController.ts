@@ -8,7 +8,7 @@ import { Equal, IsNull } from "typeorm";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { CustomRequest } from "../util/Interface/expressInterface";
 import { sendPasswordByEmail } from "../util/mailSend";
-import { UserRole } from "../util/constants";
+import { getHighestPriorityRole, UserRole } from "../util/constants";
 
 class UserController {
 
@@ -190,9 +190,12 @@ class UserController {
                 user.learner_id = learner.learner_id
             }
 
+            const role = getHighestPriorityRole(user.roles)
+
             let accessToken = generateToken({
-                ...user
-                , displayName: user.first_name + " " + user.last_name, role: user.roles[user.roles.length - 1]
+                ...user,
+                displayName: user.first_name + " " + user.last_name,
+                role
             })
 
             let responce = {
@@ -433,12 +436,13 @@ class UserController {
             }
             user.avatar = await uploadToS3(req.file, "avatar")
 
-            const updatedUser = await userRepository.save(user)
+            await userRepository.save(user)
+            let accessToken = generateToken({ ...user, displayName: user.first_name + " " + user.last_name, role: req.body.role })
 
             return res.status(200).json({
                 message: "Avatar uploaded successfully",
                 status: true,
-                data: updatedUser
+                data: accessToken
             })
 
         } catch (error) {
