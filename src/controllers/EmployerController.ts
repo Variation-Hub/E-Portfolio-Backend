@@ -175,7 +175,7 @@ class EmployerController {
         try {
             const employerId: number = parseInt(req.params.id);
 
-            const employerRepository = AppDataSource.getRepository(Learner);
+            const employerRepository = AppDataSource.getRepository(Employer);
             const existingEmployer = await employerRepository.findOne({ where: { employer_id: employerId } });
 
             if (!existingEmployer) {
