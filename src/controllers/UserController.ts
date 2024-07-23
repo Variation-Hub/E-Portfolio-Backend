@@ -484,7 +484,8 @@ class UserController {
                 message: "user has been updated",
                 status: true,
                 data: {
-                    accessToken: accessToken
+                    accessToken: accessToken,
+                    user: { ...user, role }
                 }
             })
 
