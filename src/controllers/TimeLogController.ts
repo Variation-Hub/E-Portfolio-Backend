@@ -176,6 +176,83 @@ class TimeLogController {
             });
         }
     }
+
+    public async getTimeLogSpendData(req: CustomRequest, res: Response): Promise<Response> {
+        try {
+            const timeLogRepository = AppDataSource.getRepository(TimeLog);
+            const { user_id } = req.query;
+
+            const qb = timeLogRepository.createQueryBuilder('timelog')
+                .leftJoinAndSelect('timelog.trainer_id', "trainer_id")
+                .leftJoinAndSelect('timelog.course_id', "course_id")
+                .leftJoin('timelog.user_id', "user_id")
+                .select([
+                    'timelog.id',
+                    'timelog.activity_date',
+                    'timelog.activity_type',
+                    'timelog.unit',
+                    'timelog.type',
+                    'timelog.spend_time',
+                    'timelog.start_time',
+                    'timelog.end_time',
+                    'timelog.impact_on_learner',
+                    'timelog.evidence_link',
+                    'timelog.verified',
+                    'timelog.created_at',
+                    'timelog.updated_at'
+                ])
+                .where('user_id.user_id = :user_id', { user_id });
+
+            const [timeLogs, count] = await qb
+                .orderBy('timelog.created_at', 'DESC')
+                .getManyAndCount();
+
+            const now = new Date();
+            const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+            const data = {
+                thisWeek: '00:00',
+                thisMonth: '00:00',
+                total: '00:00'
+            };
+            let totalMinutes = 0;
+            let weeklyMinutes = 0;
+            let monthlyMinutes = 0;
+
+            timeLogs.forEach(log => {
+                const [hours, minutes] = log.spend_time.split(':').map(Number);
+                const logMinutes = (hours * 60) + minutes;
+
+                totalMinutes += logMinutes;
+
+                const activityDate = new Date(log.created_at);
+                if (activityDate >= startOfWeek) {
+                    weeklyMinutes += logMinutes;
+                }
+                if (activityDate >= startOfMonth) {
+                    monthlyMinutes += logMinutes;
+                }
+            });
+
+            data.total = `${Math.floor(totalMinutes / 60).toString().padStart(2, '0')}:${(totalMinutes % 60).toString().padStart(2, '0')}`;
+            data.thisWeek = `${Math.floor(weeklyMinutes / 60).toString().padStart(2, '0')}:${(weeklyMinutes % 60).toString().padStart(2, '0')}`;
+            data.thisMonth = `${Math.floor(monthlyMinutes / 60).toString().padStart(2, '0')}:${(monthlyMinutes % 60).toString().padStart(2, '0')}`;
+
+            return res.status(200).json({
+                message: "Time logs fetched successfully",
+                status: true,
+                data,
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: "Internal Server Error",
+                status: false,
+                error: error.message
+            });
+        }
+    }
+
 }
 
 export default TimeLogController;
