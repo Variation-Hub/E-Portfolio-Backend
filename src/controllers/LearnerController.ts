@@ -100,10 +100,15 @@ class LearnerController {
                 .orderBy("learner.learner_id", "ASC")
                 .getManyAndCount();
 
+            const formattedLearners = learner.map(learner => ({
+                ...learner,
+                user_id: learner.user_id.user_id
+            }));
+
             return res.status(200).json({
                 message: "Learner fetched successfully",
                 status: true,
-                data: learner,
+                data: formattedLearners,
                 ...(req.query.meta === "true" && {
                     meta_data: {
                         page: req.pagination.page,
