@@ -74,6 +74,22 @@ class LearnerController {
             const learnerRepository = AppDataSource.getRepository(Learner);
 
             const qb = learnerRepository.createQueryBuilder("learner")
+                .leftJoinAndSelect('learner.user_id', "user_id")
+                .select([
+                    'learner.learner_id',
+                    'learner.first_name',
+                    'learner.last_name',
+                    'learner.user_name',
+                    'learner.email',
+                    'learner.mobile',
+                    'learner.national_ins_no',
+                    'learner.employer_id',
+                    'learner.avatar',
+                    'learner.funding_body',
+                    'learner.created_at',
+                    'learner.updated_at',
+                    'user_id.user_id'
+                ])
 
             if (req.query.keyword) {
                 qb.andWhere("(learner.email ILIKE :keyword OR learner.user_name ILIKE :keyword OR learner.first_name ILIKE :keyword OR learner.last_name ILIKE :keyword)", { keyword: `${req.query.keyword}%` });
