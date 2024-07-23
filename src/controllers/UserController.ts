@@ -201,7 +201,7 @@ class UserController {
             let responce = {
                 password_changed: user.password_changed,
                 accessToken: accessToken,
-                user
+                user: { ...user, role }
             }
             return res.status(200).json({
                 data: responce,
