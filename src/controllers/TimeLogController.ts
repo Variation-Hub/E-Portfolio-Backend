@@ -1,5 +1,4 @@
 import { Response } from 'express';
-import { Innovation } from '../entity/Innovation.entity';
 import { CustomRequest } from '../util/Interface/expressInterface';
 import { AppDataSource } from '../data-source';
 import { TimeLog } from '../entity/TimeLog.entity';
@@ -13,7 +12,7 @@ class TimeLogController {
             const savedTimeLog = await timeLogRepository.save(timeLog);
 
             return res.status(200).json({
-                message: "Innovation created successfully",
+                message: "Time log created successfully",
                 status: true,
                 data: savedTimeLog
             });
