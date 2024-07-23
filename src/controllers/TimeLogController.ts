@@ -114,7 +114,7 @@ class TimeLogController {
     public async getTimeLogs(req: CustomRequest, res: Response): Promise<Response> {
         try {
             const timeLogRepository = AppDataSource.getRepository(TimeLog);
-            const { pagination, user_id, approved } = req.query;
+            const { pagination, user_id, approved, course_id, type } = req.query;
 
             const qb = timeLogRepository.createQueryBuilder('timelog')
                 .leftJoinAndSelect('timelog.trainer_id', "trainer_id")
@@ -145,6 +145,12 @@ class TimeLogController {
 
             if (approved) {
                 qb.andWhere('timelog.verified = :approved', { approved: true })
+            }
+            if (course_id) {
+                qb.andWhere('course_id.course_id = :course_id', { course_id })
+            }
+            if (type) {
+                qb.andWhere('timelog.type = :type', { type })
             }
             if (pagination) {
                 qb.skip(req.pagination.skip)
@@ -180,7 +186,7 @@ class TimeLogController {
     public async getTimeLogSpendData(req: CustomRequest, res: Response): Promise<Response> {
         try {
             const timeLogRepository = AppDataSource.getRepository(TimeLog);
-            const { user_id } = req.query;
+            const { user_id, course_id, type } = req.query;
 
             const qb = timeLogRepository.createQueryBuilder('timelog')
                 .leftJoinAndSelect('timelog.trainer_id', "trainer_id")
@@ -202,6 +208,14 @@ class TimeLogController {
                     'timelog.updated_at'
                 ])
                 .where('user_id.user_id = :user_id', { user_id });
+
+
+            if (course_id) {
+                qb.andWhere('course_id.course_id = :course_id', { course_id })
+            }
+            if (type) {
+                qb.andWhere('timelog.type = :type', { type })
+            }
 
             const [timeLogs, count] = await qb
                 .orderBy('timelog.created_at', 'DESC')
