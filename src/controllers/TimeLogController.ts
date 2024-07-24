@@ -113,7 +113,7 @@ class TimeLogController {
     public async getTimeLogs(req: CustomRequest, res: Response): Promise<Response> {
         try {
             const timeLogRepository = AppDataSource.getRepository(TimeLog);
-            const { pagination, user_id, approved, course_id, type } = req.query;
+            const { pagination, user_id, approved, course_id, type, year, month, } = req.query;
 
             const qb = timeLogRepository.createQueryBuilder('timelog')
                 .leftJoinAndSelect('timelog.trainer_id', "trainer_id")
@@ -150,6 +150,12 @@ class TimeLogController {
             }
             if (type) {
                 qb.andWhere('timelog.type = :type', { type })
+            }
+            if (year && month) {
+                const startDate = new Date(Number(year), Number(month) - 1, 1);
+                const endDate = new Date(Number(year), Number(month), 0);
+                qb
+                    .andWhere('timelog.activity_date BETWEEN :startDate AND :endDate', { startDate, endDate });
             }
             if (pagination) {
                 qb.skip(req.pagination.skip)
