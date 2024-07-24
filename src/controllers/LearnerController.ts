@@ -71,8 +71,26 @@ class LearnerController {
 
     public async getLearnerList(req: Request, res: Response): Promise<Response> {
         try {
+            const { user_id, role } = req.query as any;
             const learnerRepository = AppDataSource.getRepository(Learner);
+            const userCourseRepository = AppDataSource.getRepository(UserCourse);
 
+            let learnerIdsArray
+            if (user_id && role) {
+                const obj: any = {
+                    EQA: "EQA_id",
+                    IQA: "IQA_id",
+                    LIQA: "LIQA_id",
+                    Employer: "employer_id",
+                    Trainer: "trainer_id"
+                };
+                const learnerIds = await userCourseRepository.createQueryBuilder("user_course")
+                    .leftJoin(`user_course.${obj[role]}`, `user_id`)
+                    .leftJoinAndSelect(`user_course.learner_id`, `learner_id`)
+                    .andWhere('user_id.user_id = :user_id', { user_id })
+                    .getMany();
+                learnerIdsArray = learnerIds.map(userCourse => userCourse.learner_id.learner_id);
+            }
             const qb = learnerRepository.createQueryBuilder("learner")
                 .leftJoinAndSelect('learner.user_id', "user_id")
                 .select([
@@ -93,6 +111,9 @@ class LearnerController {
 
             if (req.query.keyword) {
                 qb.andWhere("(learner.email ILIKE :keyword OR learner.user_name ILIKE :keyword OR learner.first_name ILIKE :keyword OR learner.last_name ILIKE :keyword)", { keyword: `${req.query.keyword}%` });
+            }
+            if (role && user_id) {
+                qb.andWhere('learner.learner_id IN (:...learnerIdsArray)', { learnerIdsArray })
             }
             const [learner, count] = await qb
                 .skip(Number(req.pagination.skip))
