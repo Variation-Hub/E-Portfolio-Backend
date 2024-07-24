@@ -76,6 +76,7 @@ class LearnerController {
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
 
             let learnerIdsArray
+            let usercourses
             if (user_id && role) {
                 const obj: any = {
                     EQA: "EQA_id",
@@ -84,12 +85,12 @@ class LearnerController {
                     Employer: "employer_id",
                     Trainer: "trainer_id"
                 };
-                const learnerIds = await userCourseRepository.createQueryBuilder("user_course")
+                usercourses = await userCourseRepository.createQueryBuilder("user_course")
                     .leftJoin(`user_course.${obj[role]}`, `user_id`)
                     .leftJoinAndSelect(`user_course.learner_id`, `learner_id`)
                     .andWhere('user_id.user_id = :user_id', { user_id })
                     .getMany();
-                learnerIdsArray = learnerIds.map(userCourse => userCourse.learner_id.learner_id);
+                learnerIdsArray = usercourses.map(userCourse => userCourse.learner_id.learner_id);
             }
             const qb = learnerRepository.createQueryBuilder("learner")
                 .leftJoinAndSelect('learner.user_id', "user_id")
@@ -112,8 +113,10 @@ class LearnerController {
             if (req.query.keyword) {
                 qb.andWhere("(learner.email ILIKE :keyword OR learner.user_name ILIKE :keyword OR learner.first_name ILIKE :keyword OR learner.last_name ILIKE :keyword)", { keyword: `${req.query.keyword}%` });
             }
-            if (role && user_id) {
+            if (role && user_id && learnerIdsArray.length) {
                 qb.andWhere('learner.learner_id IN (:...learnerIdsArray)', { learnerIdsArray })
+            } else if (role && user_id) {
+                qb.andWhere('0 = 1')
             }
             const [learner, count] = await qb
                 .skip(Number(req.pagination.skip))
@@ -121,10 +124,23 @@ class LearnerController {
                 .orderBy("learner.learner_id", "ASC")
                 .getManyAndCount();
 
-            const formattedLearners = learner.map(learner => ({
-                ...learner,
-                user_id: learner.user_id.user_id
-            }));
+            let formattedLearners
+            if (role && user_id && learnerIdsArray.length) {
+                formattedLearners = learner.map(learner => ({
+                    ...learner,
+                    user_id: learner.user_id.user_id,
+                    course: usercourses.filter(usercourse => {
+                        if (usercourse.learner_id.learner_id === learner.learner_id) {
+                            return true;
+                        }
+                    })
+                }))
+            } else {
+                formattedLearners = learner.map(learner => ({
+                    ...learner,
+                    user_id: learner.user_id.user_id
+                }));
+            }
 
             return res.status(200).json({
                 message: "Learner fetched successfully",
