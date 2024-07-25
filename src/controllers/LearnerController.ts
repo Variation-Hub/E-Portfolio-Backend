@@ -171,7 +171,12 @@ class LearnerController {
             const learner_id = req.params.id as any;
             const learnerRepository = AppDataSource.getRepository(Learner);
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
-            const learner = await learnerRepository.findOne({ where: { learner_id } })
+            const learner: any = await learnerRepository
+                .createQueryBuilder('learner')
+                .leftJoin('learner.user_id', 'user')
+                .addSelect(['user.user_id', 'user.user_name', 'user.avatar'])
+                .where('learner.learner_id = :learner_id', { learner_id })
+                .getOne();
 
             if (!learner) {
                 return res.status(404).json({
@@ -185,7 +190,7 @@ class LearnerController {
             return res.status(200).json({
                 message: 'Learner retrieved successfully',
                 status: true,
-                data: { ...learner, course },
+                data: { ...learner, ...learner.user_id, avatar: learner.user_id?.avatar?.url, course },
             });
         } catch (error) {
             return res.status(500).json({
