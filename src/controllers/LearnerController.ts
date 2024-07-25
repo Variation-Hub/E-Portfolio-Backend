@@ -107,7 +107,8 @@ class LearnerController {
                     'learner.funding_body',
                     'learner.created_at',
                     'learner.updated_at',
-                    'user_id.user_id'
+                    'user_id.user_id',
+                    'user_id.avatar'
                 ])
 
             if (req.query.keyword) {
