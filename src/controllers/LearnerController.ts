@@ -129,6 +129,7 @@ class LearnerController {
                 formattedLearners = learner.map(learner => ({
                     ...learner,
                     user_id: learner.user_id.user_id,
+                    avatar: learner.user_id.avatar,
                     course: usercourses.filter(usercourse => {
                         if (usercourse.learner_id.learner_id === learner.learner_id) {
                             return true;
