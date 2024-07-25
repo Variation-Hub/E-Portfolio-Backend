@@ -179,6 +179,13 @@ class CourseController {
             const courseRepository = AppDataSource.getRepository(Course);
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
 
+            if (!learner_id || !course_id || !trainer_id || !IQA_id || !LIQA_id || !EQA_id || !employer_id) {
+                return res.status(400).json({
+                    message: "Please pass all Field",
+                    status: false
+                })
+            }
+
             const userCourse = await userCourseRepository.createQueryBuilder('user_course')
                 .leftJoinAndSelect('user_course.learner_id', 'learner')
                 .where('user_course.course->>\'course_id\' = :course_id', { course_id })
