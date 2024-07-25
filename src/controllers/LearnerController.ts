@@ -103,7 +103,6 @@ class LearnerController {
                     'learner.mobile',
                     'learner.national_ins_no',
                     'learner.employer_id',
-                    'learner.avatar',
                     'learner.funding_body',
                     'learner.created_at',
                     'learner.updated_at',
@@ -127,10 +126,10 @@ class LearnerController {
 
             let formattedLearners
             if (role && user_id && learnerIdsArray.length) {
-                formattedLearners = learner.map(learner => ({
+                formattedLearners = learner.map((learner: any) => ({
                     ...learner,
                     user_id: learner.user_id.user_id,
-                    avatar: learner.user_id.avatar,
+                    avatar: learner.user_id?.avatar?.url,
                     course: usercourses.filter(usercourse => {
                         if (usercourse.learner_id.learner_id === learner.learner_id) {
                             return true;
@@ -138,9 +137,10 @@ class LearnerController {
                     })
                 }))
             } else {
-                formattedLearners = learner.map(learner => ({
+                formattedLearners = learner.map((learner: any) => ({
                     ...learner,
-                    user_id: learner.user_id.user_id
+                    user_id: learner.user_id.user_id,
+                    avatar: learner.user_id?.avatar?.url
                 }));
             }
 

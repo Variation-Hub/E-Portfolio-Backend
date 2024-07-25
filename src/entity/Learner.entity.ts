@@ -67,9 +67,6 @@ export class Learner {
   employer_id: number;
 
   @Column({ type: 'varchar', nullable: true })
-  avatar: string;
-
-  @Column({ type: 'varchar', nullable: true })
   funding_body: string;
 
   @ManyToMany(() => Session, session => session.learners)
