@@ -2,7 +2,8 @@ import { Response } from 'express';
 import { CustomRequest } from '../util/Interface/expressInterface';
 import { AppDataSource } from '../data-source';
 import { Session } from '../entity/Session.entity';
-import { FindManyOptions } from 'typeorm';
+import { SendNotification } from '../util/socket/notification';
+import { NotificationType, SocketDomain } from '../util/constants';
 
 class SessionController {
 
@@ -25,6 +26,23 @@ class SessionController {
             });
 
             const saveSession = await sessionRepository.save(session)
+
+            const sessionWithRelations: any = await sessionRepository.findOne({
+                where: { session_id: saveSession.session_id },
+                relations: ['trainer_id', 'learners', 'learners.user_id']
+            });
+
+            sessionWithRelations?.learners.forEach(async (learner) => {
+                const data = {
+                    data: {
+                        title: "New Training Session",
+                        message: `You have new session with ${sessionWithRelations.trainer_id.first_name + " " + sessionWithRelations.trainer_id.last_name} on ${new Date(sessionWithRelations.startDate).toISOString().split('T')[0]}`,
+                        type: NotificationType.Notification
+                    },
+                    domain: SocketDomain.CourseAllocation
+                }
+                await SendNotification(learner.user_id.user_id, data)
+            });
 
             return res.status(200).json({
                 message: "session created successfully",
@@ -125,6 +143,7 @@ class SessionController {
                     'session.Duration',
                     'session.type',
                     'session.Attended',
+                    'session.description',
                     'trainer.user_id',
                     'trainer.user_name',
                     'trainer.email',
@@ -136,9 +155,6 @@ class SessionController {
             if (trainer_id) {
                 qb.andWhere('trainer.user_id = :trainer_id', { trainer_id });
             }
-            // if (learners) {
-            //     qb.andWhere('learner.learner_id IN (:...learners)', { learners: learners.split(',') });
-            // }
             if (type) {
                 qb.andWhere('session.type = :type', { type });
             }
@@ -163,7 +179,7 @@ class SessionController {
 
             qb.skip(req.pagination.skip)
                 .take(Number(req.pagination.limit))
-                .orderBy('session.startDate', 'ASC');
+                .orderBy('session.startDate', 'DESC');
 
             const [sessions, count] = await qb.getManyAndCount();
 

@@ -66,6 +66,7 @@ export const SocketDomain = {
     MessageSend: "Message Send",
     MessageUpdate: "Message Update",
     MessageDelete: "Message Delete",
+    SessionCreate: "Session Create",
 }
 
 export const rolePriority = [

@@ -10,8 +10,8 @@ export const SendNotification = async (user_id, data) => {
         sendDataToUser([user_id], data)
         const resource = notificationRepository.create({
             user_id,
-            title: data.title,
-            message: data.message
+            title: data.data.title,
+            message: data.data.message
         })
 
         const savedResource = await notificationRepository.save(resource);
