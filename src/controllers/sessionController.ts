@@ -9,6 +9,7 @@ class SessionController {
 
     public async createSession(req: CustomRequest, res: Response) {
         try {
+            //
             const sessionRepository = AppDataSource.getRepository(Session)
 
             const { trainer_id, learners, title, description, location, startDate, Duration, type, Attended } = req.body
