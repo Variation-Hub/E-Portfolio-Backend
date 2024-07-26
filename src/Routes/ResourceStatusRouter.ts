@@ -9,7 +9,7 @@ const ResourceStatusRoute = express.Router();
 
 const Controller = new ResourceStatusController();
 
-ResourceStatusRoute.post("/create", authorizeRoles(UserRole.Admin), trimMiddleware, Controller.addResourceStatus);
+ResourceStatusRoute.post("/create", authorizeRoles(UserRole.Learner), trimMiddleware, Controller.addResourceStatus);
 ResourceStatusRoute.patch("/update", authorizeRoles(), singleFileUpload("file"), Controller.updateResourceStatus);
 
 

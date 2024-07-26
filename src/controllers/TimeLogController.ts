@@ -142,8 +142,8 @@ class TimeLogController {
                 ])
                 .where('user_id.user_id = :user_id', { user_id })
 
-            if (approved) {
-                qb.andWhere('timelog.verified = :approved', { approved: true })
+            if (approved !== null) {
+                qb.andWhere('timelog.verified = :approved', { approved })
             }
             if (course_id) {
                 qb.andWhere('course_id.course_id = :course_id', { course_id })
