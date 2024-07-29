@@ -88,6 +88,11 @@ class LearnerController {
                 usercourses = await userCourseRepository.createQueryBuilder("user_course")
                     .leftJoin(`user_course.${obj[role]}`, `user_id`)
                     .leftJoinAndSelect(`user_course.learner_id`, `learner_id`)
+                    .leftJoinAndSelect(`user_course.trainer_id`, `trainer_id`)
+                    .leftJoinAndSelect(`user_course.IQA_id`, `IQA_id`)
+                    .leftJoinAndSelect(`user_course.LIQA_id`, `LIQA_id`)
+                    .leftJoinAndSelect(`user_course.EQA_id`, `EQA_id`)
+                    .leftJoinAndSelect(`user_course.employer_id`, `employer_id`)
                     .andWhere('user_id.user_id = :user_id', { user_id })
                     .getMany();
                 learnerIdsArray = usercourses.map(userCourse => userCourse.learner_id.learner_id);

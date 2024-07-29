@@ -481,7 +481,7 @@ class UserController {
             let accessToken = generateToken({ ...user, displayName: user.first_name + " " + user.last_name, role })
 
             return res.status(200).json({
-                message: "user has been updated",
+                message: "Your role has been changed successfully",
                 status: true,
                 data: {
                     accessToken: accessToken,
