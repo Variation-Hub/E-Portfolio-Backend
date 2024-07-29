@@ -48,8 +48,8 @@ export class Assignment {
     })
     assessment_method: AssessmentMethod[];
 
-    @Column({ type: 'varchar', nullable: true })
-    session: string;
+    @Column({ type: 'json', nullable: false })
+    session: object;
 
     @Column({ type: 'varchar', nullable: true })
     grade: string;
