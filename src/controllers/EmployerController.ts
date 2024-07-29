@@ -166,6 +166,10 @@ class EmployerController {
                     "user.mobile"
                 ])
 
+            if (req.query.keyword) {
+                qb.andWhere("(user.email ILIKE :keyword OR employer.employer_name ILIKE :keyword)", { keyword: `%${req.query.keyword}%` });
+            }
+
             const [employer, count] = await qb
                 .skip(Number(req.pagination.skip))
                 .take(Number(req.pagination.limit))

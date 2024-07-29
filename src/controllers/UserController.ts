@@ -497,6 +497,48 @@ class UserController {
             })
         }
     }
+    public async getUserListForEQA(req: any, res: Response) {
+        try {
+            const user_id: number = parseInt(req.user.user_id);
+            const { role } = req.body
+
+            const userRepository = AppDataSource.getRepository(User)
+            const learnerRepository = AppDataSource.getRepository(Learner)
+            let user: any = await userRepository.findOne({ where: { user_id } });
+
+            if (!user.roles.includes(role)) {
+                return res.status(404).json({
+                    message: "You are not allowed to change this user role",
+                    status: false,
+                })
+            }
+
+            if (role === UserRole.Learner) {
+                const learner = await learnerRepository.findOne({ where: { user_id: { user_id: user.user_id } } })
+                if (learner) {
+                    user.learner_id = learner.learner_id
+                }
+            }
+
+            let accessToken = generateToken({ ...user, displayName: user.first_name + " " + user.last_name, role })
+
+            return res.status(200).json({
+                message: "Your role has been changed successfully",
+                status: true,
+                data: {
+                    accessToken: accessToken,
+                    user: { ...user, role }
+                }
+            })
+
+        } catch (error) {
+            return res.status(500).json({
+                message: "Internal Server Error",
+                status: false,
+                error: error.message
+            })
+        }
+    }
 }
 
 export default UserController;
