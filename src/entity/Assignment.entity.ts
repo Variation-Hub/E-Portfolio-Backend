@@ -54,6 +54,9 @@ export class Assignment {
     @Column({ type: 'varchar', nullable: true })
     grade: string;
 
+    @Column({ type: 'json', nullable: true })
+    units: Object;
+
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
 
