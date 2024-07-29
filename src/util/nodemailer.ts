@@ -32,7 +32,7 @@ export const SendEmailTemplet = async (email: string | undefined, subject: strin
 
             }
 
-            return info.messageId
+            return info?.messageId
         })
     } catch (error) {
         console.log(error)
