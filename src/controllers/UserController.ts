@@ -9,6 +9,7 @@ import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { CustomRequest } from "../util/Interface/expressInterface";
 import { sendPasswordByEmail } from "../util/mailSend";
 import { getHighestPriorityRole, UserRole } from "../util/constants";
+import { UserCourse } from "../entity/UserCourse.entity";
 
 class UserController {
 
@@ -499,36 +500,34 @@ class UserController {
     }
     public async getUserListForEQA(req: any, res: Response) {
         try {
-            const user_id: number = parseInt(req.user.user_id);
-            const { role } = req.body
+            const { EQA_id, user } = req.query as any;
 
-            const userRepository = AppDataSource.getRepository(User)
-            const learnerRepository = AppDataSource.getRepository(Learner)
-            let user: any = await userRepository.findOne({ where: { user_id } });
+            const userCourseRepository = AppDataSource.getRepository(UserCourse)
+            let userCourse = await userCourseRepository.find({ where: { EQA_id: { user_id: EQA_id } }, relations: [user], order: { created_at: "ASC" } });
 
-            if (!user.roles.includes(role)) {
-                return res.status(404).json({
-                    message: "You are not allowed to change this user role",
-                    status: false,
-                })
-            }
-
-            if (role === UserRole.Learner) {
-                const learner = await learnerRepository.findOne({ where: { user_id: { user_id: user.user_id } } })
-                if (learner) {
-                    user.learner_id = learner.learner_id
+            const uniqueLearnersMap = new Map();
+            userCourse.forEach(course => {
+                if (user === "learner_id") {
+                    uniqueLearnersMap.set(course?.learner_id?.learner_id, course.learner_id);
+                } else {
+                    uniqueLearnersMap.set(course[user]?.user_id, course[user]);
                 }
-            }
 
-            let accessToken = generateToken({ ...user, displayName: user.first_name + " " + user.last_name, role })
-
+            });
+            let users = Array.from(uniqueLearnersMap.values());
+            const { page, limit } = req.pagination;
             return res.status(200).json({
-                message: "Your role has been changed successfully",
+                message: "user data fetched successfully",
                 status: true,
-                data: {
-                    accessToken: accessToken,
-                    user: { ...user, role }
-                }
+                data: users.slice((page - 1) * limit, page * limit),
+                ...(req.query.meta === "true" && {
+                    meta_data: {
+                        page: page,
+                        items: users.length,
+                        page_size: limit,
+                        pages: Math.ceil(users.length / limit)
+                    }
+                })
             })
 
         } catch (error) {

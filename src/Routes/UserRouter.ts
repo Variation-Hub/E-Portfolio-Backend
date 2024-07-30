@@ -19,6 +19,7 @@ userRoutes.post("/password/change", authorizeRoles(), trimMiddleware, Controller
 userRoutes.delete("/delete/:id", authorizeRoles(UserRole.Admin), Controller.DeleteUser);
 userRoutes.get("/list", authorizeRoles(), paginationMiddleware, Controller.GetUserList);
 userRoutes.post("/changerole", authorizeRoles(), Controller.ChangeUserRole);
+userRoutes.get("/list/eqa", authorizeRoles(), paginationMiddleware, Controller.getUserListForEQA);
 
 // avatar routes
 userRoutes.post("/avatar", authorizeRoles(), singleFileUpload("avatar"), Controller.UploadAvatar)
