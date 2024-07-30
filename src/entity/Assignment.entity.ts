@@ -23,9 +23,6 @@ export class Assignment {
     declaration: boolean;
 
     @Column({ type: 'varchar', nullable: true })
-    mobile: string;
-
-    @Column({ type: 'varchar', nullable: true })
     title: string;
 
     @Column({ type: 'varchar', nullable: true })
