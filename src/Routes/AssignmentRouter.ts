@@ -12,6 +12,7 @@ AssignmentRoutes.post('/create', authorizeRoles(UserRole.Learner), singleFileUpl
 AssignmentRoutes.get("/list", authorizeRoles(), Controller.getAssignmentBycourse);
 AssignmentRoutes.patch("/update/:id", authorizeRoles(), Controller.updateAssignment);
 AssignmentRoutes.delete("/delete/:id", authorizeRoles(), Controller.deleteAssignment);
+AssignmentRoutes.get("/get/:id", authorizeRoles(), Controller.getAssignment);
 
 
 export default AssignmentRoutes;

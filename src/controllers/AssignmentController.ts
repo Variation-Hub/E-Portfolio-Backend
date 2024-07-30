@@ -114,6 +114,7 @@ class AssignmentController {
             });
         }
     }
+
     public async deleteAssignment(req: CustomRequest, res: Response) {
         try {
             const assignmentId = parseInt(req.params.id);
@@ -144,6 +145,31 @@ class AssignmentController {
         }
     }
 
+    public async getAssignment(req: CustomRequest, res: Response) {
+        try {
+            const { id } = req.params as any;
+            const assignmentRepository = AppDataSource.getRepository(Assignment);
+
+            const assignment = await assignmentRepository.findOne({ where: { assignment_id: id }, relations: ['course_id', 'user'] })
+            if (!assignment) {
+                return res.status(404).json({
+                    message: "Assignment not Found",
+                    status: false
+                });
+            }
+            return res.status(200).json({
+                message: 'Assignment retrieved successfully',
+                status: true,
+                data: assignment,
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                status: false,
+                error: error.message,
+            });
+        }
+    }
 }
 
 export default AssignmentController;
