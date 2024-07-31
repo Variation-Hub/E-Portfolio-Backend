@@ -93,6 +93,7 @@ class LearnerController {
                     .leftJoinAndSelect(`user_course.LIQA_id`, `LIQA_id`)
                     .leftJoinAndSelect(`user_course.EQA_id`, `EQA_id`)
                     .leftJoinAndSelect(`user_course.employer_id`, `employer_id`)
+                    .leftJoinAndSelect(`employer_id.employer`, `employer`)
                     .andWhere('user_id.user_id = :user_id', { user_id })
                     .getMany();
                 learnerIdsArray = usercourses.map(userCourse => userCourse.learner_id.learner_id);
