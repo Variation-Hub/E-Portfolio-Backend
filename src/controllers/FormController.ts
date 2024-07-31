@@ -128,7 +128,7 @@ class FormController {
             const [forms, count] = await qb
                 .skip(Number(req.pagination.skip))
                 .take(Number(req.pagination.limit))
-                .orderBy(`form.id`, `ASC`)
+                .orderBy(`form.created_at`, "DESC")
                 .getManyAndCount();
 
             return res.status(200).json({
