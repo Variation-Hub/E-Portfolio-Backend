@@ -191,7 +191,7 @@ class LearnerController {
                 });
             }
 
-            const course = await userCourseRepository.find({ where: { learner_id }, relations: ["trainer_id", "IQA_id", "LIQA_id", "EQA_id", "employer_id"] })
+            const course = await userCourseRepository.find({ where: { learner_id }, relations: ["trainer_id", "IQA_id", "LIQA_id", "EQA_id", "employer_id", "employer_id.employer"] })
 
             return res.status(200).json({
                 message: 'Learner retrieved successfully',
