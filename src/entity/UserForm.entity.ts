@@ -13,7 +13,7 @@ export class UserForm {
     user: User;
 
     @ManyToOne(() => Form, { nullable: false, onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'id' })
+    @JoinColumn({ name: 'form', referencedColumnName: "id" })
     form: Form;
 
     @Column({ type: 'json', nullable: false })

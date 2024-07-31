@@ -282,20 +282,22 @@ class FormController {
             if (form) {
                 form.form_data = form_data;
             } else {
+                console.log(req.user.user_id, form_id, "+++++++++++")
                 form = userFormRepository.create({
                     user: req.user.user_id,
                     form: form_id,
                     form_data
                 })
             }
-
+            console.log(form)
             await userFormRepository.save(form);
 
             return res.status(200).json({
-                message: 'User form data saved successfully',
+                message: "User's form saved successfully",
                 status: true
             });
         } catch (error) {
+            console.log(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,
