@@ -192,9 +192,9 @@ class InnovationController {
     public async addCommentToInnovation(req: CustomRequest, res: Response): Promise<Response> {
         try {
             const innovationRepository = AppDataSource.getRepository(Innovation);
-            const { innovation_id, type, description } = req.body;
+            const { innovation_id, type, description, date } = req.body;
 
-            if (!innovation_id || !type || !description) {
+            if (!innovation_id || !type || !description || !date) {
                 return res.status(400).json({
                     message: "All Field Required",
                     status: false
@@ -208,7 +208,7 @@ class InnovationController {
                 });
             }
 
-            innovation.comment = [...innovation.comment, { type, description }];
+            innovation.comment = [...innovation.comment, { type, description, date }];
 
             innovation = await innovationRepository.save(innovation);
 
