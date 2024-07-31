@@ -205,7 +205,7 @@ class InnovationController {
                     status: false
                 })
             }
-            let innovation = await innovationRepository.findOne({ where: { id: innovation_id } });
+            let innovation = await innovationRepository.findOne({ where: { id: innovation_id }, relations: ['innovation_propose_by_id'] });
             if (!innovation) {
                 return res.status(404).json({
                     message: "Innovation not found",
@@ -225,6 +225,7 @@ class InnovationController {
             adminUsers.forEach(element => {
                 uniqueUserIdSet.add(element.user_id);
             });
+            uniqueUserIdSet.add(innovation.innovation_propose_by_id.user_id)
             uniqueUserIdSet.delete(req.user.user_id)
 
             const userIds = Array.from(uniqueUserIdSet).filter(a => a)
