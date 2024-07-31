@@ -379,9 +379,13 @@ class UserController {
                 qb.andWhere("ARRAY_LENGTH(user.roles, 1) != 1 OR 'Learner' <> ANY(user.roles)")
             }
 
+            if (req.query.meta === "true") {
+                qb
+                    .skip(Number(req.pagination.skip))
+                    .take(Number(req.pagination.limit))
+            }
+
             const [users, count] = await qb
-                .skip(Number(req.pagination.skip))
-                .take(Number(req.pagination.limit))
                 .orderBy("user.user_id", "ASC")
                 .getManyAndCount();
 
