@@ -2,6 +2,9 @@ import { Response } from 'express';
 import { Innovation } from '../entity/Innovation.entity';
 import { CustomRequest } from '../util/Interface/expressInterface';
 import { AppDataSource } from '../data-source';
+import { User } from '../entity/User.entity';
+import { sendDataToUser } from '../socket/socket';
+import { SocketDomain } from '../util/constants';
 
 class InnovationController {
     public async createInnovation(req: CustomRequest, res: Response): Promise<Response> {
@@ -193,6 +196,7 @@ class InnovationController {
     public async addCommentToInnovation(req: CustomRequest, res: Response): Promise<Response> {
         try {
             const innovationRepository = AppDataSource.getRepository(Innovation);
+            const userRepository = AppDataSource.getRepository(User);
             const { innovation_id, type, description, date } = req.body;
 
             if (!innovation_id || !type || !description || !date) {
@@ -212,6 +216,19 @@ class InnovationController {
             innovation.comment = [...innovation.comment, { type, description, date }];
 
             innovation = await innovationRepository.save(innovation);
+
+            const adminUsers = await userRepository.createQueryBuilder('user')
+                .where(':role = ANY(user.roles)', { role: 'Admin' })
+                .getMany();
+
+            const uniqueUserIdSet = new Set<number>();
+            adminUsers.forEach(element => {
+                uniqueUserIdSet.add(element.user_id);
+            });
+            uniqueUserIdSet.delete(req.user.user_id)
+
+            const userIds = Array.from(uniqueUserIdSet).filter(a => a)
+            sendDataToUser(userIds, { data: innovation, domain: SocketDomain.InnovationChat })
 
             return res.status(200).json({
                 message: "Comment add successfully",
