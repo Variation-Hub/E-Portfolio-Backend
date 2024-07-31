@@ -164,7 +164,8 @@ class InnovationController {
                     'innovation.status',
                     'user_id.user_id',
                     'user_id.user_name',
-                    'user_id.email'
+                    'user_id.email',
+                    'user_id.avatar'
                 ])
                 .getOne();
 
