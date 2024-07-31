@@ -226,7 +226,6 @@ class InnovationController {
                 uniqueUserIdSet.add(element.user_id);
             });
             uniqueUserIdSet.add(innovation.innovation_propose_by_id.user_id)
-            uniqueUserIdSet.delete(req.user.user_id)
 
             const userIds = Array.from(uniqueUserIdSet).filter(a => a)
             sendDataToUser(userIds, { data: innovation, domain: SocketDomain.InnovationChat })
