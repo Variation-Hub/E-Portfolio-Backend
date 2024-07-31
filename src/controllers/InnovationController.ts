@@ -109,7 +109,8 @@ class InnovationController {
                     'innovation.updated_at',
                     'user_id.user_id',
                     'user_id.user_name',
-                    'user_id.email'
+                    'user_id.email',
+                    'user_id.avatar'
                 ])
 
             if (status) {
