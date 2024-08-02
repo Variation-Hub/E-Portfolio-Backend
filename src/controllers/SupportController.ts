@@ -106,7 +106,7 @@ class SupportController {
             const [supports, count] = await qb
                 .skip(Number(req.pagination.skip))
                 .take(Number(req.pagination.limit))
-                .orderBy('support.created_at', 'desc')
+                .orderBy('support.created_at', 'DESC')
                 .getManyAndCount();
 
             return res.status(200).json({
