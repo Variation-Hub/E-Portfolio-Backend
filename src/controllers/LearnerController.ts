@@ -197,12 +197,17 @@ class LearnerController {
 
             const course_ids = courses.map((course: any) => course.course.course_id)
 
-            const assignments = await assignmentCourseRepository.find()
+            const filteredAssignments = await assignmentCourseRepository.createQueryBuilder('assignment')
+                .where('assignment.course_id IN (:...course_ids)', { course_ids })
+                .andWhere('assignment.user_id = :user_id', { user_id: learner.user_id.user_id })
+                .getMany();
+
+            console.log(filteredAssignments, course_ids, learner.user_id.user_id)
 
             return res.status(200).json({
                 message: 'Learner retrieved successfully',
                 status: true,
-                data: { ...learner, ...learner.user_id, avatar: learner.user_id?.avatar?.url, courses },
+                data: { ...learner, ...learner.user_id, avatar: learner.user_id?.avatar?.url, course: courses },
             });
         } catch (error) {
             return res.status(500).json({
