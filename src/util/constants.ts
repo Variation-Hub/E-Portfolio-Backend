@@ -21,6 +21,11 @@ export enum AssessmentMethod {
     OT = 'OT',
     RPL = 'RPL',
 }
+export enum AssessmentStatus {
+    Fully = "Fully Complete",
+    Partially = "Partially Complete",
+    NotComplete = "Not Complete"
+}
 
 export const ChatEventEnum = {
     CONNECTED_EVENT: "connected",

@@ -47,8 +47,8 @@ class AssignmentController {
     public async updateAssignment(req: CustomRequest, res: Response) {
         try {
             const AssignmentId = parseInt(req.params.id);
-            const { file, declaration, description, trainer_feedback, learner_comments, points_for_improvement, assessment_method, session, grade, title, units } = req.body;
-            if (!file && !declaration && !description && !trainer_feedback && !learner_comments && !points_for_improvement && !assessment_method && !session && !grade && !title && !units) {
+            const { file, declaration, description, trainer_feedback, learner_comments, points_for_improvement, assessment_method, session, grade, title, units, status } = req.body;
+            if (!file && !declaration && !description && !trainer_feedback && !learner_comments && !points_for_improvement && !assessment_method && !session && !grade && !title && !units && !status) {
                 return res.status(400).json({
                     message: 'At least one field required',
                     status: false,
@@ -77,6 +77,7 @@ class AssignmentController {
             assignment.grade = grade || assignment.grade;
             assignment.title = title || assignment.title;
             assignment.units = units || assignment.units;
+            assignment.status = status || assignment.status;
 
             const updatedAssignment = await assignmentRepository.save(assignment);
 

@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from './User.entity';
 import { Course } from './Course.entity';
-import { AssessmentMethod } from '../util/constants';
+import { AssessmentMethod, AssessmentStatus } from '../util/constants';
 
 @Entity('assignment')
 export class Assignment {
@@ -53,6 +53,9 @@ export class Assignment {
 
     @Column({ type: 'json', nullable: true })
     units: Object;
+
+    @Column({ type: 'enum', enum: AssessmentStatus, default: AssessmentStatus.NotComplete })
+    status: AssessmentStatus;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
