@@ -24,7 +24,7 @@ export enum AssessmentMethod {
 export enum AssessmentStatus {
     Fully = "Fully Complete",
     Partially = "Partially Complete",
-    NotComplete = "Not Complete"
+    NotStarted = "Not Started",
 }
 
 export const ChatEventEnum = {

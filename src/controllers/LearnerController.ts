@@ -6,6 +6,7 @@ import { bcryptpassword } from "../util/bcrypt";
 import { sendPasswordByEmail } from "../util/mailSend";
 import { CustomRequest } from "../util/Interface/expressInterface";
 import { UserCourse } from "../entity/UserCourse.entity";
+import { Assignment } from "../entity/Assignment.entity";
 
 
 class LearnerController {
@@ -177,6 +178,7 @@ class LearnerController {
             const learner_id = req.params.id as any;
             const learnerRepository = AppDataSource.getRepository(Learner);
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
+            const assignmentCourseRepository = AppDataSource.getRepository(Assignment);
             const learner: any = await learnerRepository
                 .createQueryBuilder('learner')
                 .leftJoin('learner.user_id', 'user')
@@ -191,12 +193,16 @@ class LearnerController {
                 });
             }
 
-            const course = await userCourseRepository.find({ where: { learner_id }, relations: ["trainer_id", "IQA_id", "LIQA_id", "EQA_id", "employer_id", "employer_id.employer"] })
+            const courses = await userCourseRepository.find({ where: { learner_id }, relations: ["trainer_id", "IQA_id", "LIQA_id", "EQA_id", "employer_id", "employer_id.employer"] })
+
+            const course_ids = courses.map((course: any) => course.course.course_id)
+
+            const assignments = await assignmentCourseRepository.find()
 
             return res.status(200).json({
                 message: 'Learner retrieved successfully',
                 status: true,
-                data: { ...learner, ...learner.user_id, avatar: learner.user_id?.avatar?.url, course },
+                data: { ...learner, ...learner.user_id, avatar: learner.user_id?.avatar?.url, courses },
             });
         } catch (error) {
             return res.status(500).json({

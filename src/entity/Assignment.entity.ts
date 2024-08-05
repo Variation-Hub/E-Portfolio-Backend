@@ -54,7 +54,7 @@ export class Assignment {
     @Column({ type: 'json', nullable: true })
     units: Object;
 
-    @Column({ type: 'enum', enum: AssessmentStatus, default: AssessmentStatus.NotComplete })
+    @Column({ type: 'enum', enum: AssessmentStatus, default: AssessmentStatus.NotStarted })
     status: AssessmentStatus;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
