@@ -196,13 +196,12 @@ class LearnerController {
             let courses = await userCourseRepository.find({ where: { learner_id }, relations: ["trainer_id", "IQA_id", "LIQA_id", "EQA_id", "employer_id", "employer_id.employer"] })
 
             const course_ids = courses.map((course: any) => course.course.course_id)
-
-            const filteredAssignments = await assignmentCourseRepository.createQueryBuilder('assignment')
+            const filteredAssignments = course_ids.length ? await assignmentCourseRepository.createQueryBuilder('assignment')
                 .leftJoin("assignment.course_id", 'course')
                 .where('assignment.course_id IN (:...course_ids)', { course_ids })
                 .andWhere('assignment.user_id = :user_id', { user_id: learner.user_id.user_id })
                 .select(['assignment', 'course.course_id'])
-                .getMany();
+                .getMany() : [];
 
             courses = courses.map((userCourse: any) => {
                 let partiallyCompleted = new Set();
@@ -249,7 +248,6 @@ class LearnerController {
                 data: { ...learner, ...learner.user_id, avatar: learner.user_id?.avatar?.url, course: courses },
             });
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 error: error.message,
