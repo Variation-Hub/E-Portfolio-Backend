@@ -158,7 +158,7 @@ class LearnerController {
             return res.status(200).json({
                 message: "Learner fetched successfully",
                 status: true,
-                formattedLearners,
+                data: formattedLearners,
                 ...(req.query.meta === "true" && {
                     meta_data: {
                         page: req.pagination.page,
