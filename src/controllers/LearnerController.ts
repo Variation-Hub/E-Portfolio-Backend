@@ -151,10 +151,14 @@ class LearnerController {
                 }));
             }
 
+            for (let index in formattedLearners) {
+                formattedLearners[index].course = await getCourseData(formattedLearners[index].course, formattedLearners[index].user_id);
+            }
+
             return res.status(200).json({
                 message: "Learner fetched successfully",
                 status: true,
-                data: formattedLearners,
+                formattedLearners,
                 ...(req.query.meta === "true" && {
                     meta_data: {
                         page: req.pagination.page,
@@ -347,7 +351,65 @@ class LearnerController {
             });
         }
     }
-
 }
 
 export default LearnerController;
+
+const getCourseData = async (courses: any[], user_id: string) => {
+    try {
+        console.log("log sratart 111111111111111111111111111111111111")
+        const assignmentCourseRepository = AppDataSource.getRepository(Assignment);
+        const course_ids = courses.map((course: any) => course.course.course_id)
+        const filteredAssignments = course_ids.length ? await assignmentCourseRepository.createQueryBuilder('assignment')
+            .leftJoin("assignment.course_id", 'course')
+            .where('assignment.course_id IN (:...course_ids)', { course_ids })
+            .andWhere('assignment.user_id = :user_id', { user_id })
+            .select(['assignment', 'course.course_id'])
+            .getMany() : [];
+
+        courses = courses.map((userCourse: any) => {
+            let partiallyCompleted = new Set();
+            let fullyCompleted = new Set();
+
+            let courseAssignments: any = filteredAssignments.filter(assignment => assignment.course_id.course_id === userCourse.course.course_id);
+
+            courseAssignments?.forEach((assignment) => {
+                assignment.units?.forEach(unit => {
+                    unit.subUnit?.forEach(subunit => {
+                        if (fullyCompleted.has(subunit.id)) {
+                            return;
+                        }
+                        else if (partiallyCompleted.has(subunit)) {
+                            if (subunit?.learnerMap && subunit?.trainerMap) {
+                                fullyCompleted.add(subunit.id)
+                                partiallyCompleted.delete(subunit.id)
+                            }
+                        }
+                        else if (subunit?.learnerMap && subunit?.trainerMap) {
+                            fullyCompleted.add(subunit.id)
+                        }
+                        else if (subunit?.learnerMap || subunit?.trainerMap) {
+                            partiallyCompleted.add(subunit.id)
+                        }
+                    });
+                });
+            })
+
+            const totalSubUnits = userCourse.course.units?.reduce((count, unit) => {
+                return count + (unit.subUnit?.length || 0);
+            }, 0) || 0;
+            return {
+                ...userCourse,
+                totalSubUnits,
+                notStarted: totalSubUnits - (fullyCompleted.size + partiallyCompleted.size),
+                partiallyCompleted: partiallyCompleted.size,
+                fullyCompleted: fullyCompleted.size,
+            }
+        })
+        console.log(courses)
+        return courses
+    } catch (error) {
+        console.log(error, "Error in getting course data");
+        return {};
+    }
+}
