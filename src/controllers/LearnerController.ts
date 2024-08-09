@@ -221,14 +221,26 @@ class LearnerController {
                             }
                             else if (partiallyCompleted.has(subunit)) {
                                 if (subunit?.learnerMap && subunit?.trainerMap) {
+                                    const subunitfound = userCourse.course.units.findIndex(item => item.id === subunit.id)
+                                    if (subunitfound) {
+                                        userCourse.course.units[subunitfound] = subunit;
+                                    }
                                     fullyCompleted.add(subunit.id)
                                     partiallyCompleted.delete(subunit.id)
                                 }
                             }
                             else if (subunit?.learnerMap && subunit?.trainerMap) {
+                                const subunitfound = userCourse.course.units.findIndex(item => item.id === subunit.id)
+                                if (subunitfound) {
+                                    userCourse.course.units[subunitfound] = subunit;
+                                }
                                 fullyCompleted.add(subunit.id)
                             }
                             else if (subunit?.learnerMap || subunit?.trainerMap) {
+                                const subunitfound = userCourse.course.units.findIndex(item => item.id === subunit.id)
+                                if (subunitfound) {
+                                    userCourse.course.units[subunitfound] = subunit;
+                                }
                                 partiallyCompleted.add(subunit.id)
                             }
                         });
