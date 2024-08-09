@@ -215,32 +215,25 @@ class LearnerController {
 
                 courseAssignments?.forEach((assignment) => {
                     assignment.units?.forEach(unit => {
+                        const unitfound = userCourse.course.units.findIndex(item => item.id === unit.id)
+                        console.log(unitfound);
+                        if (unitfound !== -1) {
+                            userCourse.course.units[unitfound] = unit;
+                        }
                         unit.subUnit?.forEach(subunit => {
                             if (fullyCompleted.has(subunit.id)) {
                                 return;
                             }
                             else if (partiallyCompleted.has(subunit)) {
                                 if (subunit?.learnerMap && subunit?.trainerMap) {
-                                    const subunitfound = userCourse.course.units.findIndex(item => item.id === subunit.id)
-                                    if (subunitfound) {
-                                        userCourse.course.units[subunitfound] = subunit;
-                                    }
                                     fullyCompleted.add(subunit.id)
                                     partiallyCompleted.delete(subunit.id)
                                 }
                             }
                             else if (subunit?.learnerMap && subunit?.trainerMap) {
-                                const subunitfound = userCourse.course.units.findIndex(item => item.id === subunit.id)
-                                if (subunitfound) {
-                                    userCourse.course.units[subunitfound] = subunit;
-                                }
                                 fullyCompleted.add(subunit.id)
                             }
                             else if (subunit?.learnerMap || subunit?.trainerMap) {
-                                const subunitfound = userCourse.course.units.findIndex(item => item.id === subunit.id)
-                                if (subunitfound) {
-                                    userCourse.course.units[subunitfound] = subunit;
-                                }
                                 partiallyCompleted.add(subunit.id)
                             }
                         });
