@@ -9,7 +9,7 @@ import { Learner } from "../entity/Learner.entity";
 import { SendNotification } from "../util/socket/notification";
 import { UserCourse } from "../entity/UserCourse.entity";
 import { userActive } from "../util/helper";
-import { NotificationType, SocketDomain } from "../util/constants";
+import { NotificationType, SocketDomain, UserRole } from "../util/constants";
 class CourseController {
 
     public async CreateCourse(req: CustomRequest, res: Response) {
@@ -228,7 +228,21 @@ class CourseController {
                 },
                 domain: SocketDomain.CourseAllocation
             }
-            SendNotification(learner.user_id.user_id, data)
+            SendNotification(learner.user_id.user_id, data);
+
+            [{ id: trainer_id, role: UserRole.Trainer }, { id: IQA_id, role: UserRole.IQA }, { id: LIQA_id, role: UserRole.LIQA }, { id: EQA_id, role: UserRole.EQA }].forEach(item => {
+                const data = {
+                    data: {
+                        title: "Course Allocation",
+                        message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course ${item.role} `,
+                        type: NotificationType.Allocation,
+                        role: item.role,
+                        id: item.id
+                    },
+                    domain: SocketDomain.CourseAllocation
+                }
+                SendNotification(item.id, data)
+            });
             res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
 
         } catch (error) {
