@@ -234,7 +234,7 @@ class CourseController {
                 const data = {
                     data: {
                         title: "Course Allocation",
-                        message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course ${item.role} `,
+                        message: `${admin.first_name + " " + admin.last_name} assigned you a ${course.course_name} course ${item.role} to ${learner?.user_name} `,
                         type: NotificationType.Allocation,
                         role: item.role,
                         id: item.id
