@@ -41,6 +41,7 @@ Routes.use("/forum", forumRoutes)
 Routes.use("/time-log", TimeLogRoutes)
 
 // API routes
+Routes.get("/file", fileController.getFile)
 Routes.post("/upload/file", authorizeRoles(), singleFileUpload('file'), fileController.uploadSingleFile)
 Routes.post("/upload/files", authorizeRoles(), multipleFileUpload('files', 5), fileController.uploadMultipleFile)
 

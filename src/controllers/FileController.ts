@@ -54,5 +54,22 @@ class FileController {
         }
     }
 
+    public async getFile(req: any, res: Response) {
+        try {
+            const response = await fetch(req.query.file as string);
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch file');
+            }
+            const arrayBuffer = await response.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
+            res.setHeader('Content-Type', response.headers.get('content-type') || 'application/octet-stream');
+            res.send(buffer);
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    }
 }
 export default FileController;
