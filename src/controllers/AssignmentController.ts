@@ -17,7 +17,7 @@ class AssignmentController {
             }
             const assignmentRepository = AppDataSource.getRepository(Assignment);
 
-            const fileUpload = await uploadToS3(req.file, "Resourse")
+            const fileUpload = await uploadToS3(req.file, "Assignment")
 
             const assignment = assignmentRepository.create({
                 file: {
@@ -82,7 +82,7 @@ class AssignmentController {
             const updatedAssignment = await assignmentRepository.save(assignment);
 
             return res.status(200).json({
-                message: 'Resource updated successfully',
+                message: 'Assignment updated successfully',
                 status: true,
                 data: updatedAssignment,
             });
@@ -103,7 +103,7 @@ class AssignmentController {
             const assignments = await assignmentRepository.find({ where: { course_id, user: { user_id } } })
 
             return res.status(200).json({
-                message: 'Resources retrieved successfully',
+                message: 'Assignment retrieved successfully',
                 status: true,
                 data: assignments,
             });
