@@ -78,6 +78,15 @@ class LearnerController {
 
             let learnerIdsArray
             let usercourses
+            let qbUserCourse = userCourseRepository.createQueryBuilder("user_course")
+                .leftJoinAndSelect(`user_course.learner_id`, `learner_id`)
+                .leftJoinAndSelect(`user_course.trainer_id`, `trainer_id`)
+                .leftJoinAndSelect(`user_course.IQA_id`, `IQA_id`)
+                .leftJoinAndSelect(`user_course.LIQA_id`, `LIQA_id`)
+                .leftJoinAndSelect(`user_course.EQA_id`, `EQA_id`)
+                .leftJoinAndSelect(`user_course.employer_id`, `employer_id`)
+                .leftJoinAndSelect(`employer_id.employer`, `employer`)
+
             if (user_id && role) {
                 const obj: any = {
                     EQA: "EQA_id",
@@ -86,18 +95,14 @@ class LearnerController {
                     Employer: "employer_id",
                     Trainer: "trainer_id"
                 };
-                usercourses = await userCourseRepository.createQueryBuilder("user_course")
-                    .leftJoin(`user_course.${obj[role]}`, `user_id`)
-                    .leftJoinAndSelect(`user_course.learner_id`, `learner_id`)
-                    .leftJoinAndSelect(`user_course.trainer_id`, `trainer_id`)
-                    .leftJoinAndSelect(`user_course.IQA_id`, `IQA_id`)
-                    .leftJoinAndSelect(`user_course.LIQA_id`, `LIQA_id`)
-                    .leftJoinAndSelect(`user_course.EQA_id`, `EQA_id`)
-                    .leftJoinAndSelect(`user_course.employer_id`, `employer_id`)
-                    .leftJoinAndSelect(`employer_id.employer`, `employer`)
+
+                usercourses = await qbUserCourse.leftJoin(`user_course.${obj[role]}`, `user_id`)
                     .andWhere('user_id.user_id = :user_id', { user_id })
-                    .getMany();
+                    .getMany()
+
                 learnerIdsArray = usercourses.map(userCourse => userCourse.learner_id.learner_id);
+            } else {
+                usercourses = await qbUserCourse.getMany();
             }
             const qb = learnerRepository.createQueryBuilder("learner")
                 .leftJoinAndSelect('learner.user_id', "user_id")
@@ -132,27 +137,18 @@ class LearnerController {
                 .getManyAndCount();
 
             let formattedLearners
-            if (role && user_id && learnerIdsArray.length) {
-                formattedLearners = learner.map((learner: any) => ({
-                    ...learner,
-                    user_id: learner.user_id.user_id,
-                    avatar: learner.user_id?.avatar?.url,
-                    course: usercourses.filter(usercourse => {
-                        if (usercourse.learner_id.learner_id === learner.learner_id) {
-                            return true;
-                        }
-                    })
-                }))
-            } else {
-                formattedLearners = learner.map((learner: any) => ({
-                    ...learner,
-                    user_id: learner.user_id.user_id,
-                    avatar: learner.user_id?.avatar?.url
-                }));
-            }
-
+            formattedLearners = learner.map((learner: any) => ({
+                ...learner,
+                user_id: learner.user_id.user_id,
+                avatar: learner.user_id?.avatar?.url,
+                course: usercourses.filter(usercourse => {
+                    if (usercourse?.learner_id?.learner_id === learner?.learner_id) {
+                        return true;
+                    }
+                })
+            }))
             for (let index in formattedLearners) {
-                formattedLearners[index].course = await getCourseData(formattedLearners[index].course, formattedLearners[index].user_id);
+                formattedLearners[index].course = await getCourseData(formattedLearners[index]?.course, formattedLearners[index].user_id);
             }
 
             return res.status(200).json({
@@ -207,7 +203,7 @@ class LearnerController {
                 .select(['assignment', 'course.course_id'])
                 .getMany() : [];
 
-            courses = courses.map((userCourse: any) => {
+            courses = courses?.map((userCourse: any) => {
                 let partiallyCompleted = new Set();
                 let fullyCompleted = new Set();
 
@@ -216,7 +212,6 @@ class LearnerController {
                 courseAssignments?.forEach((assignment) => {
                     assignment.units?.forEach(unit => {
                         const unitfound = userCourse.course.units.findIndex(item => item.id === unit.id)
-                        console.log(unitfound);
                         if (unitfound !== -1) {
                             userCourse.course.units[unitfound] = unit;
                         }
@@ -362,9 +357,8 @@ export default LearnerController;
 
 const getCourseData = async (courses: any[], user_id: string) => {
     try {
-        console.log("log sratart 111111111111111111111111111111111111")
         const assignmentCourseRepository = AppDataSource.getRepository(Assignment);
-        const course_ids = courses.map((course: any) => course.course.course_id)
+        const course_ids = courses?.map((course: any) => course.course.course_id)
         const filteredAssignments = course_ids.length ? await assignmentCourseRepository.createQueryBuilder('assignment')
             .leftJoin("assignment.course_id", 'course')
             .where('assignment.course_id IN (:...course_ids)', { course_ids })
@@ -372,7 +366,7 @@ const getCourseData = async (courses: any[], user_id: string) => {
             .select(['assignment', 'course.course_id'])
             .getMany() : [];
 
-        courses = courses.map((userCourse: any) => {
+        courses = courses?.map((userCourse: any) => {
             let partiallyCompleted = new Set();
             let fullyCompleted = new Set();
 
@@ -411,10 +405,9 @@ const getCourseData = async (courses: any[], user_id: string) => {
                 fullyCompleted: fullyCompleted.size,
             }
         })
-        console.log(courses)
         return courses
     } catch (error) {
         console.log(error, "Error in getting course data");
-        return {};
+        return [];
     }
 }
