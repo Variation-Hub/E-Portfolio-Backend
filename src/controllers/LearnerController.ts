@@ -72,7 +72,7 @@ class LearnerController {
 
     public async getLearnerList(req: Request, res: Response): Promise<Response> {
         try {
-            const { user_id, role } = req.query as any;
+            const { user_id, role, course_id } = req.query as any;
             const learnerRepository = AppDataSource.getRepository(Learner);
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
 
@@ -99,8 +99,12 @@ class LearnerController {
                 usercourses = await qbUserCourse.leftJoin(`user_course.${obj[role]}`, `user_id`)
                     .andWhere('user_id.user_id = :user_id', { user_id })
                     .getMany()
-
                 learnerIdsArray = usercourses.map(userCourse => userCourse.learner_id.learner_id);
+            } else if (course_id) {
+                usercourses = await qbUserCourse
+                    .andWhere('user_course.course ->> \'course_id\' = :course_id', { course_id })
+                    .getMany()
+                learnerIdsArray = usercourses.map(userCourse => userCourse?.learner_id?.learner_id);
             } else {
                 usercourses = await qbUserCourse.getMany();
             }
@@ -125,7 +129,7 @@ class LearnerController {
             if (req.query.keyword) {
                 qb.andWhere("(learner.email ILIKE :keyword OR learner.user_name ILIKE :keyword OR learner.first_name ILIKE :keyword OR learner.last_name ILIKE :keyword)", { keyword: `${req.query.keyword}%` });
             }
-            if (role && user_id && learnerIdsArray.length) {
+            if ((role && user_id && learnerIdsArray.length) || (course_id && learnerIdsArray.length)) {
                 qb.andWhere('learner.learner_id IN (:...learnerIdsArray)', { learnerIdsArray })
             } else if (role && user_id) {
                 qb.andWhere('0 = 1')
@@ -165,6 +169,7 @@ class LearnerController {
                 })
             })
         } catch (error) {
+            console.error(error)
             return res.status(500).json({
                 message: 'Internal Server Error',
                 error: error.message,
