@@ -100,12 +100,13 @@ class LearnerController {
                     .andWhere('user_id.user_id = :user_id', { user_id })
                     .getMany()
                 learnerIdsArray = usercourses.map(userCourse => userCourse.learner_id.learner_id);
-            } else if (course_id) {
-                usercourses = await qbUserCourse
-                    .andWhere('user_course.course ->> \'course_id\' = :course_id', { course_id })
-                    .getMany()
-                learnerIdsArray = usercourses.map(userCourse => userCourse?.learner_id?.learner_id);
             } else {
+                if (course_id) {
+                    const qbUserCourseForLearnerIds = qbUserCourse.clone();
+                    learnerIdsArray = (await qbUserCourseForLearnerIds
+                        .andWhere('user_course.course ->> \'course_id\' = :course_id', { course_id })
+                        .getMany()).map(userCourse => userCourse?.learner_id?.learner_id);
+                }
                 usercourses = await qbUserCourse.getMany();
             }
             const qb = learnerRepository.createQueryBuilder("learner")
@@ -169,7 +170,6 @@ class LearnerController {
                 })
             })
         } catch (error) {
-            console.error(error)
             return res.status(500).json({
                 message: 'Internal Server Error',
                 error: error.message,
