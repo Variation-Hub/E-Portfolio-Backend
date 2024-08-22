@@ -43,7 +43,7 @@ class InnovationController {
             const data = {
                 data: {
                     title: "Idea Submitted",
-                    message: `${user.first_name + " " + user.last_name} Submitted new Idea`
+                    message: `${user.first_name + " " + user.last_name} Submitted new Idea ${savedInnovation.topic}`
                 },
                 domain: SocketDomain.Notification
             }
