@@ -35,6 +35,12 @@ export class UserCourse {
     @Column({ type: 'json', nullable: false })
     course: Object;
 
+    @Column({ type: 'timestamp', nullable: false })
+    start_date: Date;
+
+    @Column({ type: 'timestamp', nullable: false })
+    end_date: Date;
+
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
 

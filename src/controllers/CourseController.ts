@@ -173,13 +173,13 @@ class CourseController {
 
     public async courseEnrollment(req: CustomRequest, res: Response): Promise<Response> {
         try {
-            const { learner_id, course_id, trainer_id, IQA_id, LIQA_id, EQA_id, employer_id } = req.body
+            const { learner_id, course_id, trainer_id, IQA_id, LIQA_id, EQA_id, employer_id, start_date, end_date } = req.body
 
             const learnerRepository = AppDataSource.getRepository(Learner);
             const courseRepository = AppDataSource.getRepository(Course);
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
 
-            if (!learner_id || !course_id || !trainer_id || !IQA_id || !LIQA_id || !EQA_id || !employer_id) {
+            if (!learner_id || !course_id || !trainer_id || !IQA_id || !LIQA_id || !EQA_id || !employer_id || !start_date || !end_date) {
                 return res.status(400).json({
                     message: "Please pass all Field",
                     status: false
@@ -216,7 +216,7 @@ class CourseController {
                 })
 
             }
-            await userCourseRepository.save(userCourseRepository.create({ learner_id, trainer_id, IQA_id, LIQA_id, EQA_id, employer_id, course: courseData }))
+            await userCourseRepository.save(userCourseRepository.create({ learner_id, trainer_id, IQA_id, LIQA_id, EQA_id, employer_id, course: courseData, start_date, end_date }))
 
             const userRepository = AppDataSource.getRepository(User);
             const admin = await userRepository.findOne({ where: { user_id: req.user.user_id } });
@@ -246,6 +246,7 @@ class CourseController {
             res.status(200).json({ message: 'Learner assigned to course successfully', status: true });
 
         } catch (error) {
+            console.log(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 error: error.message,
