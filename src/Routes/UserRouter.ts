@@ -14,6 +14,7 @@ userRoutes.post("/create", trimMiddleware, Controller.CreateUser);
 userRoutes.get("/get", authorizeRoles(), Controller.GetUser);
 userRoutes.patch("/update/:id", authorizeRoles(), trimMiddleware, Controller.UpdateUser);
 userRoutes.post("/login", trimMiddleware, Controller.LoginUser);
+userRoutes.post("/token", authorizeRoles(), Controller.getToken);
 userRoutes.post("/updatepassword", trimMiddleware, Controller.UpdatePassword);
 userRoutes.post("/password/change", authorizeRoles(), trimMiddleware, Controller.ChangePassword);
 userRoutes.delete("/delete/:id", authorizeRoles(UserRole.Admin), Controller.DeleteUser);

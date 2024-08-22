@@ -545,6 +545,61 @@ class UserController {
             })
         }
     }
+
+    public async getToken(req: Request, res: Response) {
+        try {
+            const userRepository = AppDataSource.getRepository(User)
+            const learnerRepository = AppDataSource.getRepository(Learner)
+
+            const { email } = req.body
+
+            let user: any = await userRepository.findOne({
+                where: { email: email },
+            });
+
+            if (!user) {
+                return res.status(404).json({
+                    message: "Invalid credentials, please try again.",
+                    status: false
+                })
+            }
+
+            delete user.password;
+            delete user.created_at;
+            delete user.updated_at;
+            delete user.deleted_at;
+
+            const learner = await learnerRepository.findOne({ where: { user_id: user.user_id } })
+            if (learner) {
+                user.learner_id = learner.learner_id
+            }
+
+            const role = getHighestPriorityRole(user.roles)
+
+            let accessToken = generateToken({
+                ...user,
+                displayName: user.first_name + " " + user.last_name,
+                role
+            })
+
+            let responce = {
+                password_changed: user.password_changed,
+                accessToken: accessToken,
+                user: { ...user, role }
+            }
+            return res.status(200).json({
+                data: responce,
+                message: "Token get successful",
+                status: true
+            })
+
+        } catch (error) {
+            return res.status(500).json({
+                message: "Internal Server Error",
+                status: false
+            })
+        }
+    }
 }
 
 export default UserController;
