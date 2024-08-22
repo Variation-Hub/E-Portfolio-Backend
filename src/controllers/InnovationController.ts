@@ -5,6 +5,7 @@ import { AppDataSource } from '../data-source';
 import { User } from '../entity/User.entity';
 import { sendDataToUser } from '../socket/socket';
 import { SocketDomain } from '../util/constants';
+import { SendNotifications } from '../util/socket/notification';
 
 class InnovationController {
     public async createInnovation(req: CustomRequest, res: Response): Promise<Response> {
@@ -12,6 +13,14 @@ class InnovationController {
             const innovationRepository = AppDataSource.getRepository(Innovation);
             const userRepository = AppDataSource.getRepository(User);
             const { innovation_propose_by_id, topic, description } = req.body;
+
+            const user = await userRepository.findOneBy({ user_id: innovation_propose_by_id });
+            if (!user) {
+                return res.status(404).json({
+                    message: "User not found",
+                    status: false
+                });
+            }
 
             const innovation = await innovationRepository.create({
                 innovation_propose_by_id,
@@ -21,17 +30,24 @@ class InnovationController {
 
             const savedInnovation = await innovationRepository.save(innovation);
 
-            // const adminUsers = await userRepository.createQueryBuilder('user')
-            //     .where(':role = ANY(user.roles)', { role: 'Admin' })
-            //     .getMany();
+            const adminUsers = await userRepository.createQueryBuilder('user')
+                .where(':role = ANY(user.roles)', { role: 'Admin' })
+                .getMany();
 
-            // const uniqueUserIdSet = new Set<number>();
-            // adminUsers.forEach(element => {
-            //     uniqueUserIdSet.add(element.user_id);
-            // });
+            const uniqueUserIdSet = new Set<number>();
+            adminUsers.forEach(element => {
+                uniqueUserIdSet.add(element.user_id);
+            });
 
-            // const userIds = Array.from(uniqueUserIdSet).filter(a => a)
-            // sendDataToUser(userIds, { data: innovation, domain: SocketDomain.InnovationChat })
+            const userIds = Array.from(uniqueUserIdSet).filter(a => a)
+            const data = {
+                data: {
+                    title: "Idea Submitted",
+                    message: `${user.first_name + " " + user.last_name} Submitted new Idea`
+                },
+                domain: SocketDomain.Notification
+            }
+            SendNotifications(userIds, data)
 
             return res.status(200).json({
                 message: "Innovation created successfully",
