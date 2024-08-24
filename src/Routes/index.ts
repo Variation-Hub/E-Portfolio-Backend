@@ -19,6 +19,7 @@ import InnovationRoutes from './InnovationRouter';
 import FormRoutes from './FormRouter';
 import forumRoutes from './ForumRouter';
 import TimeLogRoutes from './TimeLogRouter';
+import FormTemplateRoutes from './FormTemplateRouter';
 
 const fileController = new FileController;
 const Routes = express.Router();
@@ -39,6 +40,7 @@ Routes.use("/innovation", InnovationRoutes)
 Routes.use("/form", FormRoutes)
 Routes.use("/forum", forumRoutes)
 Routes.use("/time-log", TimeLogRoutes)
+Routes.use("/form-template", FormTemplateRoutes)
 
 // API routes
 Routes.get("/file", fileController.getFile)
