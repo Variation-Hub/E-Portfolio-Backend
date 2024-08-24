@@ -1,172 +1,117 @@
-import sys
-import PyPDF2
-import json
 import pdfplumber
 import re
-def extract_specific_title(pdf_path):
-    try:
-        # Open the PDF file
-        with open(pdf_path, 'rb') as pdf_file:
-            # Create a PDF reader object
-            pdf_reader = PyPDF2.PdfReader(pdf_file)
+import json
 
-            # Assume the text is on the first page (index 0, 0-indexed)
-            page = pdf_reader.pages[0]
+class PDFExtractor:
+    def __init__(self, pdf_path):
+        self.pdf_path = pdf_path
+        self.course_data = {
+            "course_code": "",
+            "course_name": "",
+            "level": "",
+            "sector": "",
+            "internal_external": "",
+            "qualification_type": "",
+            "guided_learning_hours": "",
+            "assessment_language": "",
+            "recommended_minimum_age": "",
+            "total_credits": "",
+            "operational_start_date": "",
+            "assessment_methods": "",
+            "qualification_status": "",
+            "overall_grading_type": "",
+            "permitted_delivery_types": "",
+            "brand_guidelines": "",
+            "mandatory_units": [],
+            "optional_units": []
+        }
+    
+    def extract_text(self):
+        """Extracts text from all pages of the PDF."""
+        full_text = ""
+        with pdfplumber.open(self.pdf_path) as pdf:
+            for page in pdf.pages:
+                full_text += page.extract_text() + "\n"
+        return full_text
+    
+    def extract_metadata(self, text):
+        """Extracts metadata like course code, title, and level using regex."""
+        metadata_patterns = {
+            "course_code": r"Qualification Number[:\s]*([A-Z0-9/]+)",
+            "course_name": r"Qualification Title[:\s]*(.+)",
+            "level": r"Level[:\s]*(\d+)",
+            "sector": r"Sector[:\s]*(.+)",
+            "internal_external": r"Internal/External[:\s]*(.+)",
+            "qualification_type": r"Qualification Type[:\s]*(.+)",
+            "guided_learning_hours": r"Guided Learning Hours[:\s]*(\d+)",
+            "assessment_language": r"Assessment Language[:\s]*(.+)",
+            "recommended_minimum_age": r"Recommended Minimum Age[:\s]*(\d+)",
+            "total_credits": r"Total Credits[:\s]*(\d+)",
+            "operational_start_date": r"Operational Start Date[:\s]*(.+)",
+            "assessment_methods": r"Assessment Methods[:\s]*(.+)",
+            "qualification_status": r"Qualification Status[:\s]*(.+)",
+            "overall_grading_type": r"Overall Grading Type[:\s]*(.+)",
+            "permitted_delivery_types": r"Permitted Delivery Types[:\s]*(.+)",
+            "brand_guidelines": r"Brand Guidelines[:\s]*(.+)"
+        }
+        
+        for key, pattern in metadata_patterns.items():
+            match = re.search(pattern, text)
+            if match:
+                self.course_data[key] = match.group(1).strip()
+    
+    def extract_units(self, text):
+        """Extracts the mandatory and optional units."""
+        mandatory_units = []
+        optional_units = []
+        
+        mandatory_section = re.search(r"Mandatory Units([\s\S]+?)(Optional Units|$)", text)
+        optional_section = re.search(r"Optional Units([\s\S]+)$", text)
 
-            # Extract text from the page
-            text = page.extract_text()
+        if mandatory_section:
+            mandatory_units = self.parse_units(mandatory_section.group(1))
 
-            # Split the text into lines
-            lines = text.splitlines()
+        if optional_section:
+            optional_units = self.parse_units(optional_section.group(1))
 
-            # Combine lines into title and content_id
-            title = ' '.join(lines[:-1])
-            content_id = lines[-1]
+        self.course_data["mandatory_units"] = mandatory_units
+        self.course_data["optional_units"] = optional_units
 
-            # Extract text from the second page (index 1, 0-indexed)
-            page1 = pdf_reader.pages[1]
-            text_page1 = page1.extract_text()
+    def parse_units(self, unit_text):
+        """Parses each unit block to extract relevant details."""
+        units = []
+        unit_pattern = re.compile(
+            r"(?P<title>.+?)\s(?P<unit_ref>[A-Z0-9/]+)\s(?P<level>\d+)\s(?P<glh>\d+)\s(?P<credit_value>\d+)"
+        )
+        for line in unit_text.split("\n"):
+            match = unit_pattern.search(line.strip())
+            if match:
+                units.append({
+                    "unit_ref": match.group("unit_ref"),
+                    "title": match.group("title"),
+                    "level": match.group("level"),
+                    "glh": match.group("glh"),
+                    "credit_value": match.group("credit_value")
+                })
+        return units
 
-            # Split the text from the second page into lines
-            lines_page1 = text_page1.splitlines()
-
-            all_values = lines_page1
-
-            temp = []
-
-            for item in all_values:
-                if "Guided Learning Hours" in item:
-                    parts = re.split(r'(\d+)', item)
-                    temp.extend([part.strip() for part in parts if part.strip()])
-                elif "Sector" in item:
-                    parts = re.split(r'([A-Za-z]+)', item)
-                    temp.extend([part.strip() for part in parts if part.strip()])
-                elif "Pass/FailInternal/External" in item:
-                    parts = item.split("Internal/External")
-                    temp.append(parts[0].strip())
-                    temp.append("Internal/External")
-                    temp.append(parts[1].strip())
-                else:
-                    temp.append(item)
-
-            all_values = list(filter(None, temp))
-
-            data_fields = [
-                'Level',
-                'Sector',
-                'Internal/External',
-                'Qualification Type',
-                'Guided Learning Hours',
-                'Assessment Language',
-                'Recommended Minimum Age',
-                'Total Credits',
-                'Operational Start Date',
-                'Assessment Methods',
-                'Qualification Status',
-                'Overall Grading Type',
-                "Permitted Delivery Types",
-                " "
-            ]
-
-            # Iterate through the list and split values based on substrings
-            modified_values = []
-
-            for value in all_values:
-                modified_values.append(value)
-
-            # Find all values from all_values that are in data_fields
-            indices = [modified_values.index(value) for value in data_fields if value in modified_values]
-
-            data={}
-            for i in range(len(indices)-1):
-                key = modified_values[indices[i]]
-                ind = modified_values.index(key)
-                # print(key, ind)
-                if key == "Internal/External":
-                    new_key = key.lower().replace('/', '_')
-                else:
-                    new_key = key.lower().replace(' ', '_')
-
-                data[new_key] = modified_values[ind+1]
-
-
-            page2 = pdf_reader.pages[3]
-            text = page2.extract_text()
-
-            guidelines = text.find("Brand Guidelines")
-            if guidelines != -1:
-                guideline_paragraph = text[guidelines+len("Brand Guidelines")+1:guidelines + guidelines]
-
-            mandatory_units_table = []
-            optional_units_table = []
-
-            with pdfplumber.open(pdf_path) as pdf:
-                for page_num in range(len(pdf.pages)):
-                    page = pdf.pages[page_num]
-                    text = page.extract_text()
-                    table = page.extract_tables()
-
-                    if "Mandatory Units" in text:
-                        current_table = mandatory_units_table
-
-                    if table and current_table is not None:
-                        current_table.extend(table[0])
-                    if "Optional Units" in text and "There are no optional units for this qualification" not in text:
-                        current_table = optional_units_table
-                        if table and current_table is not None:
-                            current_table.extend(table[len(table)-1])
-
-            header = ['unit_ref', 'title', 'level', 'glh', 'credit_value']
-            converted_data_mandatory_units = []
-            converted_data_optional_units = []
-
-            if mandatory_units_table:
-                data_rows = mandatory_units_table[1:]
-
-                for row in data_rows:
-                    entry = {header[i]: row[i] for i in range(len(header))}
-                    converted_data_mandatory_units.append(entry)
-
-            if optional_units_table:
-                data_rows = optional_units_table[1:]
-                for row in data_rows:
-                    entry = {header[i]: row[i] for i in range(len(header))}
-                    converted_data_optional_units.append(entry)
-
-            converted_data_mandatory_units = [row for row in converted_data_mandatory_units if all(value is not None for value in row.values())]
-            converted_data_optional_units = [row for row in converted_data_optional_units if all(value is not None for value in row.values())]
-
-            return {"course_code": content_id, "course_name": title, **data, "brand_guidelines": guideline_paragraph, "mandatory_units": converted_data_mandatory_units, "optional_units": converted_data_optional_units}
-
-    except FileNotFoundError:
-        print(f"Error: The file '{pdf_path}' was not found.")
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
-
-    return None
-
-def save_to_json_file(data, file_path):
-    with open(file_path, 'w', encoding='utf-8') as json_file:
-        json.dump(data, json_file, indent=2)
-
-def main():
-    # Check if the correct number of command-line arguments is provided
-    if len(sys.argv) != 2:
-        print("Usage: python script_name.py <pdf_path>")
-        sys.exit(1)
-
-    # Get the PDF path from the command-line arguments
-    pdf_path = sys.argv[1]
-
-    # pdf_path = "pdf2.pdf"
-
-    # Call the function with the provided PDF path
-    title_data = extract_specific_title(pdf_path)
-
-    if title_data is not None:
-        save_to_json_file(title_data, 'temp.json')
-    else:
-        print("Extraction failed.")
+    def save_to_json(self, output_path):
+        """Saves the extracted course data to a JSON file."""
+        with open(output_path, 'w', encoding='utf-8') as json_file:
+            json.dump(self.course_data, json_file, indent=2)
+    
+    def extract_and_save(self, output_path):
+        """Main method to extract data and save it to a JSON file."""
+        text = self.extract_text()
+        self.extract_metadata(text)
+        self.extract_units(text)
+        self.save_to_json(output_path)
 
 if __name__ == "__main__":
-    main()
+    pdf_path = "n1.pdf"  # PDF path
+    output_path = "course_data.json"  # Output JSON file path
+
+    extractor = PDFExtractor(pdf_path)
+    extractor.extract_and_save(output_path)
+
+    print(f"Data extracted and saved to {output_path}")

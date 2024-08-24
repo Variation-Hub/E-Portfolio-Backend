@@ -7,6 +7,7 @@ import { sendPasswordByEmail } from "../util/mailSend";
 import { CustomRequest } from "../util/Interface/expressInterface";
 import { UserCourse } from "../entity/UserCourse.entity";
 import { Assignment } from "../entity/Assignment.entity";
+import XLSX from 'xlsx';
 
 
 class LearnerController {
@@ -348,6 +349,95 @@ class LearnerController {
                 status: true,
                 data: learner,
             });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                error: error.message,
+                status: false,
+            });
+        }
+    }
+
+    public async getLearnerExcel(req: Request, res: Response): Promise<Response> {
+        try {
+            const learnerRepository = AppDataSource.getRepository(Learner);
+            const userCourseRepository = AppDataSource.getRepository(UserCourse);
+            const workbook = XLSX.utils.book_new();
+            // const learners = await learnerRepository.find();
+
+            // Convert the data to an array of arrays format
+            // console.log(learners)
+
+
+            let usercourses = await userCourseRepository.createQueryBuilder("user_course")
+                .leftJoinAndSelect(`user_course.learner_id`, `learner_id`)
+                .leftJoinAndSelect(`user_course.trainer_id`, `trainer_id`)
+                .leftJoinAndSelect(`user_course.IQA_id`, `IQA_id`)
+                .leftJoinAndSelect(`user_course.LIQA_id`, `LIQA_id`)
+                .leftJoinAndSelect(`user_course.EQA_id`, `EQA_id`)
+                .leftJoinAndSelect(`user_course.employer_id`, `employer_id`)
+                .leftJoinAndSelect(`employer_id.employer`, `employer`)
+                .getMany();
+
+            const qb = learnerRepository.createQueryBuilder("learner")
+                .leftJoinAndSelect('learner.user_id', "user_id")
+                .select([
+                    'learner.learner_id',
+                    'learner.first_name',
+                    'learner.last_name',
+                    'learner.user_name',
+                    'learner.email',
+                    'learner.mobile',
+                    'learner.national_ins_no',
+                    'learner.employer_id',
+                    'learner.funding_body',
+                    'learner.created_at',
+                    'learner.updated_at',
+                    'user_id.user_id',
+                    'user_id.avatar'
+                ])
+
+            const [learner, count] = await qb
+                // .skip(Number(req.pagination.skip))
+                // .take(Number(req.pagination.limit))
+                .orderBy("learner.learner_id", "ASC")
+                .getManyAndCount();
+
+            let formattedLearners
+            formattedLearners = learner.map((learner: any) => ({
+                ...learner,
+                user_id: learner.user_id.user_id,
+                avatar: learner.user_id?.avatar?.url,
+                course: usercourses.filter(usercourse => {
+                    if (usercourse?.learner_id?.learner_id === learner?.learner_id) {
+                        return true;
+                    }
+                })
+            }))
+            for (let index in formattedLearners) {
+                formattedLearners[index].course = await getCourseData(formattedLearners[index]?.course, formattedLearners[index].user_id);
+            }
+
+
+            console.log(formattedLearners)
+            const worksheetData = [
+                ['UserName', 'Learner Firstname', 'Learner Lastname', 'Course', 'Percent Complete', 'Course Status', 'Course Start', 'Course End', 'Job Title', 'Location', 'Email', 'National Insurance No', 'Date of Birth', 'Sex', 'Ethnicity', 'Home Postcode', 'Telephone Number', 'Mobile', 'Disability', 'Learning Difficulty', 'Manager', 'Manager Job Title', 'Mentor', 'Comments', 'Company Name', 'Address line 1', 'Address line 2', 'Address 3', 'Address 4', 'Town', 'Postcode', 'Co-ordinator', 'Company Telephone', 'Co-ordinator Email', 'Assessor', 'archived', 'Assessor First Name', 'Assessor Last Name', 'Awarding Body', 'Registration Date', 'Registration Number', 'Contract', 'PartnerName'], // Headers
+                ...formattedLearners.map((learner: any) => [learner?.user_name, learner?.first_name, learner?.last_name]) // Rows
+            ];
+
+            // const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+            // // Add the worksheet to the workbook
+            // XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+            // // Write the Excel file to a buffer
+            // const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+
+            // // Set the headers and send the file
+            // res.setHeader('Content-Disposition', 'attachment; filename="example.xlsx"');
+            // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            // res.send(buffer);
+            res.send(formattedLearners);
         } catch (error) {
             return res.status(500).json({
                 message: 'Internal Server Error',

@@ -1,0 +1,764 @@
+{
+  "course_code": "603/2554/9",
+  "course_name": "",
+  "level": "2",
+  "sector": "",
+  "internal_external": "",
+  "qualification_type": "",
+  "guided_learning_hours": "",
+  "assessment_language": "",
+  "recommended_minimum_age": "",
+  "total_credits": "",
+  "operational_start_date": "",
+  "assessment_methods": "",
+  "qualification_status": "",
+  "overall_grading_type": "",
+  "permitted_delivery_types": "",
+  "brand_guidelines": "",
+  "mandatory_units": [
+    {
+      "unit_ref": "M/616/4728",
+      "title": "Communication in care settings",
+      "level": "2",
+      "glh": "20",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "T/616/4729",
+      "title": "Handle information in care settings",
+      "level": "2",
+      "glh": "10",
+      "credit_value": "1"
+    },
+    {
+      "unit_ref": "K/616/4730",
+      "title": "Personal development in care settings",
+      "level": "2",
+      "glh": "23",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "T/616/4732",
+      "title": "Implement person-centred",
+      "level": "2",
+      "glh": "39",
+      "credit_value": "5"
+    },
+    {
+      "unit_ref": "A/616/4733",
+      "title": "Equality and inclusion in care",
+      "level": "2",
+      "glh": "17",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "F/616/4734",
+      "title": "Health, safety and wellbeing in care",
+      "level": "2",
+      "glh": "33",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "J/616/4055",
+      "title": "Responsibilities of a care worker",
+      "level": "2",
+      "glh": "16",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "R/616/4737",
+      "title": "8 Duty of care",
+      "level": "2",
+      "glh": "7",
+      "credit_value": "1"
+    },
+    {
+      "unit_ref": "R/616/4057",
+      "title": "Safeguarding and protection in care",
+      "level": "2",
+      "glh": "26",
+      "credit_value": "3"
+    }
+  ],
+  "optional_units": [
+    {
+      "unit_ref": "Y/616/4061",
+      "title": "16 Causes and spread of infection",
+      "level": "2",
+      "glh": "20",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "R/616/4642",
+      "title": "17 Dementia awareness",
+      "level": "2",
+      "glh": "7",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "Y/616/4643",
+      "title": "continence",
+      "level": "2",
+      "glh": "19",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "D/616/4644",
+      "title": "individuals",
+      "level": "2",
+      "glh": "15",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "D/616/4062",
+      "title": "21 Understand mental health problems",
+      "level": "3",
+      "glh": "16",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "H/616/4645",
+      "title": "activities",
+      "level": "2",
+      "glh": "9",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "T/616/4648",
+      "title": "environment and resources during",
+      "level": "2",
+      "glh": "20",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "D/616/4059",
+      "title": "33 management",
+      "level": "2",
+      "glh": "20",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "A/616/4652",
+      "title": "34 Principles of health promotion",
+      "level": "2",
+      "glh": "13",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "F/616/4653",
+      "title": "35 being",
+      "level": "2",
+      "glh": "12",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "J/616/4654",
+      "title": "36 person",
+      "level": "2",
+      "glh": "24",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "K/616/4064",
+      "title": "37 Undertake physiological measurements",
+      "level": "3",
+      "glh": "23",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "H/616/4158",
+      "title": "38 Undertake agreed pressure area care",
+      "level": "2",
+      "glh": "30",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "J/616/4072",
+      "title": "39 Obtain and test capillary blood samples",
+      "level": "3",
+      "glh": "30",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "M/616/4082",
+      "title": "40 Support individuals at the end of life",
+      "level": "3",
+      "glh": "50",
+      "credit_value": "6"
+    },
+    {
+      "unit_ref": "L/616/4655",
+      "title": "41 Provide support for sleep",
+      "level": "2",
+      "glh": "13",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "A/616/4179",
+      "title": "42",
+      "level": "3",
+      "glh": "35",
+      "credit_value": "5"
+    },
+    {
+      "unit_ref": "R/616/4656",
+      "title": "43",
+      "level": "2",
+      "glh": "27",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "Y/616/4657",
+      "title": "44",
+      "level": "2",
+      "glh": "25",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "D/616/4658",
+      "title": "45",
+      "level": "2",
+      "glh": "24",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "H/616/4659",
+      "title": "46",
+      "level": "2",
+      "glh": "17",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "D/616/4661",
+      "title": "48",
+      "level": "2",
+      "glh": "24",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "J/616/4153",
+      "title": "49 requirements of individuals with",
+      "level": "3",
+      "glh": "26",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "M/616/4146",
+      "title": "50 Diabetes awareness",
+      "level": "3",
+      "glh": "46",
+      "credit_value": "6"
+    },
+    {
+      "unit_ref": "H/616/4662",
+      "title": "51",
+      "level": "3",
+      "glh": "29",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "K/616/4663",
+      "title": "52",
+      "level": "3",
+      "glh": "29",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "M/616/4664",
+      "title": "53",
+      "level": "2",
+      "glh": "27",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "T/616/4665",
+      "title": "54",
+      "level": "2",
+      "glh": "25",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "A/616/4666",
+      "title": "55",
+      "level": "2",
+      "glh": "23",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "D/616/4143",
+      "title": "56 Stroke awareness",
+      "level": "2",
+      "glh": "28",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "F/616/4667",
+      "title": "57 Understand stroke care management",
+      "level": "3",
+      "glh": "36",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "J/616/4668",
+      "title": "58",
+      "level": "2",
+      "glh": "19",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "H/616/8632",
+      "title": "59 Provide agreed support for foot care",
+      "level": "2",
+      "glh": "23",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "T/616/4133",
+      "title": "60",
+      "level": "3",
+      "glh": "22",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "D/616/4191",
+      "title": "61",
+      "level": "3",
+      "glh": "44",
+      "credit_value": "6"
+    },
+    {
+      "unit_ref": "F/616/4670",
+      "title": "62",
+      "level": "3",
+      "glh": "25",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "J/616/4671",
+      "title": "63",
+      "level": "2",
+      "glh": "17",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "R/616/4673",
+      "title": "64 interaction with individuals who have",
+      "level": "2",
+      "glh": "18",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "Y/616/4674",
+      "title": "65 inclusion in dementia care",
+      "level": "2",
+      "glh": "20",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "A/616/4246",
+      "title": "66",
+      "level": "3",
+      "glh": "15",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "M/616/4132",
+      "title": "68",
+      "level": "3",
+      "glh": "23",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "A/616/4084",
+      "title": "69 Understand the context of supporting",
+      "level": "3",
+      "glh": "35",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "M/616/4678",
+      "title": "70",
+      "level": "2",
+      "glh": "20",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "A/616/4134",
+      "title": "71 maintain personal hygiene",
+      "level": "2",
+      "glh": "10",
+      "credit_value": "1"
+    },
+    {
+      "unit_ref": "T/616/4679",
+      "title": "72",
+      "level": "2",
+      "glh": "23",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "H/616/4497",
+      "title": "73",
+      "level": "3",
+      "glh": "21",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "H/616/4354",
+      "title": "74",
+      "level": "3",
+      "glh": "30",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "K/616/4680",
+      "title": "75",
+      "level": "3",
+      "glh": "26",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "M/616/4681",
+      "title": "76",
+      "level": "2",
+      "glh": "19",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "T/616/4682",
+      "title": "77 Introductory awareness of sensory loss",
+      "level": "2",
+      "glh": "16",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "A/616/4683",
+      "title": "78 disability",
+      "level": "2",
+      "glh": "15",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "F/616/4684",
+      "title": "79",
+      "level": "2",
+      "glh": "19",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "J/616/4685",
+      "title": "80",
+      "level": "2",
+      "glh": "25",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "L/616/4154",
+      "title": "81 with dementia whilst minimising risks",
+      "level": "3",
+      "glh": "26",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "R/616/4155",
+      "title": "82",
+      "level": "3",
+      "glh": "30",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "L/616/4686",
+      "title": "83",
+      "level": "2",
+      "glh": "14",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "R/616/4687",
+      "title": "84",
+      "level": "2",
+      "glh": "14",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "Y/616/4688",
+      "title": "85 development activities",
+      "level": "2",
+      "glh": "23",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "D/616/4689",
+      "title": "86",
+      "level": "2",
+      "glh": "37",
+      "credit_value": "5"
+    },
+    {
+      "unit_ref": "D/616/4241",
+      "title": "87 Provide support for journeys",
+      "level": "2",
+      "glh": "17",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "R/616/4690",
+      "title": "88",
+      "level": "2",
+      "glh": "20",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "Y/616/4691",
+      "title": "89",
+      "level": "2",
+      "glh": "13",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "Y/616/4707",
+      "title": "90",
+      "level": "2",
+      "glh": "14",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "D/616/4708",
+      "title": "91 activities",
+      "level": "2",
+      "glh": "23",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "Y/616/4710",
+      "title": "92 providing food and drink for individuals",
+      "level": "2",
+      "glh": "15",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "H/616/4824",
+      "title": "93",
+      "level": "3",
+      "glh": "27",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "H/616/4175",
+      "title": "94",
+      "level": "3",
+      "glh": "45",
+      "credit_value": "6"
+    },
+    {
+      "unit_ref": "M/616/4177",
+      "title": "95 Support individuals to live at home",
+      "level": "3",
+      "glh": "29",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "T/616/4083",
+      "title": "96",
+      "level": "3",
+      "glh": "30",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "Y/616/4089",
+      "title": "97 support individuals",
+      "level": "3",
+      "glh": "27",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "H/616/4192",
+      "title": "98 settings",
+      "level": "3",
+      "glh": "40",
+      "credit_value": "5"
+    },
+    {
+      "unit_ref": "L/616/4350",
+      "title": "99 feeding techniques",
+      "level": "3",
+      "glh": "27",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "A/616/4716",
+      "title": "100 planning",
+      "level": "2",
+      "glh": "34",
+      "credit_value": "5"
+    },
+    {
+      "unit_ref": "F/616/4717",
+      "title": "101",
+      "level": "2",
+      "glh": "27",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "L/616/4204",
+      "title": "102",
+      "level": "2",
+      "glh": "17",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "J/616/4718",
+      "title": "103 Support parents with disabilities",
+      "level": "3",
+      "glh": "43",
+      "credit_value": "6"
+    },
+    {
+      "unit_ref": "L/616/4719",
+      "title": "104 support",
+      "level": "3",
+      "glh": "35",
+      "credit_value": "5"
+    },
+    {
+      "unit_ref": "F/616/4720",
+      "title": "105",
+      "level": "2",
+      "glh": "21",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "L/616/4722",
+      "title": "106",
+      "level": "2",
+      "glh": "32",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "J/617/3788",
+      "title": "107",
+      "level": "2",
+      "glh": "22",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "H/616/4080",
+      "title": "108 of dementia",
+      "level": "3",
+      "glh": "22",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "M/616/4079",
+      "title": "109 Care for the elderly",
+      "level": "2",
+      "glh": "10",
+      "credit_value": "2"
+    },
+    {
+      "unit_ref": "L/616/8544",
+      "title": "110",
+      "level": "2",
+      "glh": "28",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "D/616/8547",
+      "title": "111",
+      "level": "3",
+      "glh": "25",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "F/616/4071",
+      "title": "112",
+      "level": "3",
+      "glh": "19",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "F/616/4085",
+      "title": "113 Awareness of the Mental Capacity Act",
+      "level": "3",
+      "glh": "28",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "K/616/8549",
+      "title": "114",
+      "level": "2",
+      "glh": "30",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "D/616/8550",
+      "title": "115",
+      "level": "2",
+      "glh": "28",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "H/616/8551",
+      "title": "116",
+      "level": "2",
+      "glh": "35",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "K/616/8552",
+      "title": "117",
+      "level": "2",
+      "glh": "25",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "M/616/8553",
+      "title": "118",
+      "level": "2",
+      "glh": "25",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "A/616/4215",
+      "title": "119",
+      "level": "3",
+      "glh": "33",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "T/616/8554",
+      "title": "120",
+      "level": "2",
+      "glh": "35",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "A/616/8555",
+      "title": "121",
+      "level": "2",
+      "glh": "25",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "D/616/8712",
+      "title": "122 Understanding mental health",
+      "level": "2",
+      "glh": "40",
+      "credit_value": "4"
+    },
+    {
+      "unit_ref": "F/616/8556",
+      "title": "123 Support mental health and well-being",
+      "level": "2",
+      "glh": "25",
+      "credit_value": "3"
+    },
+    {
+      "unit_ref": "J/616/8557",
+      "title": "with sensory loss",
+      "level": "3",
+      "glh": "22",
+      "credit_value": "3"
+    }
+  ]
+}
