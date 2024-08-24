@@ -104,23 +104,13 @@ class FormTemplateController {
             const qb = formTemplateRepository.createQueryBuilder('formtemplate');
 
             const [forms, count] = await qb
-                .skip(Number(req.pagination.skip))
-                .take(Number(req.pagination.limit))
                 .orderBy(`formtemplate.created_at`, "DESC")
                 .getManyAndCount();
 
             return res.status(200).json({
                 message: 'Form Template retrieved successfully',
                 status: true,
-                data: forms,
-                ...(req.query.meta === "true" && {
-                    meta_data: {
-                        page: req.pagination.page,
-                        items: count,
-                        page_size: req.pagination.limit,
-                        pages: Math.ceil(count / req.pagination.limit)
-                    }
-                })
+                data: forms
             });
         } catch (error) {
             return res.status(500).json({

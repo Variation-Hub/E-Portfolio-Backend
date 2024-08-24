@@ -10,7 +10,7 @@ const Controller = new FormTemplateController();
 
 FormTemplateRoutes.post('/create', authorizeRoles(UserRole.Admin), Controller.CreateFormTemplate);
 FormTemplateRoutes.get("/get/:id", authorizeRoles(), Controller.getFormTemplate);
-FormTemplateRoutes.get("/list", authorizeRoles(), paginationMiddleware, Controller.getFormTemplates);
+FormTemplateRoutes.get("/list", authorizeRoles(), Controller.getFormTemplates);
 FormTemplateRoutes.patch("/update/:id", authorizeRoles(UserRole.Admin), Controller.updateFormTemplate);
 FormTemplateRoutes.delete("/delete/:id", authorizeRoles(UserRole.Admin), Controller.deleteFormTemplate);
 
