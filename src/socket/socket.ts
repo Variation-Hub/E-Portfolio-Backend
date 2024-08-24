@@ -50,6 +50,14 @@ export function initSocket(server): void {
     const wss = new WebSocket.Server({ server });
 
     wss.on('connection', connection);
+
+    setInterval(() => {
+        wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ data: "", domain: "" }))
+            }
+        })
+    }, 25000)
 }
 
 export function sendDataToUser(userIds: number[], data: any): void {
