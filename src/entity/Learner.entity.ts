@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable, DeleteDateColumn } from 'typeorm';
 import { User } from './User.entity';
-import { Course } from './Course.entity';
 import { Session } from './Session.entity';
 
 @Entity('learner')
@@ -29,6 +28,12 @@ export class Learner {
 
   @Column({ type: 'varchar', nullable: true })
   national_ins_no: string;
+
+  @Column({ type: 'integer', nullable: true })
+  employer_id: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  funding_body: string;
 
   // @Column({ type: 'varchar' })
   // ethnicity: string;
@@ -62,12 +67,6 @@ export class Learner {
 
   // @Column({ type: 'enum', enum: ["UK", "USA"], default: "UK" })
   // country_of_domicile: string;
-
-  @Column({ type: 'integer', nullable: true })
-  employer_id: number;
-
-  @Column({ type: 'varchar', nullable: true })
-  funding_body: string;
 
   @ManyToMany(() => Session, session => session.learners)
   sessions: Session[];

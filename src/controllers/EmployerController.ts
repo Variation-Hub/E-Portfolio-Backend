@@ -33,7 +33,11 @@ class EmployerController {
                 key_contact,
                 business_description,
                 comments,
-                email
+                email,
+                assessment_date,
+                assessment_renewal_date,
+                insurance_renewal_date,
+                file
             } = req.body
             if (!employer_name ||
                 !msi_employer_id ||
@@ -94,6 +98,10 @@ class EmployerController {
                 key_contact,
                 business_description,
                 comments,
+                assessment_date,
+                assessment_renewal_date,
+                insurance_renewal_date,
+                file
             }));
 
             let user = userRepository.create({
@@ -159,6 +167,10 @@ class EmployerController {
                     "employer.key_contact",
                     "employer.business_description",
                     "employer.comments",
+                    "employer.assessment_date",
+                    "employer.assessment_renewal_date",
+                    "employer.insurance_renewal_date",
+                    "employer.file",
                     "employer.deleted_at",
                     "employer.created_at",
                     "employer.updated_at",

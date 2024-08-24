@@ -67,6 +67,18 @@ export class Employer {
   @Column({ type: 'varchar' })
   comments: string;
 
+  @Column({ type: 'timestamp', nullable: true })
+  assessment_date: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  assessment_renewal_date: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  insurance_renewal_date: Date;
+
+  @Column({ type: 'json', nullable: true })
+  file: object;
+
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deleted_at: Date;
 
