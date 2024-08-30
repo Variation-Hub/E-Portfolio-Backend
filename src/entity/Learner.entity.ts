@@ -74,6 +74,15 @@ export class Learner {
   @Column({ type: 'varchar', nullable: true })
   Initial_Assessment_ICT: string;
 
+  @Column({ type: 'timestamp', nullable: true })
+  functional_skills: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  technical_certificate: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  err: Date;
+
   @Column({ type: 'varchar', nullable: true })
   street: string;
 
