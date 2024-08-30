@@ -71,6 +71,18 @@ export enum TimeLogType {
     OffTheJob = "Off the job"
 }
 
+export enum CourseStatus {
+    AwaitingInduction = "Awaiting Induction",
+    Certificated = "Certificated",
+    Completed = "Completed",
+    EarlyLeaver = "Early Leaver",
+    Exempt = "Exempt",
+    InTraining = "In Training",
+    IQAApproved = "IQA Approved",
+    TrainingSuspended = "Training Suspended",
+    Transferred = "Transferred",
+}
+
 export const SocketDomain = {
     Notification: "notification",
     Message: "message",

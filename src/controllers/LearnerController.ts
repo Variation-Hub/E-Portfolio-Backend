@@ -385,10 +385,6 @@ class LearnerController {
             const learnerRepository = AppDataSource.getRepository(Learner);
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
             const workbook = XLSX.utils.book_new();
-            // const learners = await learnerRepository.find();
-
-            // Convert the data to an array of arrays format
-            // console.log(learners)
 
 
             let usercourses = await userCourseRepository.createQueryBuilder("user_course")
@@ -403,25 +399,8 @@ class LearnerController {
 
             const qb = learnerRepository.createQueryBuilder("learner")
                 .leftJoinAndSelect('learner.user_id', "user_id")
-                .select([
-                    'learner.learner_id',
-                    'learner.first_name',
-                    'learner.last_name',
-                    'learner.user_name',
-                    'learner.email',
-                    'learner.mobile',
-                    'learner.national_ins_no',
-                    'learner.employer_id',
-                    'learner.funding_body',
-                    'learner.created_at',
-                    'learner.updated_at',
-                    'user_id.user_id',
-                    'user_id.avatar'
-                ])
 
             const [learner, count] = await qb
-                // .skip(Number(req.pagination.skip))
-                // .take(Number(req.pagination.limit))
                 .orderBy("learner.learner_id", "ASC")
                 .getManyAndCount();
 
@@ -443,23 +422,26 @@ class LearnerController {
 
             console.log(formattedLearners)
             const worksheetData = [
-                ['UserName', 'Learner Firstname', 'Learner Lastname', 'Course', 'Percent Complete', 'Course Status', 'Course Start', 'Course End', 'Job Title', 'Location', 'Email', 'National Insurance No', 'Date of Birth', 'Sex', 'Ethnicity', 'Home Postcode', 'Telephone Number', 'Mobile', 'Disability', 'Learning Difficulty', 'Manager', 'Manager Job Title', 'Mentor', 'Comments', 'Company Name', 'Address line 1', 'Address line 2', 'Address 3', 'Address 4', 'Town', 'Postcode', 'Co-ordinator', 'Company Telephone', 'Co-ordinator Email', 'Assessor', 'archived', 'Assessor First Name', 'Assessor Last Name', 'Awarding Body', 'Registration Date', 'Registration Number', 'Contract', 'PartnerName'], // Headers
-                ...formattedLearners.map((learner: any) => [learner?.user_name, learner?.first_name, learner?.last_name]) // Rows
+                ['UserName', 'Learner Firstname', 'Learner Lastname', 'Course', 'Percent Complete', 'Course Status', 'Course Start', 'Course End', 'Job Title', 'Location', 'Email', 'National Insurance No', 'Date of Birth', 'Sex', 'Ethnicity', 'Home Postcode', 'Telephone Number', 'Mobile', 'Disability', 'Learning Difficulty', 'Manager', 'Manager Job Title', 'Mentor', 'Comments', 'Company Name', 'Address line 1', 'Address line 2', 'Address 3', 'Address 4', 'Town', 'Postcode', 'Co-ordinator', 'Company Telephone', 'Co-ordinator Email', 'Assessor', 'archived', 'Assessor First Name', 'Assessor Last Name', 'Awarding Body', 'Registration Date', 'Registration Number', 'Contract', 'PartnerName'],
+                ...formattedLearners.map((learner: any) => [
+                    learner.user_name, learner.first_name, learner.last_name,
+                    learner.course.map(course => course.course_name).join(', '),
+                    learner.email, learner.national_ins_no, learner.dob, learner.gender, learner.ethnicity,
+                    learner.learner_disability, learner.learner_difficulity, learner.job_title, learner.location,
+                    learner.manager_name, learner.manager_job_title, learner.mentor,
+                    learner.employer_id?.name, learner.street, learner.town, learner.country,
+                    learner.home_postcode, learner.telephone, learner.mobile, learner.created_at
+                ])
             ];
 
-            // const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+            const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+            const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
 
-            // // Add the worksheet to the workbook
-            // XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
-            // // Write the Excel file to a buffer
-            // const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
-
-            // // Set the headers and send the file
-            // res.setHeader('Content-Disposition', 'attachment; filename="example.xlsx"');
-            // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            // res.send(buffer);
-            res.send(formattedLearners);
+            res.setHeader('Content-Disposition', 'attachment; filename="example.xlsx"');
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.send(buffer);
+            // res.send(formattedLearners);
         } catch (error) {
             return res.status(500).json({
                 message: 'Internal Server Error',

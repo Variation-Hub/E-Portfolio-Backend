@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Learner } from './Learner.entity';
 import { User } from './User.entity';
+import { CourseStatus } from '../util/constants';
 
 
 @Entity('user_course')
@@ -40,6 +41,13 @@ export class UserCourse {
 
     @Column({ type: 'timestamp', nullable: false })
     end_date: Date;
+
+    @Column({
+        type: 'enum',
+        enum: CourseStatus,
+        default: CourseStatus.AwaitingInduction
+    })
+    course_status: CourseStatus;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
