@@ -8,6 +8,13 @@ export enum UserRole {
     Admin = 'Admin',
 }
 
+export enum Gender {
+    Male = 'Male',
+    Female = 'Female',
+    NonBinary = 'Non-Binary',
+    Other = 'Other'
+}
+
 export enum AssessmentMethod {
     WO = 'WO',
     WP = 'WP',

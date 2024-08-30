@@ -73,7 +73,7 @@ class LearnerController {
 
     public async getLearnerList(req: Request, res: Response): Promise<Response> {
         try {
-            const { user_id, role, course_id } = req.query as any;
+            const { user_id, role, course_id, employer_id, } = req.query as any;
             const learnerRepository = AppDataSource.getRepository(Learner);
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
 
@@ -107,11 +107,28 @@ class LearnerController {
                     learnerIdsArray = (await qbUserCourseForLearnerIds
                         .andWhere('user_course.course ->> \'course_id\' = :course_id', { course_id })
                         .getMany()).map(userCourse => userCourse?.learner_id?.learner_id);
+
+                    if (learnerIdsArray.length < 1) {
+                        return res.status(200).json({
+                            message: "Learner fetched successfully",
+                            status: true,
+                            data: [],
+                            ...(req.query.meta === "true" && {
+                                meta_data: {
+                                    page: req.pagination.page,
+                                    items: 0,
+                                    page_size: req.pagination.limit,
+                                    pages: Math.ceil(0 / req.pagination.limit)
+                                }
+                            })
+                        })
+                    }
                 }
                 usercourses = await qbUserCourse.getMany();
             }
             const qb = learnerRepository.createQueryBuilder("learner")
                 .leftJoinAndSelect('learner.user_id', "user_id")
+                .leftJoinAndSelect('learner.employer_id', "employer")
                 .select([
                     'learner.learner_id',
                     'learner.first_name',
@@ -125,11 +142,16 @@ class LearnerController {
                     'learner.created_at',
                     'learner.updated_at',
                     'user_id.user_id',
-                    'user_id.avatar'
+                    'user_id.avatar',
+                    'employer.employer_id',
+                    'employer.employer_name'
                 ])
 
             if (req.query.keyword) {
                 qb.andWhere("(learner.email ILIKE :keyword OR learner.user_name ILIKE :keyword OR learner.first_name ILIKE :keyword OR learner.last_name ILIKE :keyword)", { keyword: `${req.query.keyword}%` });
+            }
+            if (employer_id) {
+                qb.andWhere("learner.employer_id = :employer_id", { employer_id });
             }
             if ((role && user_id && learnerIdsArray.length) || (course_id && learnerIdsArray.length)) {
                 qb.andWhere('learner.learner_id IN (:...learnerIdsArray)', { learnerIdsArray })

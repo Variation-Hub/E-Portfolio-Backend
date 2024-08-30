@@ -2,10 +2,16 @@ import { Response } from "express";
 import { AppDataSource } from "../data-source";
 import { CustomRequest } from "../util/Interface/expressInterface";
 import { Support, SupportStatus } from "../entity/Support.entity";
+import { User } from "../entity/User.entity";
+import { SocketDomain } from "../util/constants";
+import { SendNotifications } from "../util/socket/notification";
 
 class SupportController {
     public async createSupport(req: CustomRequest, res: Response) {
         try {
+            const supportRepository = AppDataSource.getRepository(Support);
+            const userRepository = AppDataSource.getRepository(User);
+
             const { request_id, title, description } = req.body;
             if (!request_id || !title || !description) {
                 return res.status(400).json({
@@ -13,7 +19,13 @@ class SupportController {
                     status: false,
                 });
             }
-            const supportRepository = AppDataSource.getRepository(Support);
+            const user = await userRepository.findOneBy({ user_id: request_id });
+            if (!user) {
+                return res.status(404).json({
+                    message: "User not found",
+                    status: false
+                });
+            }
 
             const support = supportRepository.create({
                 request_id: request_id,
@@ -22,6 +34,25 @@ class SupportController {
             });
 
             const savedSupport = await supportRepository.save(support);
+
+            const adminUsers = await userRepository.createQueryBuilder('user')
+                .where(':role = ANY(user.roles)', { role: 'Admin' })
+                .getMany();
+
+            const uniqueUserIdSet = new Set<number>();
+            adminUsers.forEach(element => {
+                uniqueUserIdSet.add(element.user_id);
+            });
+
+            const userIds = Array.from(uniqueUserIdSet).filter(a => a)
+            const data = {
+                data: {
+                    title: "New Support request",
+                    message: `${user.first_name + " " + user.last_name} create new support request ${savedSupport.title}`
+                },
+                domain: SocketDomain.Notification
+            }
+            SendNotifications(userIds, data)
             res.status(200).json({
                 message: "Support request created successfully",
                 status: true,
