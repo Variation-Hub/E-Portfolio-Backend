@@ -73,7 +73,7 @@ class LearnerController {
 
     public async getLearnerList(req: Request, res: Response): Promise<Response> {
         try {
-            const { user_id, role, course_id, employer_id, } = req.query as any;
+            const { user_id, role, course_id, employer_id, status } = req.query as any;
             const learnerRepository = AppDataSource.getRepository(Learner);
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
 
@@ -210,6 +210,7 @@ class LearnerController {
             const learner: any = await learnerRepository
                 .createQueryBuilder('learner')
                 .leftJoin('learner.user_id', 'user')
+                .leftJoinAndSelect('learner.employer_id', 'employer')
                 .addSelect(['user.user_id', 'user.user_name', 'user.avatar'])
                 .where('learner.learner_id = :learner_id', { learner_id })
                 .getOne();
@@ -397,15 +398,16 @@ class LearnerController {
                 .leftJoinAndSelect(`employer_id.employer`, `employer`)
                 .getMany();
 
-            const qb = learnerRepository.createQueryBuilder("learner")
+            const learners = await learnerRepository.createQueryBuilder("learner")
+                .withDeleted()
                 .leftJoinAndSelect('learner.user_id', "user_id")
+                .orderBy('CASE WHEN learner.deleted_at IS NULL THEN 0 ELSE 1 END', 'ASC')
+                .addOrderBy("learner.learner_id", "ASC")
+                .getMany();
 
-            const [learner, count] = await qb
-                .orderBy("learner.learner_id", "ASC")
-                .getManyAndCount();
 
             let formattedLearners
-            formattedLearners = learner.map((learner: any) => ({
+            formattedLearners = learners.map((learner: any) => ({
                 ...learner,
                 user_id: learner.user_id.user_id,
                 avatar: learner.user_id?.avatar?.url,
@@ -419,22 +421,77 @@ class LearnerController {
                 formattedLearners[index].course = await getCourseData(formattedLearners[index]?.course, formattedLearners[index].user_id);
             }
 
+            const learnerData = [];
+            formattedLearners.forEach(learner => {
+                if (learner.course.length) {
+                    learner.course.forEach(course => {
+                        learnerData.push(formateLearnerAndCourseData(learner, course))
+                    });
+                } else {
+                    learnerData.push(formateLearnerAndCourseData(learner))
+                }
+            });
 
-            console.log(formattedLearners)
             const worksheetData = [
-                ['UserName', 'Learner Firstname', 'Learner Lastname', 'Course', 'Percent Complete', 'Course Status', 'Course Start', 'Course End', 'Job Title', 'Location', 'Email', 'National Insurance No', 'Date of Birth', 'Sex', 'Ethnicity', 'Home Postcode', 'Telephone Number', 'Mobile', 'Disability', 'Learning Difficulty', 'Manager', 'Manager Job Title', 'Mentor', 'Comments', 'Company Name', 'Address line 1', 'Address line 2', 'Address 3', 'Address 4', 'Town', 'Postcode', 'Co-ordinator', 'Company Telephone', 'Co-ordinator Email', 'Assessor', 'archived', 'Assessor First Name', 'Assessor Last Name', 'Awarding Body', 'Registration Date', 'Registration Number', 'Contract', 'PartnerName'],
-                ...formattedLearners.map((learner: any) => [
-                    learner.user_name, learner.first_name, learner.last_name,
-                    learner.course.map(course => course.course_name).join(', '),
-                    learner.email, learner.national_ins_no, learner.dob, learner.gender, learner.ethnicity,
-                    learner.learner_disability, learner.learner_difficulity, learner.job_title, learner.location,
-                    learner.manager_name, learner.manager_job_title, learner.mentor,
-                    learner.employer_id?.name, learner.street, learner.town, learner.country,
-                    learner.home_postcode, learner.telephone, learner.mobile, learner.created_at
-                ])
+                ['UserName',
+                    'Learner Firstname',
+                    'Learner Lastname',
+                    'FundingContractor',
+                    'Course',
+                    'Percent Complete',
+                    'Course Status',
+                    'Course Start',
+                    'Course End',
+                    'Job Title',
+                    'Location',
+                    'Email',
+                    'National Insurance No',
+                    'Date of Birth',
+                    'Sex',
+                    'Ethnicity',
+                    'Home Postcode',
+                    'Telephone Number',
+                    'Mobile',
+                    'Disability',
+                    'Learning Difficulty',
+                    'Manager',
+                    'Manager Job Title',
+                    'Mentor',
+                    'Comments',
+                    'Company Name',
+                    'Address line 1',
+                    'Address line 2',
+                    'Address 3',
+                    'Address 4',
+                    'Town',
+                    'Postcode',
+                    'Co-ordinator',
+                    'Company Telephone',
+                    'Co-ordinator Email',
+                    'Assessor',
+                    'archived',
+                    'Assessor First Name',
+                    'Assessor Last Name',
+                    'Awarding Body',
+                    'Registration Date',
+                    'Registration Number',
+                    'Contract',
+                    'PartnerName'],
+                ...learnerData
             ];
 
             const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+            const columnWidths = worksheetData[0].map((_, colIndex) => {
+                const maxLength = worksheetData.reduce((max, row) => {
+                    const cell = row[colIndex];
+                    const cellLength = cell ? cell.toString().length : 0;
+                    return Math.max(max, cellLength);
+                }, 0);
+                return { wch: maxLength + 2 };
+            });
+
+            worksheet['!cols'] = columnWidths;
+
             XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
             const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
 
@@ -509,4 +566,102 @@ const getCourseData = async (courses: any[], user_id: string) => {
         console.log(error, "Error in getting course data");
         return [];
     }
+}
+
+const formateLearnerAndCourseData = (learner, course: any = {}) => {
+    const percentComplete = ((course.totalSubUnits && course.fullyCompleted)
+        ? (course.totalSubUnits / course.fullyCompleted) * 100
+        : 0).toFixed(2) + ' %';
+    const archived = learner?.deleted_at ? "TRUE" : "FALSE";
+
+    return [
+        learner.user_name,
+        learner.first_name,
+        learner.last_name,
+        '',
+        course?.course?.course_name ?? '',
+        percentComplete,
+        course?.course_status ?? '',
+        course?.start_date ?? '',
+        course?.end_date ?? '',
+        learner.job_title,
+        learner.location,
+        learner.location,
+        learner.national_ins_no,
+        learner.dob,
+        learner.gender,
+        learner.ethnicity,
+        learner.home_postcode,
+        learner.telephone,
+        learner.mobile,
+        learner.learner_disability,
+        learner.manager_name,
+        learner.manager_job_title,
+        learner.mentor,
+        '', //Comments
+        '', //Company Name
+        '', //Address line 1
+        '', //Address line 2
+        '', //Address 3
+        '', //Address 4
+        learner.town,
+        '', //Postcode
+        '', //Co-ordinator
+        '', //Company Telephone
+        '', //Co-ordinator Email
+        course?.trainer_id?.email ?? '',
+        archived,
+        course?.trainer_id?.first_name ?? '',
+        course?.trainer_id?.last_name ?? '',
+        '', //Awarding Body
+        '', //Registration Date
+        '', //Registration Number
+        '', //Contract
+        'Locker E-SOftware', //PartnerName
+    ]
+
+    const data = ['UserName',
+        'Learner Firstname',
+        'Learner Lastname',
+        'FundingContractor',
+        'Course',
+        'Percent Complete',
+        'Course Status',
+        'Course Start',
+        'Course End',
+        'Job Title',
+        'Location',
+        'Email',
+        'National Insurance No',
+        'Date of Birth',
+        'Sex',
+        'Ethnicity',
+        'Home Postcode',
+        'Telephone Number',
+        'Mobile',
+        'Disability',
+        'Learning Difficulty',
+        'Manager',
+        'Manager Job Title',
+        'Mentor',
+        'Comments',
+        'Company Name',
+        'Address line 1',
+        'Address line 2',
+        'Address 3',
+        'Address 4',
+        'Town',
+        'Postcode',
+        'Co-ordinator',
+        'Company Telephone',
+        'Co-ordinator Email',
+        'Assessor',
+        'archived',
+        'Assessor First Name',
+        'Assessor Last Name',
+        'Awarding Body',
+        'Registration Date',
+        'Registration Number',
+        'Contract',
+        'PartnerName']
 }

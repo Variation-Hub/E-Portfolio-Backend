@@ -24,23 +24,7 @@ class CourseController {
 
             const courseRepository = AppDataSource.getRepository(Course);
 
-            const obj: any = {
-                course_name: data.course_name,
-                level: data.level,
-                sector: data.sector,
-                qualification_type: data['qualification_type'],
-                recommended_minimum_age: parseInt(data['recommended_minimum_age']),
-                total_credits: parseInt(data['total_credits']),
-                operational_start_date: new Date(data['operational_start_date']),
-                brand_guidelines: data['brand_guidelines'],
-                qualification_status: data['qualification_status'],
-                overall_grading_type: data['overall_grading_type'],
-                // permitted_delivery_types: data['permitted_delivery_types'],
-                guided_learning_hours: data['guided_learning_hours'],
-                course_code: data['course_code'],
-                units: data['units'],
-            }
-            const course = courseRepository.create(obj);
+            const course = courseRepository.create(data);
             const savedCourse: any = await courseRepository.save(course);
 
             res.status(200).json({

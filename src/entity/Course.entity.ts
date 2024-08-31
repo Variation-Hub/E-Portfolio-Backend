@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 import { Resource } from './Resource.entity';
+import { CourseType } from '../util/constants';
 
 @Entity('course')
 export class Course {
@@ -41,6 +42,12 @@ export class Course {
 
     @Column({ type: 'varchar', nullable: true })
     overall_grading_type: string;
+
+    @Column({
+        type: 'enum',
+        enum: CourseType,
+    })
+    course_type: CourseType;
 
     @Column({ type: 'json', nullable: true })
     units: Object[]
