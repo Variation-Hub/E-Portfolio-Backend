@@ -278,7 +278,7 @@ class LearnerController {
             return res.status(200).json({
                 message: 'Learner retrieved successfully',
                 status: true,
-                data: { ...learner, ...learner.user_id, avatar: learner.user_id?.avatar?.url, course: courses },
+                data: { ...learner, ...learner.user_id, avatar: learner.user_id?.avatar?.url, course: courses, employer_id: learner.employer_id.employer_id },
             });
         } catch (error) {
             return res.status(500).json({
@@ -484,12 +484,21 @@ class LearnerController {
             const columnWidths = worksheetData[0].map((_, colIndex) => {
                 const maxLength = worksheetData.reduce((max, row) => {
                     const cell = row[colIndex];
-                    const cellLength = cell ? cell.toString().length : 0;
+                    let cellLength = 0;
+
+                    if (cell) {
+                        if (cell instanceof Date) {
+                            cellLength = 10;
+                        } else {
+                            cellLength = cell.toString().length;
+                        }
+                    }
+
                     return Math.max(max, cellLength);
                 }, 0);
+
                 return { wch: maxLength + 2 };
             });
-
             worksheet['!cols'] = columnWidths;
 
             XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
@@ -569,9 +578,11 @@ const getCourseData = async (courses: any[], user_id: string) => {
 }
 
 const formateLearnerAndCourseData = (learner, course: any = {}) => {
-    const percentComplete = ((course.totalSubUnits && course.fullyCompleted)
-        ? (course.totalSubUnits / course.fullyCompleted) * 100
-        : 0).toFixed(2) + ' %';
+    const percentComplete = Math.trunc(((course.totalSubUnits && course.fullyCompleted)
+        ? (course.fullyCompleted / course.totalSubUnits) * 100
+        : 0)) + ' %';
+
+    console.log(course.totalSubUnits, course.fullyCompleted, percentComplete)
     const archived = learner?.deleted_at ? "TRUE" : "FALSE";
 
     return [
@@ -586,7 +597,7 @@ const formateLearnerAndCourseData = (learner, course: any = {}) => {
         course?.end_date ?? '',
         learner.job_title,
         learner.location,
-        learner.location,
+        learner.email,
         learner.national_ins_no,
         learner.dob,
         learner.gender,
@@ -595,6 +606,7 @@ const formateLearnerAndCourseData = (learner, course: any = {}) => {
         learner.telephone,
         learner.mobile,
         learner.learner_disability,
+        learner.learner_difficulity,
         learner.manager_name,
         learner.manager_job_title,
         learner.mentor,
@@ -617,7 +629,7 @@ const formateLearnerAndCourseData = (learner, course: any = {}) => {
         '', //Registration Date
         '', //Registration Number
         '', //Contract
-        'Locker E-SOftware', //PartnerName
+        'Locker E-Software', //PartnerName
     ]
 
     const data = ['UserName',
