@@ -73,7 +73,8 @@ class LearnerController {
 
     public async getLearnerList(req: Request, res: Response): Promise<Response> {
         try {
-            const { user_id, role, course_id, employer_id, status } = req.query as any;
+            let { user_id, role, course_id, employer_id, status } = req.query as any;
+            status = status?.split(", ") || [];
             const learnerRepository = AppDataSource.getRepository(Learner);
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
 
@@ -87,6 +88,38 @@ class LearnerController {
                 .leftJoinAndSelect(`user_course.EQA_id`, `EQA_id`)
                 .leftJoinAndSelect(`user_course.employer_id`, `employer_id`)
                 .leftJoinAndSelect(`employer_id.employer`, `employer`)
+
+            const qb = learnerRepository.createQueryBuilder("learner")
+                // .leftJoinAndSelect('learner.user_id', "user_id")
+                .leftJoinAndSelect('learner.user_id', "user_id", 'user_id.deleted_at IS NULL OR user_id.deleted_at IS NOT NULL')
+                .leftJoinAndSelect('learner.employer_id', "employer")
+                .select([
+                    'learner.learner_id',
+                    'learner.first_name',
+                    'learner.last_name',
+                    'learner.user_name',
+                    'learner.email',
+                    'learner.mobile',
+                    'learner.national_ins_no',
+                    'learner.employer_id',
+                    'learner.funding_body',
+                    'learner.deleted_at',
+                    'learner.created_at',
+                    'learner.updated_at',
+                    'user_id.user_id',
+                    'user_id.avatar',
+                    'user_id.deleted_at',
+                    'employer.employer_id',
+                    'employer.employer_name'
+                ])
+
+            if (status.includes("Show only archived users")) {
+                qb
+                    .withDeleted()
+                    .andWhere("learner.deleted_at IS NOT NULL")
+            } else if (status.length) {
+                qbUserCourse.andWhere("user_course.course_status = :status", { status });
+            }
 
             if (user_id && role) {
                 const obj: any = {
@@ -124,28 +157,13 @@ class LearnerController {
                         })
                     }
                 }
+                if (status.length) {
+                    const qbUserCourseForLearnerIds = qbUserCourse.clone();
+                    learnerIdsArray = (await qbUserCourseForLearnerIds
+                        .getMany()).map(userCourse => userCourse?.learner_id?.learner_id);
+                }
                 usercourses = await qbUserCourse.getMany();
             }
-            const qb = learnerRepository.createQueryBuilder("learner")
-                .leftJoinAndSelect('learner.user_id', "user_id")
-                .leftJoinAndSelect('learner.employer_id', "employer")
-                .select([
-                    'learner.learner_id',
-                    'learner.first_name',
-                    'learner.last_name',
-                    'learner.user_name',
-                    'learner.email',
-                    'learner.mobile',
-                    'learner.national_ins_no',
-                    'learner.employer_id',
-                    'learner.funding_body',
-                    'learner.created_at',
-                    'learner.updated_at',
-                    'user_id.user_id',
-                    'user_id.avatar',
-                    'employer.employer_id',
-                    'employer.employer_name'
-                ])
 
             if (req.query.keyword) {
                 qb.andWhere("(learner.email ILIKE :keyword OR learner.user_name ILIKE :keyword OR learner.first_name ILIKE :keyword OR learner.last_name ILIKE :keyword)", { keyword: `${req.query.keyword}%` });
@@ -153,7 +171,7 @@ class LearnerController {
             if (employer_id) {
                 qb.andWhere("learner.employer_id = :employer_id", { employer_id });
             }
-            if ((role && user_id && learnerIdsArray.length) || (course_id && learnerIdsArray.length)) {
+            if ((role && user_id && learnerIdsArray.length) || (course_id && learnerIdsArray.length) || (status.length && learnerIdsArray.length)) {
                 qb.andWhere('learner.learner_id IN (:...learnerIdsArray)', { learnerIdsArray })
             } else if (role && user_id) {
                 qb.andWhere('0 = 1')
@@ -507,7 +525,7 @@ class LearnerController {
             res.setHeader('Content-Disposition', 'attachment; filename="example.xlsx"');
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.send(buffer);
-            // res.send(formattedLearners);
+
         } catch (error) {
             return res.status(500).json({
                 message: 'Internal Server Error',
@@ -582,7 +600,6 @@ const formateLearnerAndCourseData = (learner, course: any = {}) => {
         ? (course.fullyCompleted / course.totalSubUnits) * 100
         : 0)) + ' %';
 
-    console.log(course.totalSubUnits, course.fullyCompleted, percentComplete)
     const archived = learner?.deleted_at ? "TRUE" : "FALSE";
 
     return [
