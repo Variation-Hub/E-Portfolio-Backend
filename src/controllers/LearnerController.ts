@@ -8,6 +8,7 @@ import { CustomRequest } from "../util/Interface/expressInterface";
 import { UserCourse } from "../entity/UserCourse.entity";
 import { Assignment } from "../entity/Assignment.entity";
 import XLSX from 'xlsx';
+import { Employer } from "../entity/Employer.entity";
 
 
 class LearnerController {
@@ -329,6 +330,7 @@ class LearnerController {
             const learnerId: number = parseInt(req.params.id);
 
             const learnerRepository = AppDataSource.getRepository(Learner);
+            const employerRepository = AppDataSource.getRepository(Employer);
             const existingLearner = await learnerRepository.findOne({ where: { learner_id: learnerId } });
 
             if (!existingLearner) {
@@ -336,6 +338,17 @@ class LearnerController {
                     message: 'Learner not found',
                     status: false,
                 });
+            }
+
+            if (req.body.employer_id) {
+                const employer = await employerRepository.findOne({ where: { employer_id: req.body.employer_id } });
+                if (!employer) {
+                    return res.status(404).json({
+                        message: 'Employer not found',
+                        status: false,
+                    });
+                }
+                existingLearner.employer_id = employer;
             }
 
             learnerRepository.merge(existingLearner, req.body);
@@ -576,6 +589,35 @@ class LearnerController {
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.send(buffer);
 
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                error: error.message,
+                status: false,
+            });
+        }
+    }
+
+    public async getAdminDashboard(req: Request, res: Response): Promise<Response> {
+        try {
+            const learnerRepository = AppDataSource.getRepository(Learner);
+            const userCourseRepository = AppDataSource.getRepository(UserCourse);
+
+            const counts = await learnerRepository
+                .createQueryBuilder("learner")
+                .select([
+                    "COUNT(*) FILTER (WHERE learner.deleted_at IS NULL) AS activeLearnerCount",
+                    "COUNT(*) FILTER (WHERE learner.deleted_at IS NOT NULL) AS archivedLearnerCount"
+                ])
+                .getRawOne();
+
+            return res.status(200).json({
+                message: "Dashboard data fetched successfully",
+                status: true,
+                data: {
+                    ...counts
+                }
+            })
         } catch (error) {
             return res.status(500).json({
                 message: 'Internal Server Error',
