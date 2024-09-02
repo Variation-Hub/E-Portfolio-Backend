@@ -91,7 +91,7 @@ class LearnerController {
 
             const qb = learnerRepository.createQueryBuilder("learner")
                 // .leftJoinAndSelect('learner.user_id', "user_id")
-                .leftJoinAndSelect('learner.user_id', "user_id", 'user_id.deleted_at IS NULL OR user_id.deleted_at IS NOT NULL')
+                .leftJoinAndSelect('learner.user_id', "user_id", 'user_id.deleted_at IS NOT NULL OR user_id.deleted_at IS NULL')
                 .leftJoinAndSelect('learner.employer_id', "employer")
                 .select([
                     'learner.learner_id',
@@ -118,7 +118,7 @@ class LearnerController {
                     .withDeleted()
                     .andWhere("learner.deleted_at IS NOT NULL")
             } else if (status.length) {
-                qbUserCourse.andWhere("user_course.course_status = :status", { status });
+                qbUserCourse.andWhere("user_course.course_status IN (:...status)", { status });
             }
 
             if (user_id && role) {
@@ -157,7 +157,7 @@ class LearnerController {
                         })
                     }
                 }
-                if (status.length) {
+                if (status.length && !status.includes("Show only archived users")) {
                     const qbUserCourseForLearnerIds = qbUserCourse.clone();
                     learnerIdsArray = (await qbUserCourseForLearnerIds
                         .getMany()).map(userCourse => userCourse?.learner_id?.learner_id);
@@ -171,7 +171,7 @@ class LearnerController {
             if (employer_id) {
                 qb.andWhere("learner.employer_id = :employer_id", { employer_id });
             }
-            if ((role && user_id && learnerIdsArray.length) || (course_id && learnerIdsArray.length) || (status.length && learnerIdsArray.length)) {
+            if ((role && user_id && learnerIdsArray.length) || (course_id && learnerIdsArray.length) || (!status.includes("Show only archived users") && status.length && learnerIdsArray.length)) {
                 qb.andWhere('learner.learner_id IN (:...learnerIdsArray)', { learnerIdsArray })
             } else if (role && user_id) {
                 qb.andWhere('0 = 1')
