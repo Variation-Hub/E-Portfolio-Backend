@@ -161,19 +161,22 @@ class LearnerController {
                     const qbUserCourseForLearnerIds = qbUserCourse.clone();
                     learnerIdsArray = (await qbUserCourseForLearnerIds
                         .getMany()).map(userCourse => userCourse?.learner_id?.learner_id);
-                    return res.status(200).json({
-                        message: "Learner fetched successfully",
-                        status: true,
-                        data: [],
-                        ...(req.query.meta === "true" && {
-                            meta_data: {
-                                page: req.pagination.page,
-                                items: 0,
-                                page_size: req.pagination.limit,
-                                pages: Math.ceil(0 / req.pagination.limit)
-                            }
+
+                    if (learnerIdsArray.length < 1) {
+                        return res.status(200).json({
+                            message: "Learner fetched successfully",
+                            status: true,
+                            data: [],
+                            ...(req.query.meta === "true" && {
+                                meta_data: {
+                                    page: req.pagination.page,
+                                    items: 0,
+                                    page_size: req.pagination.limit,
+                                    pages: Math.ceil(0 / req.pagination.limit)
+                                }
+                            })
                         })
-                    })
+                    }
                 }
                 usercourses = await qbUserCourse.getMany();
             }
