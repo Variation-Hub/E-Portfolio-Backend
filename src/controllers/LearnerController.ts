@@ -376,7 +376,40 @@ class LearnerController {
 
 
             return res.status(200).json({
-                message: 'Learner deleted successfully',
+                message: 'Learner archived successfully',
+                status: true,
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Internal Server Error',
+                error: error.message,
+                status: false,
+            });
+        }
+    }
+
+    public async restoreLearner(req: Request, res: Response): Promise<Response> {
+        try {
+            const learnerId: number = parseInt(req.params.id);
+            const learnerRepository = AppDataSource.getRepository(Learner);
+            const userRepository = AppDataSource.getRepository(User);
+            const learner = await learnerRepository.findOne({ where: { learner_id: learnerId }, withDeleted: true, relations: ['user_id'] });
+
+            if (!learner) {
+                return res.status(404).json({
+                    message: 'Learner not found',
+                    status: false,
+                });
+            }
+
+            if (learner.user_id) {
+                await userRepository.restore(learner.user_id.user_id);
+            }
+
+            await learnerRepository.restore(learner.learner_id);
+
+            return res.status(200).json({
+                message: 'Learner restored successfully',
                 status: true,
             });
         } catch (error) {

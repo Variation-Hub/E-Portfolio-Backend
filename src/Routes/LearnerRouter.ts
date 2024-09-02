@@ -16,5 +16,6 @@ learnerRoutes.get("/get", authorizeRoles(UserRole.Learner), Controller.getLearne
 learnerRoutes.get("/excel", authorizeRoles(), Controller.getLearnerExcel);
 learnerRoutes.patch("/update/:id", authorizeRoles(UserRole.Admin), Controller.updateLearner);
 learnerRoutes.delete("/delete/:id", authorizeRoles(UserRole.Admin), Controller.deleteLearner);
+learnerRoutes.post("/restore/:id", authorizeRoles(UserRole.Admin), Controller.restoreLearner);
 
 export default learnerRoutes;
