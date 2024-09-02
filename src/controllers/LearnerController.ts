@@ -161,6 +161,19 @@ class LearnerController {
                     const qbUserCourseForLearnerIds = qbUserCourse.clone();
                     learnerIdsArray = (await qbUserCourseForLearnerIds
                         .getMany()).map(userCourse => userCourse?.learner_id?.learner_id);
+                    return res.status(200).json({
+                        message: "Learner fetched successfully",
+                        status: true,
+                        data: [],
+                        ...(req.query.meta === "true" && {
+                            meta_data: {
+                                page: req.pagination.page,
+                                items: 0,
+                                page_size: req.pagination.limit,
+                                pages: Math.ceil(0 / req.pagination.limit)
+                            }
+                        })
+                    })
                 }
                 usercourses = await qbUserCourse.getMany();
             }
@@ -173,7 +186,8 @@ class LearnerController {
             }
             if ((role && user_id && learnerIdsArray.length) || (course_id && learnerIdsArray.length) || (!status.includes("Show only archived users") && status.length && learnerIdsArray.length)) {
                 qb.andWhere('learner.learner_id IN (:...learnerIdsArray)', { learnerIdsArray })
-            } else if (role && user_id) {
+            }
+            else if (role && user_id) {
                 qb.andWhere('0 = 1')
             }
             const [learner, count] = await qb
