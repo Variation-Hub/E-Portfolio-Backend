@@ -168,3 +168,65 @@ export const sendOtpByEmail = async (email: string): Promise<any> => {
 
     return otp;
 };
+
+export const sendUserEmail = async (email: string, data: any): Promise<any> => {
+
+    const html = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {
+                    font-family: 'Arial', sans-serif;
+                    background-color: #f0f0f0;
+                    margin: 0;
+                    padding: 0;
+                    text-align: center;
+                }
+
+                .container {
+                    max-width: 600px;
+                    margin: 20px auto;
+                    background-color: #ffffff;
+                    padding: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                }
+
+                .text-section {
+                    font-size: 14px;
+                    color: #333;
+                    text-align: left;
+                }
+
+                a {
+                    color: #3498db;
+                    text-decoration: none;
+                }
+
+                a:hover {
+                    text-decoration: underline;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="text-section">
+                    <p>${data.message}</p>
+                    <p>Regards,</p>
+                    <p>${data.adminName}</p>
+                    <hr />
+                    <p>DO NOT REPLY TO THIS EMAIL! To reply please login into the system: 
+                    <a href="${process.env.FRONTEND}">Locker</a></p>
+                    <p>Sent from the Locker system.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        `;
+
+    const response = await SendEmailTemplet(email, data.subject, null, html);
+
+    return true;
+};

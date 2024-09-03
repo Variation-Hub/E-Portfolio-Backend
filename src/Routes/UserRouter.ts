@@ -21,6 +21,7 @@ userRoutes.delete("/delete/:id", authorizeRoles(UserRole.Admin), Controller.Dele
 userRoutes.get("/list", authorizeRoles(), paginationMiddleware, Controller.GetUserList);
 userRoutes.post("/changerole", authorizeRoles(), Controller.ChangeUserRole);
 userRoutes.get("/list/eqa", authorizeRoles(), paginationMiddleware, Controller.getUserListForEQA);
+userRoutes.post("/mail", authorizeRoles(), Controller.sendMail);
 
 // avatar routes
 userRoutes.post("/avatar", authorizeRoles(), singleFileUpload("avatar"), Controller.UploadAvatar)

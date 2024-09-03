@@ -7,7 +7,7 @@ import { Learner } from "../entity/Learner.entity";
 import { Equal, IsNull } from "typeorm";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { CustomRequest } from "../util/Interface/expressInterface";
-import { sendPasswordByEmail } from "../util/mailSend";
+import { sendPasswordByEmail, sendUserEmail } from "../util/mailSend";
 import { getHighestPriorityRole, UserRole } from "../util/constants";
 import { UserCourse } from "../entity/UserCourse.entity";
 
@@ -590,6 +590,39 @@ class UserController {
             return res.status(200).json({
                 data: responce,
                 message: "Token get successful",
+                status: true
+            })
+
+        } catch (error) {
+            return res.status(500).json({
+                message: "Internal Server Error",
+                status: false
+            })
+        }
+    }
+
+    public async sendMail(req: Request, res: Response) {
+        try {
+            const { email, subject, message, adminName } = req.body
+            if (!email || !subject || !message || !adminName) {
+                return res.status(400).json({
+                    message: "All field required",
+                    status: false
+                })
+            }
+
+            const sendmail = await sendUserEmail(email, { subject, message, adminName })
+
+            if (!sendmail) {
+
+                return res.status(532).json({
+                    message: "Failed to send email",
+                    status: false
+                })
+            }
+
+            return res.status(200).json({
+                message: "Mail send successfully",
                 status: true
             })
 
