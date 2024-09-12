@@ -10,6 +10,7 @@ import { SendNotification } from "../util/socket/notification";
 import { UserCourse } from "../entity/UserCourse.entity";
 import { userActive } from "../util/helper";
 import { NotificationType, SocketDomain, UserRole } from "../util/constants";
+import { convertDataToJson } from "../util/convertDataToJson";
 class CourseController {
 
     public async CreateCourse(req: CustomRequest, res: Response) {
@@ -51,8 +52,7 @@ class CourseController {
         const jsonPath = `temp.json`;
 
         fs.writeFileSync(pdfPath, req.file.buffer);
-
-        const pythonProcess = spawn('python3', ['main.py', pdfPath]);
+        const pythonProcess = spawn('python', ['main.py', pdfPath]);
 
         pythonProcess.on('exit', (code) => {
             if (code === 0) {
@@ -63,13 +63,24 @@ class CourseController {
                     }
 
                     try {
-                        const jsonData = JSON.parse(data);
+                        const parsedData = JSON.parse(data);
+                        const ans = [];
+                        let credit = 0;
+                        let level = 0;
+                        let hours = 0;
+                        parsedData.table.forEach((item, index) => {
+                            if (index) {
+                                ans.push(convertDataToJson(item))
+                            }
+                        })
 
-                        res.json({
-                            status: true,
-                            data: jsonData,
-                            message: "Successfully read PDF file"
-                        });
+                        ans.forEach((item, index) => {
+                            level = Math.max(Number(item.course_details['Level'] || 0), level);
+                            credit += Number(item.course_details['Credit value'] || item.course_details['Credit'] || 0)
+                            hours += Number(item.course_details['Guided learning hours'] || 0)
+                        })
+
+                        res.json({ level, credit, hours, course_details: ans })
                     } catch (parseError) {
                         res.status(500).json({ error: 'Failed to parse JSON data' });
                     }
@@ -78,8 +89,8 @@ class CourseController {
                 res.status(500).json({ error: 'Failed to convert PDF to JSON' });
             }
 
-            fs.unlinkSync(pdfPath);
-            fs.unlinkSync(jsonPath);
+            // fs.unlinkSync(pdfPath);
+            // fs.unlinkSync(jsonPath);
         });
     };
 
