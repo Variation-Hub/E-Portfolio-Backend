@@ -80,6 +80,8 @@ class CourseController {
                             hours += Number(item.course_details['Guided learning hours'] || 0)
                         })
 
+                        fs.unlinkSync(pdfPath);
+                        fs.unlinkSync(jsonPath);
                         res.json({ level, credit, hours, course_details: ans })
                     } catch (parseError) {
                         res.status(500).json({ error: 'Failed to parse JSON data' });
@@ -89,8 +91,6 @@ class CourseController {
                 res.status(500).json({ error: 'Failed to convert PDF to JSON' });
             }
 
-            fs.unlinkSync(pdfPath);
-            fs.unlinkSync(jsonPath);
         });
     };
 
