@@ -89,8 +89,8 @@ class CourseController {
                 res.status(500).json({ error: 'Failed to convert PDF to JSON' });
             }
 
-            // fs.unlinkSync(pdfPath);
-            // fs.unlinkSync(jsonPath);
+            fs.unlinkSync(pdfPath);
+            fs.unlinkSync(jsonPath);
         });
     };
 
