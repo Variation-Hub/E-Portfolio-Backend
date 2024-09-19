@@ -2,7 +2,7 @@ import { Response } from "express";
 import { AppDataSource } from "../data-source";
 import { CustomRequest } from "../util/Interface/expressInterface";
 import { Broadcast } from "../entity/Broadcast.entity";
-import { UserRole } from "../util/constants";
+import { SocketDomain, UserRole } from "../util/constants";
 import { User } from "../entity/User.entity";
 import { SendNotifications } from "../util/socket/notification";
 
@@ -180,7 +180,14 @@ class BroadcastController {
 
             const userIds = usersToAdd.map((user) => user.user_id);
             console.log(userIds, title, description);
-            SendNotifications(userIds, { data: { title, message: description } })
+            const data = {
+                data: {
+                    title,
+                    message: description,
+                },
+                domain: SocketDomain.Notification
+            }
+            SendNotifications(userIds, data)
 
             res.status(200).json({
                 message: "Message broadcast to user successfully created successfully",
