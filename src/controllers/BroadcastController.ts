@@ -167,7 +167,6 @@ class BroadcastController {
                         usersToAdd = await userRepository
                             .createQueryBuilder("user")
                             .select(["user.user_id", "user.roles"])
-                            .where("NOT :role = ANY(user.roles)", { role: UserRole.Admin })
                             .getMany();
                     } else {
                         usersToAdd = await userRepository
@@ -181,7 +180,7 @@ class BroadcastController {
 
             const userIds = usersToAdd.map((user) => user.user_id);
             console.log(userIds, title, description);
-            SendNotifications(userIds, { data: { title, description } })
+            SendNotifications(userIds, { data: { title, message: description } })
 
             res.status(200).json({
                 message: "Message broadcast to user successfully created successfully",

@@ -24,7 +24,7 @@ export const SendNotification = async (user_id, data) => {
 export const SendNotifications = async (user_ids, data) => {
     try {
         const notificationRepository = AppDataSource.getRepository(Notification);
-
+        console.log(data)
         sendDataToUser(user_ids, data)
         const notifications = user_ids.map(user_id => {
             return notificationRepository.create({
