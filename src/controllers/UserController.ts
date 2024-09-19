@@ -128,6 +128,18 @@ class UserController {
                 })
             }
 
+            if (user.email !== email) {
+                const user = await userRepository.findOne({
+                    where: { email },
+                });
+
+                if (user) {
+                    return res.status(404).json({
+                        message: "email already exists",
+                        status: false
+                    })
+                }
+            }
             for (const key in req.body) {
                 (user as any)[key] = req.body[key];
             }

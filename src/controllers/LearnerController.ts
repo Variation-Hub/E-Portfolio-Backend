@@ -331,7 +331,8 @@ class LearnerController {
 
             const learnerRepository = AppDataSource.getRepository(Learner);
             const employerRepository = AppDataSource.getRepository(Employer);
-            const existingLearner = await learnerRepository.findOne({ where: { learner_id: learnerId } });
+            const userRepository = AppDataSource.getRepository(User);
+            const existingLearner = await learnerRepository.findOne({ where: { learner_id: learnerId }, relations: ['user_id'] });
 
             if (!existingLearner) {
                 return res.status(404).json({
@@ -349,6 +350,22 @@ class LearnerController {
                     });
                 }
                 existingLearner.employer_id = employer;
+            }
+
+            if (existingLearner.user_id.email !== req.body.email) {
+                const user = await userRepository.findOne({
+                    where: { email: req.body.email }
+                });
+
+                if (user) {
+                    return res.status(400).json({
+                        message: "Email already exists",
+                        status: false
+                    })
+                } else {
+                    existingLearner.user_id.email = req.body.email;
+                    await userRepository.save(existingLearner.user_id);
+                }
             }
 
             learnerRepository.merge(existingLearner, req.body);

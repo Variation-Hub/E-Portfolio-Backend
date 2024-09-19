@@ -219,13 +219,32 @@ class EmployerController {
             const employerId: number = parseInt(req.params.id);
 
             const employerRepository = AppDataSource.getRepository(Employer);
-            const existingEmployer = await employerRepository.findOne({ where: { employer_id: employerId } });
+            const userRepository = AppDataSource.getRepository(User);
+
+            const existingEmployer = await employerRepository.findOne({ where: { employer_id: employerId }, relations: ['user'] });
 
             if (!existingEmployer) {
                 return res.status(404).json({
                     message: 'Employer not found',
                     status: false,
                 });
+            }
+
+            if (existingEmployer.user.email !== req.body.email) {
+                const user = await userRepository.findOne({
+                    where: { email: req.body.email },
+                    relations: ['employer'],
+                });
+
+                if (user) {
+                    return res.status(400).json({
+                        message: "Email already exists",
+                        status: false
+                    })
+                } else {
+                    existingEmployer.user.email = req.body.email;
+                    await userRepository.save(existingEmployer.user);
+                }
             }
 
             employerRepository.merge(existingEmployer, req.body);
