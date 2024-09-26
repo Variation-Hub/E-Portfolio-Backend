@@ -14,8 +14,8 @@ export class Evaluation {
     @Column({ type: 'varchar' })
     learning_objective: string;
 
-    @Column({ type: 'enum', enum: CompletionStatus })
-    completed: CompletionStatus;
+    @Column({ type: 'varchar' })
+    completed: string;
 
     @Column({ type: 'varchar' })
     example_of_learning: string;
