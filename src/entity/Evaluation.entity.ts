@@ -1,7 +1,11 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { CompletionStatus } from './Activity.entity';
 import { CPD } from './Cpd.entity';
 
+enum CompletionStatus {
+    Fully = "Fully",
+    Partially = "Partially",
+    NotAtAll = "Not at all"
+}
 @Entity('evaluation')
 export class Evaluation {
     @PrimaryGeneratedColumn()
@@ -14,8 +18,8 @@ export class Evaluation {
     @Column({ type: 'varchar' })
     learning_objective: string;
 
-    @Column({ type: 'varchar' })
-    completed: string;
+    @Column({ type: 'enum', enum: CompletionStatus, enumName: "evalution_completion_status", nullable: false })
+    completed: CompletionStatus;
 
     @Column({ type: 'varchar' })
     example_of_learning: string;
