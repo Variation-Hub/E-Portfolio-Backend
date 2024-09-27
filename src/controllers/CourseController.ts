@@ -44,54 +44,60 @@ class CourseController {
     }
 
     public async GenerateCourse(req: any, res: any) {
-        if (!req.file) {
-            return res.status(400).json({ error: 'No file uploaded' });
-        }
-
-        const pdfPath = `temp.pdf`;
-        const jsonPath = `temp.json`;
-
-        fs.writeFileSync(pdfPath, req.file.buffer);
-        const pythonProcess = spawn('python3', ['main.py', pdfPath]);
-
-        pythonProcess.on('exit', (code) => {
-            if (code === 0) {
-
-                fs.readFile(jsonPath, 'utf-8', (err, data) => {
-                    if (err) {
-                        return res.status(500).json({ error: 'Failed to read JSON file' });
-                    }
-
-                    try {
-                        const parsedData = JSON.parse(data);
-                        const ans = [];
-                        let credit = 0;
-                        let level = 0;
-                        let hours = 0;
-                        parsedData.table.forEach((item, index) => {
-                            if (index) {
-                                ans.push(convertDataToJson(item))
-                            }
-                        })
-
-                        ans.forEach((item, index) => {
-                            level = Math.max(Number(item.course_details['Level'] || 0), level);
-                            credit += Number(item.course_details['Credit value'] || item.course_details['Credit'] || 0)
-                            hours += Number(item.course_details['Guided learning hours'] || 0)
-                        })
-
-                        fs.unlinkSync(pdfPath);
-                        fs.unlinkSync(jsonPath);
-                        res.json({ level, credit, hours, course_details: ans })
-                    } catch (parseError) {
-                        res.status(500).json({ error: 'Failed to parse JSON data' });
-                    }
-                });
-            } else {
-                res.status(500).json({ error: 'Failed to convert PDF to JSON' });
+        try {
+            if (!req.file) {
+                return res.status(400).json({ error: 'No file uploaded' });
             }
 
-        });
+            const pdfPath = `temp.pdf`;
+            const jsonPath = `temp.json`;
+
+            fs.writeFileSync(pdfPath, req.file.buffer);
+            const pythonProcess = spawn('python3', ['main.py', pdfPath]);
+
+            pythonProcess.on('exit', (code) => {
+                if (code === 0) {
+
+                    fs.readFile(jsonPath, 'utf-8', (err, data) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).json({ error: 'Failed to read JSON file' });
+                        }
+
+                        try {
+                            const parsedData = JSON.parse(data);
+                            const ans = [];
+                            let credit = 0;
+                            let level = 0;
+                            let hours = 0;
+                            parsedData.table.forEach((item, index) => {
+                                if (index) {
+                                    ans.push(convertDataToJson(item))
+                                }
+                            })
+
+                            ans.forEach((item, index) => {
+                                level = Math.max(Number(item.course_details['Level'] || 0), level);
+                                credit += Number(item.course_details['Credit value'] || item.course_details['Credit'] || 0)
+                                hours += Number(item.course_details['Guided learning hours'] || 0)
+                            })
+
+                            fs.unlinkSync(pdfPath);
+                            fs.unlinkSync(jsonPath);
+                            res.json({ level, credit, hours, course_details: ans })
+                        } catch (parseError) {
+                            console.log(parseError)
+                            res.status(500).json({ error: 'Failed to parse JSON data' });
+                        }
+                    });
+                } else {
+                    res.status(500).json({ error: 'Failed to convert PDF to JSON' });
+                }
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Failed to convert PDF to JSON' });
+        }
     };
 
     public async DeleteCourse(req: any, res: any) {
