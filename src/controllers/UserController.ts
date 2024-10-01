@@ -472,7 +472,11 @@ class UserController {
 
     public async UploadAvatar(req: any, res: Response) {
         try {
-            const userId: number = parseInt(req.user.user_id);
+            let userId: number = parseInt(req.user.user_id);
+
+            if (req.body.user_id) {
+                userId = req.body.user_id
+            }
 
             if (!req.file) {
                 return res.status(400).json({
