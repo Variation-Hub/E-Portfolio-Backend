@@ -22,6 +22,7 @@ userRoutes.get("/list", authorizeRoles(), paginationMiddleware, Controller.GetUs
 userRoutes.post("/changerole", authorizeRoles(), Controller.ChangeUserRole);
 userRoutes.get("/list/eqa", authorizeRoles(), paginationMiddleware, Controller.getUserListForEQA);
 userRoutes.post("/mail", authorizeRoles(), Controller.sendMail);
+userRoutes.post("/password-mail", authorizeRoles(UserRole.Admin), Controller.mailPassword);
 
 // avatar routes
 userRoutes.post("/avatar", authorizeRoles(), singleFileUpload("avatar"), Controller.UploadAvatar)

@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import { User } from "../entity/User.entity";
 import { AppDataSource } from "../data-source";
-import { bcryptpassword, comparepassword } from "../util/bcrypt";
+import { bcryptpassword, comparepassword, generatePassword } from "../util/bcrypt";
 import { generateToken } from "../util/JwtAuth";
 import { Learner } from "../entity/Learner.entity";
 import { Equal, IsNull } from "typeorm";
 import { deleteFromS3, uploadToS3 } from "../util/aws";
 import { CustomRequest } from "../util/Interface/expressInterface";
-import { sendPasswordByEmail, sendUserEmail } from "../util/mailSend";
+import { resetPasswordByEmail, sendPasswordByEmail, sendUserEmail } from "../util/mailSend";
 import { getHighestPriorityRole, UserRole } from "../util/constants";
 import { UserCourse } from "../entity/UserCourse.entity";
 
@@ -329,6 +329,48 @@ class UserController {
         }
     }
 
+    public async mailPassword(req: CustomRequest, res: Response) {
+        try {
+            const userRepository = AppDataSource.getRepository(User)
+
+            const { email } = req.body
+            if (!email) {
+                return res.status(400).json({
+                    message: "Email field required",
+                    status: false
+                })
+            }
+
+            const user = await userRepository.findOne({ where: { email } });
+            if (!user) {
+                return res.status(404).json({
+                    message: "User does not exist",
+                    status: false
+                })
+            }
+
+            const role = getHighestPriorityRole(user.roles)
+
+            let accessToken = generateToken({
+                ...user,
+                displayName: user.first_name + " " + user.last_name,
+                role
+            }, '24h')
+            await resetPasswordByEmail(email, `${process.env.FRONTEND}/reset-password?token=${accessToken}`)
+
+            return res.status(200).json({
+                message: "Password reset main send successfully",
+                status: true
+            })
+
+        } catch (error) {
+            return res.status(500).json({
+                message: "Internal Server Error",
+                status: false
+            })
+        }
+    }
+
     public async DeleteUser(req: CustomRequest, res: Response) {
         try {
             const userRepository = AppDataSource.getRepository(User);
@@ -571,7 +613,7 @@ class UserController {
 
             if (!user) {
                 return res.status(404).json({
-                    message: "Invalid credentials, please try again.",
+                    message: "User not found",
                     status: false
                 })
             }
