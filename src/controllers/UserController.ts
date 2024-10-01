@@ -509,7 +509,8 @@ class UserController {
             return res.status(200).json({
                 message: "Avatar uploaded successfully",
                 status: true,
-                data: accessToken
+                data: accessToken,
+                avatar: user.avatar
             })
 
         } catch (error) {
