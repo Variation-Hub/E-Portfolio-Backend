@@ -319,7 +319,7 @@ class LearnerController {
                 .select('SUM((split_part(timelog.spend_time, \':\', 1)::int) * 60 + split_part(timelog.spend_time, \':\', 2)::int)', 'totalMinutes')
                 .where('timelog.user_id = :user_id', { user_id: learner.user_id.user_id })
                 .getRawOne();
-            learner.otjTimeSpend = result?.totalMinutes || 0;
+            learner.otjTimeSpend = Number(result?.totalMinutes) || 0;
             learner.otjTimeSpendRequired = 100;
 
             return res.status(200).json({
