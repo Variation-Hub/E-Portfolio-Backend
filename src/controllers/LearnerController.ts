@@ -9,6 +9,7 @@ import { UserCourse } from "../entity/UserCourse.entity";
 import { Assignment } from "../entity/Assignment.entity";
 import XLSX from 'xlsx';
 import { Employer } from "../entity/Employer.entity";
+import { TimeLog } from "../entity/TimeLog.entity";
 
 
 class LearnerController {
@@ -243,6 +244,7 @@ class LearnerController {
             const learnerRepository = AppDataSource.getRepository(Learner);
             const userCourseRepository = AppDataSource.getRepository(UserCourse);
             const assignmentCourseRepository = AppDataSource.getRepository(Assignment);
+            const timeLogRepository = AppDataSource.getRepository(TimeLog);
             const learner: any = await learnerRepository
                 .createQueryBuilder('learner')
                 .leftJoin('learner.user_id', 'user')
@@ -311,10 +313,19 @@ class LearnerController {
                     fullyCompleted: fullyCompleted.size,
                 }
             })
+            console.log("Total", learner)
+
+            const result = await timeLogRepository.createQueryBuilder('timelog')
+                .select('SUM((split_part(timelog.spend_time, \':\', 1)::int) * 60 + split_part(timelog.spend_time, \':\', 2)::int)', 'totalMinutes')
+                .where('timelog.user_id = :user_id', { user_id: learner.user_id.user_id })
+                .getRawOne();
+            learner.otjTimeSpend = result?.totalMinutes || 0;
+
             return res.status(200).json({
                 message: 'Learner retrieved successfully',
                 status: true,
                 data: { ...learner, ...learner.user_id, avatar: learner.user_id?.avatar?.url, course: courses, employer_id: learner.employer_id.employer_id },
+                result
             });
         } catch (error) {
             return res.status(500).json({

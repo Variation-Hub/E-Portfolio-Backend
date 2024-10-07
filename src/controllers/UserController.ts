@@ -201,6 +201,8 @@ class UserController {
             const learner = await learnerRepository.findOne({ where: { user_id: user.user_id } })
             if (learner) {
                 user.learner_id = learner.learner_id
+                learner.last_login = new Date();
+                learnerRepository.save(learner);
             }
 
             const role = getHighestPriorityRole(user.roles)

@@ -180,6 +180,9 @@ export class Learner {
   @ManyToMany(() => Session, session => session.learners)
   sessions: Session[];
 
+  @Column({ type: 'timestamp', nullable: true })
+  last_login: Date;
+
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deleted_at: Date;
 
