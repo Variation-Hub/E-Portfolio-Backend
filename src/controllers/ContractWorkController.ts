@@ -86,16 +86,11 @@ class ContractWorkController {
     public async getContractWorks(req: CustomRequest, res: Response): Promise<Response> {
         try {
             const contractworkRepository = AppDataSource.getRepository(ContractWork);
-            const { pagination, learner_id } = req.query;
+            const { learner_id } = req.query;
 
             const qb = contractworkRepository.createQueryBuilder('contractwork')
                 .leftJoinAndSelect('contractwork.last_editer', 'last_editer')
                 .andWhere('contractwork.learner_id = :learner_id', { learner_id });
-
-            if (pagination) {
-                qb.skip(req.pagination.skip)
-                    .take(Number(req.pagination.limit))
-            }
 
             const [contractwork, count] = await qb
                 .orderBy('contractwork.created_at', 'ASC')
@@ -104,15 +99,7 @@ class ContractWorkController {
             return res.status(200).json({
                 message: "Contract work fetched successfully",
                 status: true,
-                data: contractwork,
-                ...((req.query.meta === "true" && pagination) && {
-                    meta_data: {
-                        page: req.pagination.page,
-                        items: count,
-                        page_size: req.pagination.limit,
-                        pages: Math.ceil(count / req.pagination.limit)
-                    }
-                })
+                data: contractwork
             });
         } catch (error) {
             return res.status(500).json({

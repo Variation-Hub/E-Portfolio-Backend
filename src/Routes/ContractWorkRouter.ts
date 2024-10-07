@@ -1,7 +1,5 @@
 import * as express from 'express';
 import { authorizeRoles } from '../middleware/verifyToken';
-import TimeLogController from '../controllers/TimeLogController';
-import { paginationMiddleware } from '../middleware/pagination';
 import ContractWorkController from '../controllers/ContractWorkController';
 
 const ContractWorkRoutes = express.Router();
@@ -9,7 +7,7 @@ const ContractWorkRoutes = express.Router();
 const Controller = new ContractWorkController();
 
 ContractWorkRoutes.post('/create', authorizeRoles(), Controller.createContractWork);
-ContractWorkRoutes.get('/list', authorizeRoles(), paginationMiddleware, Controller.getContractWorks);
+ContractWorkRoutes.get('/list', authorizeRoles(), Controller.getContractWorks);
 ContractWorkRoutes.patch('/update/:id', authorizeRoles(), Controller.updateContractWork);
 ContractWorkRoutes.delete('/delete/:id', authorizeRoles(), Controller.deleteContractWork);
 
