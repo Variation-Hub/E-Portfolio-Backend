@@ -324,8 +324,7 @@ class LearnerController {
             return res.status(200).json({
                 message: 'Learner retrieved successfully',
                 status: true,
-                data: { ...learner, ...learner.user_id, avatar: learner.user_id?.avatar?.url, course: courses, employer_id: learner.employer_id.employer_id },
-                result
+                data: { ...learner, ...learner.user_id, avatar: learner.user_id?.avatar?.url, course: courses, employer_id: learner.employer_id.employer_id }
             });
         } catch (error) {
             return res.status(500).json({
