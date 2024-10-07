@@ -35,7 +35,7 @@ export const AppDataSource = new DataSource({
     synchronize: true,
     // dropSchema: true,
     logging: false,
-    entities: [__dirname + '/../**/*.entity.{js,ts}'],
+    entities: [__dirname + '/../**/*.entity.ts'],
     migrations: [],
     subscribers: [],
     extra: {
