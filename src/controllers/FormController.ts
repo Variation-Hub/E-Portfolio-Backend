@@ -121,8 +121,8 @@ class FormController {
             if (req.query.keyword) {
                 qb.andWhere("(form.form_name ILIKE :keyword)", { keyword: `%${req.query.keyword}%` });
             }
-            if (req.user.role !== UserRole.Admin) {
-                qb.innerJoin('form.users', 'user', 'user.user_id = :user_id', { user_id: req.user.user_id })
+            if (req.query.user_id) {
+                qb.innerJoin('form.users', 'user', 'user.user_id = :user_id', { user_id: req.query.user_id })
             }
 
             const [forms, count] = await qb
@@ -275,7 +275,7 @@ class FormController {
     public async createUserFormData(req: CustomRequest, res: Response) {
         try {
             const userFormRepository = AppDataSource.getRepository(UserForm);
-            const { form_id, form_data } = req.body;
+            const { form_id, form_data, user_id } = req.body;
 
             let form = await userFormRepository.findOne({ where: { user: { user_id: req.user.user_id }, form: { id: form_id } } });
 
@@ -284,7 +284,7 @@ class FormController {
             } else {
                 console.log(req.user.user_id, form_id, "+++++++++++")
                 form = userFormRepository.create({
-                    user: req.user.user_id,
+                    user: user_id,
                     form: form_id,
                     form_data
                 })
@@ -309,8 +309,9 @@ class FormController {
     public async getUserFormData(req: CustomRequest, res: Response) {
         try {
             const userFormRepository = AppDataSource.getRepository(UserForm);
-            const id = req.query.form_id as any;
-            let userForm = await userFormRepository.findOne({ where: { user: { user_id: req.user.user_id }, form: { id } }, relations: ['form'] });
+            const id = req.params.id as any;
+            const user_id = req.query.user_id as any;
+            let userForm = await userFormRepository.findOne({ where: { user: { user_id }, form: { id } }, relations: ['form'] });
 
             if (!userForm) {
                 return res.status(404).json({
