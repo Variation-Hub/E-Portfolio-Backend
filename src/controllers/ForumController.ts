@@ -64,17 +64,17 @@ class ForumController {
     public async sendMessage(req: CustomRequest, res: Response) {
         try {
             const forumRepository = AppDataSource.getRepository(Forum)
-            const { course_id, message } = req.body
+            const { course_id, message, sender_id } = req.body
 
             let file
             if (req.file) {
                 file = await uploadToS3(req.file, "Forum")
             }
 
-            let forum = forumRepository.create({ sender: req.user.user_id, course: course_id, message, file })
+            let forum = forumRepository.create({ sender: sender_id, course: course_id, message, file })
             forum = await forumRepository.save(forum)
 
-            const uniqueUserIdArray = await this.getCourseUserIds(course_id, req.user.user_id)
+            const uniqueUserIdArray = await this.getCourseUserIds(course_id, sender_id)
             const qb = await forumRepository.createQueryBuilder('forum')
                 .innerJoin('forum.course', 'course')
                 .innerJoin('forum.sender', 'sender')
@@ -91,7 +91,6 @@ class ForumController {
                 ])
                 .getOne();
 
-            console.log(uniqueUserIdArray)
             sendDataToUser(uniqueUserIdArray, { data: qb, domain: SocketDomain.MessageSend })
 
             return res.status(200).json({
@@ -227,6 +226,7 @@ class ForumController {
 
     public async getForumChat(req: CustomRequest, res: Response) {
         try {
+            const { user_id } = req.query;
             const courseRepository = AppDataSource.getRepository(Course)
             const userCourseRepository = AppDataSource.getRepository(UserCourse)
 
@@ -249,7 +249,7 @@ class ForumController {
                     'latest_forum.latest_forum_created_at'
                 ])
 
-            if (req.user.role !== UserRole.Admin) {
+            if (user_id) {
                 const userCourses = await userCourseRepository.createQueryBuilder('user_course')
                     .leftJoin('user_course.learner_id', 'learner')
                     .leftJoin('learner.user_id', 'learner_user')
@@ -258,13 +258,12 @@ class ForumController {
                     .leftJoin('user_course.LIQA_id', 'LIQA')
                     .leftJoin('user_course.EQA_id', 'EQA')
                     .leftJoin('user_course.employer_id', 'employer')
-                    .where('learner_user.user_id = :user_id OR trainer.user_id = :user_id OR IQA.user_id = :user_id OR LIQA.user_id = :user_id OR EQA.user_id = :user_id  OR employer.user_id = :user_id', { user_id: req.user.user_id })
+                    .where('learner_user.user_id = :user_id OR trainer.user_id = :user_id OR IQA.user_id = :user_id OR LIQA.user_id = :user_id OR EQA.user_id = :user_id  OR employer.user_id = :user_id', { user_id })
                     .select([
                         'user_course.course->\'course_id\' AS course_id'
                     ])
                     .getRawMany();
                 const courseIds = Array.from(new Set(userCourses.map(course => course.course_id)))
-                console.log(courseIds, req.user.user_id, req.user.role);
                 if (courseIds.length > 0) {
                     query.where('course.course_id IN (:...courseIds)', { courseIds });
                 } else {
