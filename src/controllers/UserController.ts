@@ -280,8 +280,8 @@ class UserController {
         try {
             const userRepository = AppDataSource.getRepository(User)
 
-            const { currentPassword, newPassword, confirmPassword } = req.body
-            if (!currentPassword || !newPassword || !confirmPassword) {
+            const { currentPassword, newPassword, confirmPassword, user_id } = req.body
+            if (!currentPassword || !newPassword || !confirmPassword || !user_id) {
                 return res.status(400).json({
                     message: "All field required",
                     status: false
@@ -295,7 +295,7 @@ class UserController {
                 })
             }
 
-            const user = await userRepository.findOne({ where: { user_id: req.user.user_id } });
+            const user = await userRepository.findOne({ where: { user_id } });
 
             if (!user) {
                 return res.status(404).json({

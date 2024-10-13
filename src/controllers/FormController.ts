@@ -277,19 +277,17 @@ class FormController {
             const userFormRepository = AppDataSource.getRepository(UserForm);
             const { form_id, form_data, user_id } = req.body;
 
-            let form = await userFormRepository.findOne({ where: { user: { user_id: req.user.user_id }, form: { id: form_id } } });
+            let form = await userFormRepository.findOne({ where: { user: { user_id }, form: { id: form_id } } });
 
             if (form) {
                 form.form_data = form_data;
             } else {
-                console.log(req.user.user_id, form_id, "+++++++++++")
                 form = userFormRepository.create({
                     user: user_id,
                     form: form_id,
                     form_data
                 })
             }
-            console.log(form)
             await userFormRepository.save(form);
 
             return res.status(200).json({
@@ -297,7 +295,6 @@ class FormController {
                 status: true
             });
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 message: 'Internal Server Error',
                 status: false,
