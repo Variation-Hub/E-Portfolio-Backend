@@ -71,17 +71,17 @@ export class Learner {
   @Column({ type: 'varchar', nullable: true })
   Initial_Assessment_Literacy: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  Initial_Assessment_ICT: string;
+  // @Column({ type: 'varchar', nullable: true })
+  // Initial_Assessment_ICT: string;
 
-  @Column({ type: 'timestamp', nullable: true })
-  functional_skills: Date;
+  // @Column({ type: 'timestamp', nullable: true })
+  // functional_skills: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
-  technical_certificate: Date;
+  // @Column({ type: 'timestamp', nullable: true })
+  // technical_certificate: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
-  err: Date;
+  // @Column({ type: 'timestamp', nullable: true })
+  // err: Date;
 
   @Column({ type: 'varchar', nullable: true })
   street: string;
@@ -101,8 +101,8 @@ export class Learner {
   @Column({ type: 'varchar', nullable: true })
   country_of_domicile: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  external_data_code: string;
+  // @Column({ type: 'varchar', nullable: true })
+  // external_data_code: string;
 
   @ManyToOne(() => Employer)
   @JoinColumn({ name: 'employer_id', referencedColumnName: 'employer_id' })
@@ -132,20 +132,20 @@ export class Learner {
   @Column({ type: 'varchar', nullable: true })
   partner: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  area: string;
+  // @Column({ type: 'varchar', nullable: true })
+  // area: string;
 
   @Column({ type: 'varchar', nullable: true })
   sub_area: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  shift: string;
+  // @Column({ type: 'varchar', nullable: true })
+  // shift: string;
 
   @Column({ type: 'varchar', nullable: true })
   cohort: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  lsf: string;
+  // @Column({ type: 'varchar', nullable: true })
+  // lsf: string;
 
   @Column({ type: 'varchar', nullable: true })
   curriculum_area: string;
@@ -159,17 +159,17 @@ export class Learner {
   @Column({ type: 'varchar', nullable: true })
   director_of_curriculum: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  wage: string;
+  // @Column({ type: 'varchar', nullable: true })
+  // wage: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  wage_type: string;
+  // @Column({ type: 'varchar', nullable: true })
+  // wage_type: string;
 
   @Column({ type: 'boolean', default: false })
   allow_archived_access: boolean;
 
-  @Column({ type: 'varchar', nullable: true })
-  branding_type: string;
+  // @Column({ type: 'varchar', nullable: true })
+  // branding_type: string;
 
   @Column({ type: 'varchar', nullable: true })
   learner_type: string;
