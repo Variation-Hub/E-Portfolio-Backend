@@ -16,18 +16,21 @@ export enum Gender {
 }
 
 export enum AssessmentMethod {
-    WO = 'WO',
-    WP = 'WP',
-    PW = 'PW',
-    VI = 'VI',
-    LB = 'LB',
+    Obs = 'Obs',
+    PA = 'PA',
+    ET = 'ET',
     PD = 'PD',
-    PT = 'PT',
-    TE = 'TE',
-    RJ = 'RJ',
+    I = 'I',
+    QnA = 'Q&A',
+    P = 'P',
+    RA = 'RA',
+    WT = 'WT',
+    PE = 'PE',
+    SI = 'SI',
     OT = 'OT',
     RPL = 'RPL',
 }
+
 export enum AssessmentStatus {
     Fully = "Fully Complete",
     Partially = "Partially Complete",
