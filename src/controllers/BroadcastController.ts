@@ -5,6 +5,8 @@ import { Broadcast } from "../entity/Broadcast.entity";
 import { SocketDomain, UserRole } from "../util/constants";
 import { User } from "../entity/User.entity";
 import { SendNotifications } from "../util/socket/notification";
+import { UserCourse } from "../entity/UserCourse.entity";
+import { In } from "typeorm";
 
 class BroadcastController {
     public async createBroadcast(req: CustomRequest, res: Response) {
@@ -140,9 +142,10 @@ class BroadcastController {
     public async sendBroadcastMessage(req: CustomRequest, res: Response) {
         try {
             const userRepository = AppDataSource.getRepository(User);
-            const { title, description, user_ids, assign } = req.body;
+            const userCourseRepository = AppDataSource.getRepository(UserCourse);
+            const { title, description, user_ids, assign, course_ids } = req.body;
 
-            let usersToAdd
+            let usersToAdd = []
             if (user_ids) {
                 usersToAdd = await userRepository.findByIds(user_ids);
 
@@ -152,6 +155,14 @@ class BroadcastController {
                         status: false,
                     });
                 }
+            } else if (course_ids) {
+                usersToAdd = await userCourseRepository
+                    .createQueryBuilder('userCourse')
+                    .innerJoin('userCourse.learner_id', 'learner')
+                    .innerJoin('learner.user_id', 'user')
+                    .where('userCourse.course ->> \'course_id\' IN (:...course_ids)', { course_ids })
+                    .select('DISTINCT user.user_id', 'user_id')
+                    .getRawMany();
             } else if (assign) {
                 const roleMap = {
                     "All": null,

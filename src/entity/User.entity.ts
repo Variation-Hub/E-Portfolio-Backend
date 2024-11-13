@@ -46,7 +46,7 @@ export class User {
   @Column({ type: 'boolean', default: false })
   password_changed: boolean;
 
-  @Column({ type: 'varchar', nullable: true, default: 'Europe/London' })
+  @Column({ type: 'varchar', nullable: true, default: '(UTC) Dublin, Edinburgh, Lisbon, London' })
   time_zone: string;
 
   @OneToOne(() => Employer, employer => employer.user, { nullable: true })
